@@ -11,11 +11,11 @@ provider:
     shouldStartNameWithService: true
 
 functions:
-  api:
+  versions:
     handler: index.handler
     events:
       - httpApi:
-          path: /
+          path: /versions
           method: get
 # custom:
 #   webpack:
@@ -28,3 +28,4 @@ plugins:
   - serverless-dotenv-plugin
   # - serverless-plugin-webpack
   - serverless-webpack
+  - serverless-offline
