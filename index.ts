@@ -13,9 +13,9 @@ module.exports.handler = async (event: Handler) => {
       {
         message: 'Go Serverless v3.0! Your function executed successfully with TypeScript',
         md5: md5(data),
+        rowsAffected,
         data,
         recordset,
-        rowsAffected
       },
       null,
       2

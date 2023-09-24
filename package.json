@@ -1,6 +1,7 @@
 {
   "scripts": {
     "publish:prod": "sls deploy --stage production --verbose",
+    "publish:package": "sls deploy --package ./.serverless",
     "publish": "sls deploy --verbose"
   },
   "dependencies": {
