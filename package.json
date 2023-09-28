@@ -2,9 +2,13 @@
   "scripts": {
     "publish:prod": "sls deploy --stage production --verbose",
     "publish:package": "sls deploy --package ./.serverless",
-    "publish": "sls deploy --verbose"
+    "publish": "sls deploy --verbose",
+    "dashboard": "sls dashboard",
+    "dev": "sls offline",
+    "getenv": "infisical export > .env"
   },
   "dependencies": {
+    "ajv": "^8.12.0",
     "md5": "^2.3.0",
     "mssql": "^10.0.1"
   },

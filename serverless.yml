@@ -1,6 +1,6 @@
 org: jonathanrangel
 app: yoox-serverless-api
-service: yoox-serverless-api
+service: login-service
 frameworkVersion: '3'
 
 provider:
@@ -12,11 +12,12 @@ provider:
 
 functions:
   versions:
-    handler: index.handler
+    handler: ./src/user-service/login.handler
     events:
       - httpApi:
-          path: /versions
-          method: get
+          path: /v1/login
+          method: post
+
 # custom:
 #   webpack:
 #     webpackConfig: 'webpack.config.js' # Name of webpack configuration file
@@ -26,6 +27,5 @@ functions:
 
 plugins:
   - serverless-dotenv-plugin
-  # - serverless-plugin-webpack
   - serverless-webpack
   - serverless-offline
