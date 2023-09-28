@@ -26,6 +26,19 @@ module.exports.handler = async (event: any) => {
 
   const { recordset, rowsAffected } = await coneccion(data);
 
+  if (!rowsAffected[0]) {
+    return {
+      statusCode: 404,
+      body: JSON.stringify(
+        {
+          message: "Login failed, varify your credentials"
+        },
+        null,
+        2
+      ),
+    };
+  }
+
   return {
     statusCode: 200,
     body: JSON.stringify(
