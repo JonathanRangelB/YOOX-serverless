@@ -31,8 +31,6 @@ module.exports = {
     ],
   },
   resolve: {
-    alias: {
-      // Configura alias si es necesario
-    },
+    extensions: ['.js', '.ts', '.json', '.wasm'],
   },
 };

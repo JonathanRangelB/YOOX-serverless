@@ -11,7 +11,7 @@ provider:
     shouldStartNameWithService: true
 
 functions:
-  versions:
+  login:
     handler: ./src/user-service/login.handler
     events:
       - httpApi:
