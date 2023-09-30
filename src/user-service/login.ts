@@ -5,7 +5,7 @@ import { validateCredentials } from './validateCredentials';
 const Ajv = require("ajv")
 const ajv = new Ajv({ allErrors: true })
 const userSchema = require('./schemas/user.schema.json')
-const LOGIN_FAILED = { message: "Login failed, varify your credentials" }
+const LOGIN_FAILED = { message: "Login failed, verify your credentials" }
 
 module.exports.handler = async (event: any) => {
   const data: credentials = JSON.parse(event.body)
