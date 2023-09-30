@@ -71,21 +71,20 @@ curl --location 'http://localhost:3000/v1/login' \
 }'
 ```
 
-Which should result in response similar to the following (removed `input` content for brevity):
+Which should result in response similar to the following (removed `data` content for brevity):
 
 ```json
 {
   "recordset": [
     {
-      "ID": 1,
-      "NOMBRE": "SUPERVISOR",
+      ...
+      "ID": 99999,
+      "NOMBRE": "Jonathan Rangel",
       "ROL": "Administrador",
-      "ACTIVO": true,
-      "ID_GRUPO": null,
-      "ID_ROL": 1
+      ...
     }
   ],
-  "rowsAffected": [1]
+  "rowsAffected": 1
 }
 ```
 

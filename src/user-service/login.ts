@@ -19,14 +19,15 @@ module.exports.handler = async (event: any) => {
   }
 
   const { recordset, rowsAffected } = await validateCredentials(data);
+  const rowsAffectedasNumber = rowsAffected[0]
 
-  if (!rowsAffected[0]) {
+  if (!rowsAffectedasNumber) {
     console.warn(LOGIN_FAILED);
     return generateJsonResponse(LOGIN_FAILED, 404)
   }
 
   return generateJsonResponse({
     recordset,
-    rowsAffected
+    rowsAffected: rowsAffectedasNumber
   }, 200)
 };
