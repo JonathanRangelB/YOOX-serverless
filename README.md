@@ -18,22 +18,42 @@ This template does not include any kind of persistence (database). For more adva
 
 ## Usage
 
+### pnpm installation
+
+This project currently uses pnpm instead the normal node npm, its matter of preference but pnpm offers a fast installation time compared with npm, you can use either though.
+
+If you dont have pnpm installed you can follow their istructions on the [documentation page](https://pnpm.io/installation)
+
+### Infisical .env manager
+
+To get the corresponding .env file you need to get infisical installed into your machine, follow the instructions for your current OS on their [documentation page](https://infisical.com/docs/cli/overview#installation)
+
+_NOTE_: make sure you are added to the project, for this you need to create a infisical account and request to be added to the owner of the project.
+
+To fetch the env variables run the following command present on package.json file:
+
+```bash
+pnpm run getenv
+```
+
+this will fetch all env vars present on infisical servers and writen into .env file on the root folder.
+
 ### Deployment
 
-```
-$ serverless deploy
+```bash
+pnpm run publish
 ```
 
 After deploying, you should see output similar to:
 
 ```bash
-Deploying aws-node-http-api-project to stage dev (us-east-1)
+Deploying aws-node-http-api-project to stage dev (us-east-2)
 
 ✔ Service deployed to stack aws-node-http-api-project-dev (152s)
 
-endpoint: GET - https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/
+endpoint: POST: http://localhost:3000/v1/login
 functions:
-  hello: aws-node-http-api-project-dev-hello (1.9 kB)
+  login: login-service-dev-login
 ```
 
 _Note_: In current form, after deployment, your API is public and can be invoked by anyone. For production deployments, you might want to configure an authorizer. For details on how to do that, refer to [http event docs](https://www.serverless.com/framework/docs/providers/aws/events/apigateway/).
@@ -43,39 +63,35 @@ _Note_: In current form, after deployment, your API is public and can be invoked
 After successful deployment, you can call the created application via HTTP:
 
 ```bash
-curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/
+curl --location 'http://localhost:3000/v1/login' \
+--header 'Content-Type: application/json' \
+--data '{
+    "userId": <USER>,
+    "password": <PASSWORD>
+}'
 ```
 
 Which should result in response similar to the following (removed `input` content for brevity):
 
 ```json
 {
-  "message": "Go Serverless v2.0! Your function executed successfully!",
-  "input": {
-    ...
-  }
+  "recordset": [
+    {
+      "ID": 1,
+      "NOMBRE": "SUPERVISOR",
+      "ROL": "Administrador",
+      "ACTIVO": true,
+      "ID_GRUPO": null,
+      "ID_ROL": 1
+    }
+  ],
+  "rowsAffected": [1]
 }
 ```
 
 ### Local development
 
-You can invoke your function locally by using the following command:
-
-```bash
-serverless invoke local --function hello
-```
-
-Which should result in response similar to the following:
-
-```
-{
-  "statusCode": 200,
-  "body": "{\n  \"message\": \"Go Serverless v3.0! Your function executed successfully!\",\n  \"input\": \"\"\n}"
-}
-```
-
-
-Alternatively, it is also possible to emulate API Gateway and Lambda locally by using `serverless-offline` plugin. In order to do that, execute the following command:
+It is possible to emulate API Gateway and Lambda locally by using `serverless-offline` plugin. In order to do that, execute the following command:
 
 ```bash
 serverless plugin install -n serverless-offline
