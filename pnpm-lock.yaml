@@ -55,6 +55,9 @@ devDependencies:
   ts-loader:
     specifier: ^9.4.4
     version: 9.4.4(typescript@5.2.2)(webpack@5.88.2)
+  typescript:
+    specifier: ^5.2.2
+    version: 5.2.2
   webpack:
     specifier: ^5.88.2
     version: 5.88.2
