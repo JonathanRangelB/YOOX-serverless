@@ -38,6 +38,16 @@ pnpm run getenv
 
 this will fetch all env vars present on infisical servers and writen into .env file on the root folder.
 
+Example .env file content:
+
+```
+SERVER='server_url'
+DB_NAME='db_name'
+USUARIO='db_user'
+PASSWORD='db_password'
+TOKEN_JWT='super_secret_token'
+```
+
 ### Deployment
 
 ```bash
