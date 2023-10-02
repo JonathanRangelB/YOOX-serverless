@@ -7,6 +7,7 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: us-east-2
+  stage: dev
   apiGateway:
     shouldStartNameWithService: true
   httpApi:
@@ -36,6 +37,11 @@ functions:
 
   authorizerFunc:
     handler: ./src/authorizer/auth.handler
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  environment:
+    NODE_ENV: ${self:custom.stage}
 
 plugins:
   - serverless-dotenv-plugin

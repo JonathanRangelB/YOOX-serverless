@@ -4,8 +4,12 @@
     "publish:package": "sls deploy --package ./.serverless",
     "publish": "sls deploy --verbose",
     "dashboard": "sls dashboard",
-    "dev": "sls offline",
-    "getenv": "infisical export > .env",
+    "dev": "sls offline --stage dev",
+    "stg": "sls offline --stage staging",
+    "prod": "sls offline --stage prod",
+    "getenv:dev": "infisical export --env=dev > .env",
+    "getenv:stg": "infisical export --env=staging > .env.staging",
+    "getenv:prod": "infisical export --env=prod > .env.prod",
     "delete": "sls remove"
   },
   "dependencies": {
