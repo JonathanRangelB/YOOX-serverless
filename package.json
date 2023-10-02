@@ -5,9 +5,11 @@
     "publish": "sls deploy --verbose",
     "dashboard": "sls dashboard",
     "dev": "sls offline",
-    "getenv": "infisical export > .env"
+    "getenv": "infisical export > .env",
+    "delete": "sls remove"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.3",
     "ajv": "^8.12.0",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
@@ -19,11 +21,11 @@
     "@babel/preset-env": "^7.22.20",
     "@babel/preset-typescript": "^7.23.0",
     "@types/aws-lambda": "^8.10.122",
-    "@types/node": "^20.7.1",
+    "@types/node": "^20.8.0",
     "babel-loader": "^9.1.3",
     "serverless": "^3.35.2",
     "serverless-dotenv-plugin": "^6.0.0",
-    "serverless-offline": "^13.1.1",
+    "serverless-offline": "^13.1.2",
     "serverless-webpack": "^5.13.0",
     "ts-loader": "^9.4.4",
     "typescript": "^5.2.2",

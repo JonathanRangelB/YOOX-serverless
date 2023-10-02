@@ -2,6 +2,7 @@ import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { credentials } from './types/user-service';
 import { validateCredentials } from './validateCredentials';
 
+const jwt = require("jsonwebtoken")
 const Ajv = require("ajv")
 const ajv = new Ajv({ allErrors: true })
 const userSchema = require('./schemas/user.schema.json')
@@ -26,8 +27,11 @@ module.exports.handler = async (event: any) => {
     return generateJsonResponse(LOGIN_FAILED, 404)
   }
 
+  const token = jwt.sign({ recordset }, process.env.TOKEN_JWT, { expiresIn: '1h' })
+
   return generateJsonResponse({
     recordset,
-    rowsAffected: rowsAffectedasNumber
+    rowsAffected: rowsAffectedasNumber,
+    "Autorization": `Bearer ${token}`
   }, 200)
 };

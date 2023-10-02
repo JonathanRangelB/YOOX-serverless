@@ -9,6 +9,13 @@ provider:
   region: us-east-2
   apiGateway:
     shouldStartNameWithService: true
+  httpApi:
+    authorizers:
+      authorizerFunc:
+        type: request
+        functionName: authorizerFunc
+        identitySource:
+          - $request.header.Authorization
 
 functions:
   login:
@@ -18,12 +25,17 @@ functions:
           path: /v1/login
           method: post
 
-# custom:
-#   webpack:
-#     webpackConfig: 'webpack.config.js' # Name of webpack configuration file
-#     includeModules: false # Node modules configuration for packaging
-#     packager: 'npm' # Packager that will be used to package your external modules
-#     excludeFiles: src/**/*.test.js # Provide a glob for files to ignore
+  hello:
+    handler: ./src/hello.handler
+    events:
+      - httpApi:
+          method: get
+          path: /hello
+          authorizer:
+            name: authorizerFunc
+
+  authorizerFunc:
+    handler: ./src/authorizer/auth.handler
 
 plugins:
   - serverless-dotenv-plugin
