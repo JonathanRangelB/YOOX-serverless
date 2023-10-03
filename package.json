@@ -1,8 +1,9 @@
 {
   "scripts": {
-    "publish:prod": "sls deploy --stage production --verbose",
+    "publish:dev": "sls deploy --stage dev --verbose",
+    "publish:stg": "sls deploy --stage staging --verbose",
+    "publish:prod": "sls deploy --stage prod --verbose",
     "publish:package": "sls deploy --package ./.serverless",
-    "publish": "sls deploy --verbose",
     "dashboard": "sls dashboard",
     "dev": "sls offline --stage dev",
     "stg": "sls offline --stage staging",
