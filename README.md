@@ -115,3 +115,9 @@ serverless offline
 ```
 
 To learn more about the capabilities of `serverless-offline`, please refer to its [GitHub repository](https://github.com/dherault/serverless-offline).
+
+### Architecture diagram
+![YOOX API - Page 1](https://github.com/JonathanRangelB/YOOX-serverless/assets/3516336/e57978b5-a563-46a6-8a74-dedd399d0473)
+
+
+
