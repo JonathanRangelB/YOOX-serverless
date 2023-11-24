@@ -17,6 +17,12 @@ provider:
         functionName: authorizerFunc
         identitySource:
           - $request.header.Authorization
+    cors:
+      allowedOrigins:
+        - https://www.yooxgrupofinanciero.com
+        - https://development.yooxgrupofinanciero.com
+        - https://staging.yooxgrupofinanciero.com
+        - http://localhost:4200
 
 functions:
   login:
@@ -32,8 +38,6 @@ functions:
       - httpApi:
           method: get
           path: /hello
-          authorizer:
-            name: authorizerFunc
 
   authorizerFunc:
     handler: ./src/authorizer/auth.handler

@@ -27,11 +27,10 @@ module.exports.handler = async (event: any) => {
     return generateJsonResponse(LOGIN_FAILED, 404)
   }
 
-  const token = jwt.sign({ recordset }, process.env.TOKEN_JWT, { expiresIn: '1h' })
+  const token = jwt.sign({ recordset }, process.env.TOKEN_JWT, { expiresIn: '30m' })
 
   return generateJsonResponse({
     recordset,
-    rowsAffected: rowsAffectedasNumber,
     "Autorization": `Bearer ${token}`
   }, 200)
 };
