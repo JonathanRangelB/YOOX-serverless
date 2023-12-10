@@ -16,7 +16,7 @@ provider:
         type: request
         functionName: authorizerFunc
         identitySource:
-          - $request.header.Authorization
+          - $request.header.authorization
     cors:
       allowedOrigins:
         - https://www.yooxgrupofinanciero.com
@@ -37,7 +37,18 @@ functions:
     events:
       - httpApi:
           method: get
-          path: /hello
+          path: /v1/hello
+          authorizer:
+            name: authorizerFunc
+
+  payments:
+    handler: ./src/payments/payments.handler
+    events:
+      - httpApi:
+          method: get
+          path: /v1/payments/{id}
+          authorizer:
+            name: authorizerFunc
 
   authorizerFunc:
     handler: ./src/authorizer/auth.handler
