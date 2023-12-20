@@ -32,6 +32,13 @@ functions:
           path: /v1/login
           method: post
 
+  tokenValidation:
+    handler: ./src/authorizer/tokenValidation.handler
+    events:
+      - httpApi:
+          path: /v1/tokenValidation
+          method: get
+
   hello:
     handler: ./src/hello.handler
     events:

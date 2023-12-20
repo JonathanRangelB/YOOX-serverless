@@ -6,11 +6,6 @@ import {
   PolicyDocument,
   Callback,
 } from 'aws-lambda';
-import {
-  JsonWebTokenError,
-  NotBeforeError,
-  TokenExpiredError,
-} from 'jsonwebtoken';
 
 const generatePolicyDocument = (
   effect: string,
