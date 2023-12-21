@@ -10,7 +10,6 @@ import { generateJsonResponse } from '../helpers/generateJsonResponse';
 module.exports.handler = async (event: any) => {
   const { headers } = event;
   const authToken = headers?.authorization?.split(' ')[1];
-  console.log({ authToken });
 
   try {
     var decoded = jwt.verify(authToken, process.env.TOKEN_JWT);

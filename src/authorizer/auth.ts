@@ -36,7 +36,6 @@ module.exports.handler = (
   callback: Callback
 ) => {
   const { headers, routeArn } = event;
-  console.log({ headers, routeArn });
 
   const authToken = headers?.authorization?.split(' ')[1];
 

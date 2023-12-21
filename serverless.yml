@@ -48,12 +48,21 @@ functions:
           authorizer:
             name: authorizerFunc
 
-  payments:
-    handler: ./src/payments/payments.handler
+  loan:
+    handler: ./src/payments/loan.handler
     events:
       - httpApi:
           method: get
-          path: /v1/payments/{id}
+          path: /v1/loan/{id}
+          authorizer:
+            name: authorizerFunc
+
+  payment:
+    handler: ./src/payments/payment.handler
+    events:
+      - httpApi:
+          method: post
+          path: /v1/payment
           authorizer:
             name: authorizerFunc
 
