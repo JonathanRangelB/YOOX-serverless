@@ -1,4 +1,4 @@
-export type Pagos = {
+export type PrestamosDetalle = {
   ID: number;
   ID_PRESTAMO: number;
   NUMERO_SEMANA: number;

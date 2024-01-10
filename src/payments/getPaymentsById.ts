@@ -1,5 +1,3 @@
-import { Pagos } from './types/pagos';
-
 const sql = require('mssql');
 
 export const getPaymentsById = async (folio: string, id: string) => {
@@ -16,13 +14,22 @@ export const getPaymentsById = async (folio: string, id: string) => {
 
   try {
     // Asegúrate de que cualquier elemento esté correctamente codificado en la cadena de conexión URL
-    await sql.connect(sqlConfig);
-    return await sql.query(
-      `
-      select * from PRESTAMOS_DETALLE where ID_PRESTAMO=${folio} and ID_USUARIO=${id};
-      select * from PRESTAMOS where ID=${folio} AND ID_USUARIO=${id};
-      `
-    );
+    const pool = await sql.connect(sqlConfig);
+    const prestamosQuery = pool
+      .request()
+      .query(
+        `select * from PRESTAMOS where ID=${folio} AND ID_COBRADOR=${id};`
+      );
+    const prestamosDetalleQuery = pool
+      .request()
+      .query(`select * from PRESTAMOS_DETALLE where ID_PRESTAMO=${folio};`);
+    // colocar el tipo de dato que se espera en la respuesta, para prestamo colocar Prestamos y para prestamoDetalle PrestamosDetalle
+    const [prestamo, prestamoDetalle] = await Promise.all([
+      prestamosQuery,
+      prestamosDetalleQuery,
+    ]);
+    await sql.close();
+    return { prestamo, prestamoDetalle };
   } catch (err) {
     return { err };
   }

@@ -28,6 +28,8 @@ const generateResponse = (
 ) => ({
   principalId,
   policyDocument: generatePolicyDocument(effect, resource),
+  // TODO: add context object
+  // context: { stringKey: 'string value', numberKey: 123, booleanKey: true },
 });
 
 module.exports.handler = (
@@ -46,6 +48,8 @@ module.exports.handler = (
 
   jwt.verify(authToken, process.env.TOKEN_JWT, (err: any, _: any) => {
     if (err) {
+      // TODO: add response with error message correctly
+      // callback('Unauthorized', generateResponse('user', 'Deny', routeArn));
       callback('Unauthorized, invalid token');
       return;
     }
