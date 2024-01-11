@@ -1,18 +1,18 @@
 import { APIGatewayEvent } from 'aws-lambda';
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { registerPayment } from './registerPayment';
-import { PrestamosDetalle } from './types/prestamos_detalle';
-import { Prestamos } from './types/prestamos';
+import { SPAltaPago } from './types/SPAltaPago';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
     return generateJsonResponse({ message: 'No body provided' }, 400);
   } else {
-    const { prestamo, pago } = JSON.parse(event.body) as {
-      pago: PrestamosDetalle;
-      prestamo: Prestamos;
+    const { spaAltaPago } = JSON.parse(event.body) as {
+      spaAltaPago: SPAltaPago;
     };
-    const result = await registerPayment(pago, prestamo);
+    console.log({ body: event.body, spaAltaPago });
+
+    const result = await registerPayment(spaAltaPago);
     return generateJsonResponse(result, 200);
   }
 };
