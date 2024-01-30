@@ -1,7 +1,6 @@
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { credentials } from './types/user-service';
 import { validateCredentials } from './validateCredentials';
-import { log } from 'console';
 
 const jwt = require('jsonwebtoken');
 const Ajv = require('ajv');

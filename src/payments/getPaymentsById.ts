@@ -18,7 +18,7 @@ export const getPaymentsById = async (folio: string, id: string) => {
     const prestamosQuery = pool
       .request()
       .query(
-        `select * from PRESTAMOS where ID=${folio} AND ID_COBRADOR=${id};`
+        `select P.*, C.NOMBRE as NOMBRE_CLIENTE from PRESTAMOS P inner join CLIENTES C on P.ID_CLIENTE = C.ID where P.ID=${folio} AND P.ID_COBRADOR=${id};`
       );
     const prestamosDetalleQuery = pool
       .request()

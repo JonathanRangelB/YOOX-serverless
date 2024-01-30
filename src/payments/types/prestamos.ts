@@ -19,4 +19,5 @@ export interface Prestamos {
   ID_MULTA: number;
   TASA_INTERES: number;
   ID_GRUPO_ORIGINAL: number;
+  NOMBRE_CLIENTE?: string;
 }
