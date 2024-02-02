@@ -22,7 +22,9 @@ export const getPaymentsById = async (folio: string, id: string) => {
       );
     const prestamosDetalleQuery = pool
       .request()
-      .query(`select * from PRESTAMOS_DETALLE where ID_PRESTAMO=${folio};`);
+      .query(
+        `select * from PRESTAMOS_DETALLE where ID_PRESTAMO=${folio} ORDER BY NUMERO_SEMANA ASC;`
+      );
     // colocar el tipo de dato que se espera en la respuesta, para prestamo colocar Prestamos y para prestamoDetalle PrestamosDetalle
     const [prestamo, prestamoDetalle] = await Promise.all([
       prestamosQuery,
