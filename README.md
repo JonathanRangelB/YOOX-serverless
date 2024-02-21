@@ -9,6 +9,11 @@ authorLink: 'https://github.com/serverless'
 authorName: 'Serverless, inc.'
 authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 -->
+![Static Badge](https://img.shields.io/badge/serverless-black?style=flat&logo=serverless)
+![Static Badge](https://img.shields.io/badge/AWS_Lambda-black?style=flat&logo=awslambda)
+![Static Badge](https://img.shields.io/badge/NodeJS-v20-green?style=flat&logo=nodedotjs)
+
+
 
 # Serverless Framework Node HTTP API on AWS
 
