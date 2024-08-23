@@ -30,13 +30,35 @@ export const registerPayment = async (spaAltaPago: SPAltaPago) => {
 
     await pool.close();
 
-    console.log('Payment registered successfully', result);
-    return result;
-  } catch (err) {
+    if (result.returnValue != 0) throw new Error(result.returnValue);
+
     console.log(
-      'Error trying to register payment with stored procedure: ',
-      err
+      `Alta del pago para el folio ${spaAltaPago.ID_PRESTAMO} correspondiente a la semana ${spaAltaPago.NUMERO_SEMANA} de manera exitosa`
     );
-    return { err };
+    return `Alta del pago para el folio ${spaAltaPago.ID_PRESTAMO} correspondiente a la semana ${spaAltaPago.NUMERO_SEMANA} de manera exitosa`;
+  } catch (err) {
+    let message = '';
+    if (err instanceof Error && err.message === '-1') {
+      message =
+        'Error al intentar registrar el pago. Codigo de error: ' + err.message;
+      console.log(message);
+    }
+    if (err instanceof Error && err.message === '-2') {
+      message =
+        'Error al intentar registrar el pago. Timeout. Codigo de error: ' +
+        err.message;
+      console.log(message);
+    }
+    if (err instanceof Error && err.message === '-6') {
+      message =
+        'Error al intentar registrar el pago. Posibles parametros inválidos. Codigo de error: ' +
+        err.message;
+      console.log(message);
+    } else {
+      message = 'Error al intentar registrar el pago. Error: ' + err;
+      console.log(message);
+    }
+
+    return { message };
   }
 };

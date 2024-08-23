@@ -5,10 +5,11 @@ import {
   APIGatewayRequestAuthorizerEventV2,
   PolicyDocument,
   Callback,
+  StatementEffect,
 } from 'aws-lambda';
 
 const generatePolicyDocument = (
-  effect: string,
+  effect: StatementEffect,
   resource: string
 ): PolicyDocument => ({
   Version: '2012-10-17',
@@ -23,7 +24,7 @@ const generatePolicyDocument = (
 
 const generateResponse = (
   principalId: string,
-  effect: string,
+  effect: StatementEffect,
   resource: string
 ) => ({
   principalId,
