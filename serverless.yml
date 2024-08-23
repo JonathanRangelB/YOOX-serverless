@@ -39,15 +39,6 @@ functions:
           path: /v1/tokenValidation
           method: get
 
-  hello:
-    handler: ./src/hello.handler
-    events:
-      - httpApi:
-          method: get
-          path: /v1/hello
-          authorizer:
-            name: authorizerFunc
-
   loan:
     handler: ./src/payments/loan.handler
     events:

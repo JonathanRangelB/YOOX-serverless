@@ -13,7 +13,10 @@ const sqlConfig: config = {
   },
 };
 
-export const registerPayment = async (spaAltaPago: SPAltaPago) => {
+export const registerPayment = async (
+  spaAltaPago: SPAltaPago
+): Promise<{ message: string; err?: Error }> => {
+  let message = '';
   try {
     const pool = await sql.connect(sqlConfig);
     const result = await pool
@@ -31,34 +34,27 @@ export const registerPayment = async (spaAltaPago: SPAltaPago) => {
     await pool.close();
 
     if (result.returnValue != 0) throw new Error(result.returnValue);
+    console.log(result);
 
-    console.log(
-      `Alta del pago para el folio ${spaAltaPago.ID_PRESTAMO} correspondiente a la semana ${spaAltaPago.NUMERO_SEMANA} de manera exitosa`
-    );
-    return `Alta del pago para el folio ${spaAltaPago.ID_PRESTAMO} correspondiente a la semana ${spaAltaPago.NUMERO_SEMANA} de manera exitosa`;
+    message = `Alta del pago para el folio ${spaAltaPago.ID_PRESTAMO} correspondiente a la semana ${spaAltaPago.NUMERO_SEMANA} de manera exitosa`;
+    console.log(message);
+    return { message };
   } catch (err) {
-    let message = '';
     if (err instanceof Error && err.message === '-1') {
-      message =
-        'Error al intentar registrar el pago. Codigo de error: ' + err.message;
-      console.log(message);
+      message = 'Error al intentar registrar el pago.';
     }
     if (err instanceof Error && err.message === '-2') {
-      message =
-        'Error al intentar registrar el pago. Timeout. Codigo de error: ' +
-        err.message;
-      console.log(message);
+      message = 'Error al intentar registrar el pago. Timeout.';
     }
     if (err instanceof Error && err.message === '-6') {
       message =
-        'Error al intentar registrar el pago. Posibles parametros inválidos. Codigo de error: ' +
-        err.message;
-      console.log(message);
+        'Error al intentar registrar el pago. Posibles parametros inválidos.';
     } else {
-      message = 'Error al intentar registrar el pago. Error: ' + err;
-      console.log(message);
+      message =
+        'Error al registrar pago. Posiblemente es un pago adelantado no permitido.';
     }
 
-    return { message };
+    console.log({ message, err });
+    return { message, err: err as Error };
   }
 };
