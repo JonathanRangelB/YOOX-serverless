@@ -10,9 +10,11 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     const { spaAltaPago } = JSON.parse(event.body) as {
       spaAltaPago: SPAltaPago;
     };
-    console.log({ body: event.body, spaAltaPago });
 
-    const result = await registerPayment(spaAltaPago);
-    return generateJsonResponse(result, 200);
+    const { message, err } = await registerPayment(spaAltaPago);
+    if (err) {
+      return generateJsonResponse({ message, err }, 400);
+    }
+    return generateJsonResponse({ message }, 200);
   }
 };
