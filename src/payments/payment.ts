@@ -4,17 +4,17 @@ import { registerPayment } from './registerPayment';
 import { SPAltaPago } from './types/SPAltaPago';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
+  let statusCode = 200;
   if (!event.body) {
     return generateJsonResponse({ message: 'No body provided' }, 400);
   } else {
     const { spaAltaPago } = JSON.parse(event.body) as {
       spaAltaPago: SPAltaPago;
     };
-
-    const { message, err } = await registerPayment(spaAltaPago);
-    if (err) {
-      return generateJsonResponse({ message, err }, 400);
+    const result = await registerPayment(spaAltaPago);
+    if (result.err) {
+      statusCode = 404;
     }
-    return generateJsonResponse({ message }, 200);
+    return generateJsonResponse(result, statusCode);
   }
 };

@@ -9,12 +9,11 @@ authorLink: 'https://github.com/serverless'
 authorName: 'Serverless, inc.'
 authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 -->
+
 ![Static Badge](https://img.shields.io/badge/serverless-black?style=flat&logo=serverless)
 ![Static Badge](https://img.shields.io/badge/AWS_Lambda-black?style=flat&logo=awslambda)
 ![Static Badge](https://img.shields.io/badge/SQL_Server-black?style=flat&logo=microsoftsqlserver&logoColor=f0f)
 ![Static Badge](https://img.shields.io/badge/NodeJS-v20-blue?style=flat&logo=nodedotjs)
-
-
 
 # Serverless Framework Node HTTP API on AWS
 
@@ -42,9 +41,9 @@ To fetch the env variables run the following command present on package.json fil
 pnpm run getenv
 ```
 
-this will fetch all env vars present on infisical servers and writen into .env file on the root folder.
+this will fetch all env vars present on infisical servers and it will be writen into .env file on the project root folder.
 
-Example .env file content:
+Required .env file content example:
 
 ```
 SERVER='server_url'
@@ -56,8 +55,23 @@ TOKEN_JWT='super_secret_token'
 
 ### Deployment
 
+Setup first your serverless acount using sls login and follow the propmts
+
 ```bash
-pnpm run publish
+pnpm dlx serverless login
+```
+
+Then you need to setup your AWS account with the AWS-CLI tool like so:
+
+```bash
+aws configure
+```
+
+Finally you can publish your serverless backend using
+
+```bash
+# ENVIRONMENT OPTIONS: dev, staging, prod
+pnpm run publish:<ENVIRONMENT>
 ```
 
 After deploying, you should see output similar to:
@@ -125,5 +139,3 @@ To learn more about the capabilities of `serverless-offline`, please refer to it
 ### Architecture diagram
 
 ![YOOX API - Page 1](https://github.com/JonathanRangelB/YOOX-serverless/assets/3516336/75bc3855-d6a5-4c5a-8431-28b930b9c059)
-
-

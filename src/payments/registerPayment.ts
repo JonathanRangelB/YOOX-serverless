@@ -1,6 +1,11 @@
 import sql, { config } from 'mssql';
 import { SPAltaPago } from './types/SPAltaPago';
 
+interface statusResponse {
+  message: string;
+  err?: Error;
+}
+
 const sqlConfig: config = {
   user: process.env.USUARIO,
   password: process.env.PASSWORD,
@@ -15,7 +20,7 @@ const sqlConfig: config = {
 
 export const registerPayment = async (
   spaAltaPago: SPAltaPago
-): Promise<{ message: string; err?: Error }> => {
+): Promise<statusResponse> => {
   let message = '';
   try {
     const pool = await sql.connect(sqlConfig);
@@ -37,23 +42,13 @@ export const registerPayment = async (
     console.log(result);
 
     message = `Alta del pago para el folio ${spaAltaPago.ID_PRESTAMO} correspondiente a la semana ${spaAltaPago.NUMERO_SEMANA} de manera exitosa`;
-    console.log(message);
+    console.log({ message });
     return { message };
   } catch (err) {
-    if (err instanceof Error && err.message === '-1') {
-      message = 'Error al intentar registrar el pago.';
-    }
-    if (err instanceof Error && err.message === '-2') {
-      message = 'Error al intentar registrar el pago. Timeout.';
-    }
-    if (err instanceof Error && err.message === '-6') {
+    if (err instanceof Error) {
       message =
-        'Error al intentar registrar el pago. Posibles parametros inválidos.';
-    } else {
-      message =
-        'Error al registrar pago. Posiblemente es un pago adelantado no permitido.';
+        'Error al intentar registrar el pago. Posible pago adelantado no permitido.';
     }
-
     console.log({ message, err });
     return { message, err: err as Error };
   }
