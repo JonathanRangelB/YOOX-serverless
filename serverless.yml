@@ -1,7 +1,7 @@
 org: jonathanrangel
 app: yoox-serverless-api
 service: login-service
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 provider:
   name: aws
@@ -67,5 +67,5 @@ custom:
 
 plugins:
   - serverless-dotenv-plugin
-  - serverless-webpack
+  - serverless-esbuild
   - serverless-offline
