@@ -23,3 +23,8 @@ export enum StatusDePago {
   CANCELADO = 'CANCELADO',
   VENCIDO = 'VENCIDO',
 }
+
+export interface statusResponse {
+  message: string;
+  err?: Error;
+}

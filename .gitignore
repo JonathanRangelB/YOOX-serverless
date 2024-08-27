@@ -2,7 +2,7 @@
 node_modules
 jspm_packages
 .webpack
-
+.esbuild
 # Serverless directories
 .serverless
 .env

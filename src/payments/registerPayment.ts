@@ -1,10 +1,6 @@
 import sql, { config } from 'mssql';
 import { SPAltaPago } from './types/SPAltaPago';
-
-interface statusResponse {
-  message: string;
-  err?: Error;
-}
+import { statusResponse } from './types/pagos';
 
 const sqlConfig: config = {
   user: process.env.USUARIO,
