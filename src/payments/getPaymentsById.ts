@@ -1,20 +1,9 @@
-const sql = require('mssql');
+import { DbConnector } from "../helpers/dbConnector"
 
 export const getPaymentsById = async (folio: string, id: string) => {
-  const sqlConfig = {
-    user: process.env.USUARIO,
-    password: process.env.PASSWORD,
-    database: process.env.DB_NAME,
-    server: process.env.SERVER,
-    options: {
-      // encrypt: true, // for azure
-      trustServerCertificate: true, // change to true for local dev / self-signed certs
-    },
-  };
-
   try {
+    const pool = await DbConnector.getInstance().connection;
     // Asegúrate de que cualquier elemento esté correctamente codificado en la cadena de conexión URL
-    const pool = await sql.connect(sqlConfig);
     const prestamosQuery = pool
       .request()
       .query(
@@ -30,7 +19,6 @@ export const getPaymentsById = async (folio: string, id: string) => {
       prestamosQuery,
       prestamosDetalleQuery,
     ]);
-    await sql.close();
     return { prestamo, prestamoDetalle };
   } catch (err) {
     return { err };

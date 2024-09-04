@@ -26,6 +26,7 @@
     "@babel/preset-env": "^7.25.3",
     "@babel/preset-typescript": "^7.24.7",
     "@types/aws-lambda": "^8.10.143",
+    "@types/md5": "^2.3.5",
     "@types/mssql": "^9.1.5",
     "@types/node": "^20.16.1",
     "babel-loader": "^9.1.3",

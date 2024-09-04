@@ -1,38 +1,25 @@
-import sql, { config } from 'mssql';
+import { Int, Date } from 'mssql';
 import { SPAltaPago } from './types/SPAltaPago';
 import { statusResponse } from './types/pagos';
-
-const sqlConfig: config = {
-  user: process.env.USUARIO,
-  password: process.env.PASSWORD,
-  database: process.env.DB_NAME,
-  server: process.env.SERVER!,
-  options: {
-    // enableArithAbort: true, // Importante para las transacciones
-    // abortTransactionOnError: true, // Importante para las transacciones
-    trustServerCertificate: true, // change to true for local dev / self-signed certs
-  },
-};
+import { DbConnector } from "../helpers/dbConnector"
 
 export const registerPayment = async (
   spaAltaPago: SPAltaPago
 ): Promise<statusResponse> => {
   let message = '';
   try {
-    const pool = await sql.connect(sqlConfig);
+    const pool = await DbConnector.getInstance().connection;
     const result = await pool
       .request()
-      .input('ID_PRESTAMO', sql.Int, spaAltaPago.ID_PRESTAMO)
-      .input('ID_MULTA', sql.Int, spaAltaPago.ID_MULTA)
-      .input('NUMERO_SEMANA', sql.Int, spaAltaPago.NUMERO_SEMANA)
-      .input('ID_CLIENTE', sql.Int, spaAltaPago.ID_CLIENTE)
-      .input('ID_USUARIO', sql.Int, spaAltaPago.ID_USUARIO)
-      .input('CANTIDAD_PAGADA', sql.Int, spaAltaPago.CANTIDAD_PAGADA)
-      .input('FECHA_ACTUAL', sql.Date, spaAltaPago.FECHA_ACTUAL)
-      .input('ID_COBRADOR', sql.Int, spaAltaPago.ID_COBRADOR)
+      .input('ID_PRESTAMO', Int, spaAltaPago.ID_PRESTAMO)
+      .input('ID_MULTA', Int, spaAltaPago.ID_MULTA)
+      .input('NUMERO_SEMANA', Int, spaAltaPago.NUMERO_SEMANA)
+      .input('ID_CLIENTE', Int, spaAltaPago.ID_CLIENTE)
+      .input('ID_USUARIO', Int, spaAltaPago.ID_USUARIO)
+      .input('CANTIDAD_PAGADA', Int, spaAltaPago.CANTIDAD_PAGADA)
+      .input('FECHA_ACTUAL', Date, spaAltaPago.FECHA_ACTUAL)
+      .input('ID_COBRADOR', Int, spaAltaPago.ID_COBRADOR)
       .execute('SP_ALTA_PAGO');
-
-    await pool.close();
 
     if (result.returnValue != 0) throw new Error(result.returnValue);
     console.log(result);

@@ -39,6 +39,9 @@ importers:
       '@types/aws-lambda':
         specifier: ^8.10.143
         version: 8.10.143
+      '@types/md5':
+        specifier: ^2.3.5
+        version: 2.3.5
       '@types/mssql':
         specifier: ^9.1.5
         version: 9.1.5
@@ -1469,6 +1472,9 @@ packages:
 
   '@types/lodash@4.17.7':
     resolution: {integrity: sha512-8wTvZawATi/lsmNu10/j2hk1KEP0IvjubqPE3cu1Xz7xfXXt5oCq3SNUz4fMIP4XGF9Ky+Ue2tBA3hcS7LSBlA==}
+
+  '@types/md5@2.3.5':
+    resolution: {integrity: sha512-/i42wjYNgE6wf0j2bcTX6kuowmdL/6PE4IVitMpm2eYKBUuYCprdcWVK+xEF0gcV6ufMCRhtxmReGfc6hIK7Jw==}
 
   '@types/mssql@9.1.5':
     resolution: {integrity: sha512-Q9EsgXwuRoX5wvUSu24YfbKMbFChv7pZ/jeCzPkj47ehcuXYsBcfogwrtVFosSjinD4Q/MY2YPGk9Yy1cM2Ywg==}
@@ -6438,6 +6444,8 @@ snapshots:
       '@types/node': 20.16.1
 
   '@types/lodash@4.17.7': {}
+
+  '@types/md5@2.3.5': {}
 
   '@types/mssql@9.1.5':
     dependencies:
