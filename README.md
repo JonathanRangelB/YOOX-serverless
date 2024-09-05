@@ -38,7 +38,7 @@ _NOTE_: make sure you are added to the project, for this you need to create a in
 To fetch the env variables run the following command present on package.json file:
 
 ```bash
-pnpm run getenv
+pnpm run getenv:dev
 ```
 
 this will fetch all env vars present on infisical servers and it will be writen into .env file on the project root folder.
