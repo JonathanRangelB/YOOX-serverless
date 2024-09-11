@@ -1,7 +1,7 @@
 org: jonathanrangel
 app: yoox-serverless-api
 service: login-service
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 provider:
   name: aws
@@ -54,6 +54,24 @@ functions:
       - httpApi:
           method: post
           path: /v1/payment
+          authorizer:
+            name: authorizerFunc
+
+  newClientRequest:
+    handler: ./src/new-requests/customer.handler
+    events:
+      - httpApi:
+          method: post
+          path: /v1/new/customer-request
+          authorizer:
+            name: authorizerFunc
+
+  newLoanRequest:
+    handler: ./src/new-requests/loan.handler
+    events:
+      - httpApi:
+          method: post
+          path: /v1/new/loan-request
           authorizer:
             name: authorizerFunc
 
