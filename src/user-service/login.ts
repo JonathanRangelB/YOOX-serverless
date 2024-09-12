@@ -15,7 +15,7 @@ module.exports.handler = async (event: any) => {
   const errors = ajv.errorsText(validate.errors, { separator: " AND " });
 
   if (!valid) {
-    return generateJsonResponse(errors, 400);
+    return generateJsonResponse({ errors }, 400);
   }
 
   const { recordset, rowsAffected } = await validateCredentials(data);
@@ -23,7 +23,7 @@ module.exports.handler = async (event: any) => {
 
   if (!rowsAffectedasNumber) {
     console.warn(LOGIN_FAILED);
-    return generateJsonResponse(LOGIN_FAILED, 404);
+    return generateJsonResponse({ LOGIN_FAILED }, 404);
   }
 
   const token = jwt.sign({ recordset }, process.env.TOKEN_JWT, {
