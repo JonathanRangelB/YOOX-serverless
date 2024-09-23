@@ -5,7 +5,7 @@
     "publish:prod": "sls deploy --stage prod --verbose",
     "publish:package": "sls deploy --package ./.serverless",
     "dashboard": "sls dashboard",
-    "dev": "sls offline --stage dev",
+    "dev": "sls offline start --stage dev",
     "stg": "sls offline --stage staging",
     "prod": "sls offline --stage prod",
     "getenv:dev": "infisical export --env=dev > .env",
