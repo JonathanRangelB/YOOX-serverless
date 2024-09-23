@@ -22,11 +22,11 @@
     "cp": {	"type": "string"},
     "referencias": {	"type": "string"},
     "created_by": {	"type": "integer"},
-    "created_date": {	"type": "date"},
+    "created_date": {	"type": "string","format": "date"},
     "modified_by_usr": {	"type": "integer"},
-    "modified_date"	: {"type": "date"},
+    "modified_date"	: {"type": "string","format": "date"},
     "approved_by"	: {"type": "integer"},
-    "approved_date": {	"type": "date"},
+    "approved_date": {	"type": "string","format": "date"},
     "status_code"	: {"type": "integer"}      
   },
   "required": ["id", "nombre", "status", "curp"]
