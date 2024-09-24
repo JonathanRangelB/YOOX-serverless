@@ -11,7 +11,7 @@ export const loanSchema = {
     fecha_final_estimada: { type: "string", format: "date-time" },
     id_cobrador: { type: "integer" },
     cantidad_pagar: { type: "number" },
-    status: { type: "string" },
+    status: { type: "string", enum: ["Aprovado", "Emitido"] },
     tasa_integereres: { type: "integer" },
     id_grupo_original: { type: "integer" },
     created_by: { type: "integer" },
