@@ -21,6 +21,6 @@ export const loanSchema = {
     approved_by: { type: "integer" },
     status_code: { type: "integer" },
   },
-  required: ["id", "nombre", "status"],
+  required: ["id", "status"],
+  additionalProperties: false,
 };
-
