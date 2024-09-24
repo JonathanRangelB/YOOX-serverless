@@ -1,4 +1,5 @@
 export const loanSchema = {
+  type: "object",
   properties: {
     id: { type: "integer" },
     request_number: { type: "string" },

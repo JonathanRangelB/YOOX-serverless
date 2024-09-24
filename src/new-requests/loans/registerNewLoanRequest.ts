@@ -99,14 +99,13 @@ export const registerNewLoanRequest = async (
   } catch (error) {
     await procTransaction.rollback();
     let message = "";
-    let errorMessage = "";
+    let err = "";
 
     if (error instanceof Error) {
       message = `Error durante la transacción`;
-      errorMessage = error.message as string;
+      err = error.message as string;
     }
     console.log({ message, error });
-    return { message, err: errorMessage };
+    return { message, err };
   }
 };
-
