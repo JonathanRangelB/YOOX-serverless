@@ -6,6 +6,7 @@ import { SPInsertNewLoanRequest } from "./types/SPInsertNewLoanRequest";
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   let statusCode = 200;
+  
 
   if (!event.body) {
     return generateJsonResponse({ message: "No body provided" }, 400);
@@ -14,6 +15,8 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   const { spInsertNewLoanRequest } = JSON.parse(event.body) as {
     spInsertNewLoanRequest: SPInsertNewLoanRequest;
   };
+
+  console.table(spInsertNewLoanRequest)
 
   if (!spInsertNewLoanRequest) {
     return generateJsonResponse(

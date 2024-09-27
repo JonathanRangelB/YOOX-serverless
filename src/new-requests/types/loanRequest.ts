@@ -1,4 +1,4 @@
-export type Status = "EN REVISION" | "APROBADO" | "RECHAZADO";
+export type Status = "EN_REVISION" | "APROBADO" | "RECHAZADO";
 
 export interface statusResponse {
   message: string;
