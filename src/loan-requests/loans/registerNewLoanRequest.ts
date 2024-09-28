@@ -1,9 +1,10 @@
 import { Date, DateTime, Float, Int, Table, VarChar } from "mssql";
 
 import { DbConnector } from "../../helpers/dbConnector";
-import { loan_request } from "../../helpers/table-schemas";
+import { last_loan_id} from "../../helpers/table-schemas";
 import { SPInsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
 import { statusResponse } from "../types/loanRequest";
+import { convertToBase36 } from "../../helpers/utils";
 
 export const registerNewLoanRequest = async (
   spInsertNewLoanRequest: SPInsertNewLoanRequest,
@@ -17,15 +18,17 @@ export const registerNewLoanRequest = async (
 
     const nextIdQuery = await procTransaction
       .request()
-      .query<loan_request>(
-        `SELECT * FROM LOAN_REQUEST WHERE ID = (SELECT MAX(ID) FROM LOAN_REQUEST)`,
+      .query<last_loan_id>(
+        `SELECT ISNULL(MAX(ID), 0) AS LAST_LOAN_ID, GETDATE() AS CURRENT_DATE_SERVER FROM LOAN_REQUEST;`
       );
-    const nextId =
-      nextIdQuery.recordset.length > 0
-        ? nextIdQuery.recordsets[0][0].ID + 1
-        : 1;
 
-    spInsertNewLoanRequest.ID = nextId;
+
+    spInsertNewLoanRequest.id = nextIdQuery.recordsets[0][0].LAST_LOAN_ID + 1;
+    spInsertNewLoanRequest.created_date = nextIdQuery.recordsets[0][0].CURRENT_DATE_SERVER;
+   
+    spInsertNewLoanRequest.request_number = convertToBase36(spInsertNewLoanRequest.id)
+
+
 
     const tableNewRequestLoan = new Table("LOAN_REQUEST");
     tableNewRequestLoan.create = false;
@@ -57,10 +60,7 @@ export const registerNewLoanRequest = async (
     tableNewRequestLoan.columns.add("CREATED_DATE", DateTime, {
       nullable: true,
     });
-    tableNewRequestLoan.columns.add("MODIFIED_BY", Int, { nullable: true });
-    tableNewRequestLoan.columns.add("MODIFIED_DATE", DateTime, {
-      nullable: true,
-    });
+   
     tableNewRequestLoan.columns.add("APPROVED_DATE", DateTime, {
       nullable: true,
     });
@@ -68,26 +68,26 @@ export const registerNewLoanRequest = async (
     tableNewRequestLoan.columns.add("STATUS_CODE", Int, { nullable: true });
 
     tableNewRequestLoan.rows.add(
-      spInsertNewLoanRequest.ID,
-      spInsertNewLoanRequest.REQUEST_NUMBER,
-      spInsertNewLoanRequest.ID_CLIENTE,
-      spInsertNewLoanRequest.ID_PLAZO,
-      spInsertNewLoanRequest.CANTIDAD_PRESTADA,
-      spInsertNewLoanRequest.DIA_SEMANA,
-      spInsertNewLoanRequest.FECHA_INICIAL,
-      spInsertNewLoanRequest.FECHA_FINAL_ESTIMADA,
-      spInsertNewLoanRequest.ID_COBRADOR,
-      spInsertNewLoanRequest.CANTIDAD_PAGAR,
-      spInsertNewLoanRequest.STATUS,
-      spInsertNewLoanRequest.TASA_INTERES,
-      spInsertNewLoanRequest.ID_GRUPO_ORIGINAL,
-      spInsertNewLoanRequest.CREATED_BY,
-      spInsertNewLoanRequest.CREATED_DATE,
-      spInsertNewLoanRequest.MODIFIED_BY,
-      spInsertNewLoanRequest.MODIFIED_DATE,
-      spInsertNewLoanRequest.APPROVED_DATE,
-      spInsertNewLoanRequest.APPROVED_BY,
-      spInsertNewLoanRequest.STATUS_CODE,
+      spInsertNewLoanRequest.id,
+      spInsertNewLoanRequest.request_number,
+      spInsertNewLoanRequest.id_cliente,
+      spInsertNewLoanRequest.id_plazo,
+      spInsertNewLoanRequest.cantidad_prestada,
+      spInsertNewLoanRequest.dia_semana,
+      spInsertNewLoanRequest.fecha_inicial,
+      spInsertNewLoanRequest.fecha_final_estimada,
+      spInsertNewLoanRequest.id_cobrador,
+      spInsertNewLoanRequest.cantidad_pagar,
+      spInsertNewLoanRequest.status,
+      spInsertNewLoanRequest.tasa_interes,
+      spInsertNewLoanRequest.id_grupo_original,
+      spInsertNewLoanRequest.created_by,
+      spInsertNewLoanRequest.created_date,
+      spInsertNewLoanRequest.modified_by,
+      spInsertNewLoanRequest.modified_date,
+      spInsertNewLoanRequest.approved_date,
+      spInsertNewLoanRequest.approved_by,
+      spInsertNewLoanRequest.status_code,
     );
 
     const reqBulkInsertion = procTransaction.request();
