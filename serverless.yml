@@ -1,4 +1,4 @@
-org: oberrones
+org: jonathanrangel
 app: yoox-serverless-api
 service: login-service
 frameworkVersion: "3"
@@ -23,6 +23,10 @@ provider:
         - https://development.yooxgrupofinanciero.com
         - https://staging.yooxgrupofinanciero.com
         - http://localhost:4200
+      allowedHeaders:
+        - Content-Type
+        - idUsuario
+        - authorization
 
 functions:
   login:
@@ -64,7 +68,7 @@ functions:
           method: put
           path: /v1/loan-request/update
           authorizer:
-            name: authorizerFunc
+            name: customAuthorizer
 
   viewLoanRequest:
     handler: ./src/loan-requests/viewLoan.handler
@@ -73,13 +77,13 @@ functions:
           method: get
           path: /v1/loan-request/view
           authorizer:
-            name: authorizerFunc
+            name: customAuthorizer
 
   loan:
     handler: ./src/payments/loan.handler
     events:
       - httpApi:
-          method: get
+          method: post
           path: /v1/loan/{id}
           authorizer:
             name: customAuthorizer
