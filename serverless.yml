@@ -14,7 +14,7 @@ provider:
     authorizers:
       customAuthorizer:
         type: request
-        functionName: authorizerFunc
+        functionName: customAuthorizer
         identitySource:
           - $request.header.authorization
     cors:
@@ -25,7 +25,6 @@ provider:
         - http://localhost:4200
       allowedHeaders:
         - Content-Type
-        - idUsuario
         - authorization
 
 functions:
@@ -88,8 +87,32 @@ functions:
           authorizer:
             name: customAuthorizer
 
-  authorizerFunc:
+  uploadFiles:
+    handler: ./src/upload/uploadFiles.handler
+    events:
+      - httpApi:
+          path: /v1/upload
+          method: post
+          authorizer:
+            name: customAuthorizer
+
+  getFiles:
+    handler: ./src/upload/listFiles.handler
+    environment:
+      BUCKET_NAME: ${construct:customerDocuments.bucketName}
+    events:
+      - httpApi:
+          path: /v1/list-files
+          method: get
+          authorizer:
+            name: customAuthorizer
+
+  customAuthorizer:
     handler: ./src/authorizer/auth.handler
+
+constructs:
+  customerDocuments:
+    type: storage
 
 custom:
   stage: ${opt:stage, self:provider.stage}
@@ -103,4 +126,5 @@ plugins:
   - serverless-dotenv-plugin
   - serverless-auto-swagger
   - serverless-esbuild
+  - serverless-lift
   - serverless-offline
