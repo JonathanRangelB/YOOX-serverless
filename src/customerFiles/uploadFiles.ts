@@ -23,7 +23,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
       filenames.map(async (filename: string) => {
         const params = {
           Bucket: bucketName,
-          Key: `temporal/${filename}`, // Archivo que se subirá con su ruta completa. Ej: documentos/imagen/{filename}
+          Key: filename, // Archivo que se subirá con su ruta completa. Ej: documentos/imagen/{filename}
           Expires: 30, // La URL será válida por 30 segundos
           ContentType: "application/octet-stream", // Tipo de contenido generico binario, osea cualquier tipo de archivo
         };

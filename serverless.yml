@@ -100,28 +100,22 @@ functions:
     handler: ./src/customerFiles/getFile.handler
     events:
       - httpApi:
-          path: /v1/file/{filepath}
-          method: get
+          path: /v1/file/
+          method: post
           authorizer:
             name: customAuthorizer
 
   listFiles:
     handler: ./src/customerFiles/listFiles.handler
-    environment:
-      BUCKET_NAME: ${construct:customerDocuments.bucketName}
     events:
       - httpApi:
-          path: /v1/list-files/{customerpath}
+          path: /v1/list-files/{foldername}
           method: get
           authorizer:
             name: customAuthorizer
 
   customAuthorizer:
     handler: ./src/authorizer/auth.handler
-
-constructs:
-  customerDocuments:
-    type: storage
 
 custom:
   stage: ${opt:stage, self:provider.stage}
