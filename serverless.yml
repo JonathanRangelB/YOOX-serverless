@@ -88,7 +88,7 @@ functions:
             name: customAuthorizer
 
   uploadFiles:
-    handler: ./src/upload/uploadFiles.handler
+    handler: ./src/customerFiles/uploadFiles.handler
     events:
       - httpApi:
           path: /v1/upload
@@ -96,13 +96,22 @@ functions:
           authorizer:
             name: customAuthorizer
 
-  getFiles:
-    handler: ./src/upload/listFiles.handler
+  getFile:
+    handler: ./src/customerFiles/getFile.handler
+    events:
+      - httpApi:
+          path: /v1/file/{filepath}
+          method: get
+          authorizer:
+            name: customAuthorizer
+
+  listFiles:
+    handler: ./src/customerFiles/listFiles.handler
     environment:
       BUCKET_NAME: ${construct:customerDocuments.bucketName}
     events:
       - httpApi:
-          path: /v1/list-files
+          path: /v1/list-files/{customerpath}
           method: get
           authorizer:
             name: customAuthorizer
@@ -126,5 +135,4 @@ plugins:
   - serverless-dotenv-plugin
   - serverless-auto-swagger
   - serverless-esbuild
-  - serverless-lift
   - serverless-offline
