@@ -26,8 +26,8 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   };
 
   try {
-    const data = await s3.getSignedUrlPromise("getObject", params);
-    return generateJsonResponse({ signedUrl: data }, 200);
+    const signedUrl = await s3.getSignedUrlPromise("getObject", params);
+    return generateJsonResponse({ signedUrl }, 200);
   } catch (error) {
     console.log(error);
     if (error instanceof Error)
