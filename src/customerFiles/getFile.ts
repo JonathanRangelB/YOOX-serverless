@@ -2,20 +2,31 @@ import { APIGatewayEvent } from "aws-lambda";
 import { S3 } from "aws-sdk";
 
 import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { StatusCodes } from "../helpers/statusCodes";
 
 const s3 = new S3();
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body)
-    return generateJsonResponse({ message: "No body provided" }, 400);
+    return generateJsonResponse(
+      { message: "No body provided" },
+      StatusCodes.BAD_REQUEST,
+    );
 
   const { filename } = JSON.parse(event.body) as { filename: string };
   const { path } = JSON.parse(event.body) as { path: string };
 
   if (!filename)
-    return generateJsonResponse({ message: "No filepath provided" }, 400);
+    return generateJsonResponse(
+      { message: "No filepath provided" },
+      StatusCodes.BAD_REQUEST,
+    );
 
-  if (!path) return generateJsonResponse({ message: "No path provided" }, 400);
+  if (!path)
+    return generateJsonResponse(
+      { message: "No path provided" },
+      StatusCodes.BAD_REQUEST,
+    );
 
   const bucketName = process.env.BUCKET_NAME || "documentos-clientes-yoox";
   const params = {
@@ -27,10 +38,13 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   try {
     const signedUrl = await s3.getSignedUrlPromise("getObject", params);
-    return generateJsonResponse({ signedUrl }, 200);
+    return generateJsonResponse({ signedUrl }, StatusCodes.OK);
   } catch (error) {
     console.log(error);
     if (error instanceof Error)
-      return generateJsonResponse({ error: error.message }, 500);
+      return generateJsonResponse(
+        { error: error.message },
+        StatusCodes.INTERNAL_SERVER_ERROR,
+      );
   }
 };

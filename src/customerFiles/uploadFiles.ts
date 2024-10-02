@@ -2,12 +2,16 @@ import { APIGatewayEvent } from "aws-lambda";
 import { S3 } from "aws-sdk";
 
 import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { StatusCodes } from "../helpers/statusCodes";
 
 const s3 = new S3();
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body)
-    return generateJsonResponse({ message: "No body provided" }, 400);
+    return generateJsonResponse(
+      { message: "No body provided" },
+      StatusCodes.BAD_REQUEST,
+    );
 
   const bucketName = process.env.BUCKET_NAME || "documentos-clientes-yoox";
   const { filenames } = JSON.parse(event.body) as { filenames: string[] };
@@ -15,7 +19,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   if (filenames.length > 10)
     return generateJsonResponse(
       { message: "Solo se permite un maximo de 10 archivos" },
-      400,
+      StatusCodes.BAD_REQUEST,
     );
 
   try {
@@ -32,12 +36,12 @@ module.exports.handler = async (event: APIGatewayEvent) => {
       }),
     );
 
-    return generateJsonResponse({ uploadUrls }, 200);
+    return generateJsonResponse({ uploadUrls }, StatusCodes.OK);
   } catch (error) {
     if (error instanceof Error)
       return generateJsonResponse(
         { message: "Error generating signed URL", error: error.message },
-        500,
+        StatusCodes.INTERNAL_SERVER_ERROR,
       );
   }
 };
