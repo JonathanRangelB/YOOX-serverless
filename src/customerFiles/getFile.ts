@@ -1,10 +1,14 @@
 import { APIGatewayEvent } from "aws-lambda";
 import { S3 } from "aws-sdk";
+import Ajv from "ajv";
 
 import { generateJsonResponse } from "../helpers/generateJsonResponse";
 import { StatusCodes } from "../helpers/statusCodes";
+import { FileDataSchema } from "./schemas/file.schema";
+import { fileData } from "./types/fileData";
 
 const s3 = new S3();
+const ajv = new Ajv({ allErrors: true });
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body)
@@ -13,20 +17,14 @@ module.exports.handler = async (event: APIGatewayEvent) => {
       StatusCodes.BAD_REQUEST,
     );
 
-  const { filename } = JSON.parse(event.body) as { filename: string };
-  const { path } = JSON.parse(event.body) as { path: string };
+  const data: fileData = JSON.parse(event.body);
+  const validate = ajv.compile(FileDataSchema);
+  const valid = validate(data);
+  const error = ajv.errorsText(validate.errors, { separator: " AND " });
 
-  if (!filename)
-    return generateJsonResponse(
-      { message: "No filepath provided" },
-      StatusCodes.BAD_REQUEST,
-    );
+  if (!valid) return generateJsonResponse({ error }, StatusCodes.BAD_REQUEST);
 
-  if (!path)
-    return generateJsonResponse(
-      { message: "No path provided" },
-      StatusCodes.BAD_REQUEST,
-    );
+  const { filename, path } = data;
 
   const bucketName = process.env.BUCKET_NAME || "documentos-clientes-yoox";
   const params = {

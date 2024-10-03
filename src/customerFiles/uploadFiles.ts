@@ -1,10 +1,13 @@
 import { APIGatewayEvent } from "aws-lambda";
 import { S3 } from "aws-sdk";
+import Ajv from "ajv";
 
 import { generateJsonResponse } from "../helpers/generateJsonResponse";
 import { StatusCodes } from "../helpers/statusCodes";
+import { FileNamesSchema } from "./schemas/filenames.schema";
 
 const s3 = new S3();
+const ajv = new Ajv({ allErrors: true });
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body)
@@ -13,14 +16,16 @@ module.exports.handler = async (event: APIGatewayEvent) => {
       StatusCodes.BAD_REQUEST,
     );
 
-  const bucketName = process.env.BUCKET_NAME || "documentos-clientes-yoox";
-  const { filenames } = JSON.parse(event.body) as { filenames: string[] };
+  const data = JSON.parse(event.body) as { filenames: string[] };
+  const validate = ajv.compile(FileNamesSchema);
+  const valid = validate(data);
+  const errors = ajv.errorsText(validate.errors, { separator: " AND " });
 
-  if (filenames.length > 10)
-    return generateJsonResponse(
-      { message: "Solo se permite un maximo de 10 archivos" },
-      StatusCodes.BAD_REQUEST,
-    );
+  if (!valid) return generateJsonResponse({ errors }, StatusCodes.BAD_REQUEST);
+
+  const { filenames } = data;
+
+  const bucketName = process.env.BUCKET_NAME || "documentos-clientes-yoox";
 
   try {
     const uploadUrls = await Promise.all(
