@@ -1,10 +1,10 @@
 import { APIGatewayEvent } from "aws-lambda";
-import { S3 } from "aws-sdk";
+import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
 
 import { generateJsonResponse } from "../helpers/generateJsonResponse";
 import { StatusCodes } from "../helpers/statusCodes";
 
-const s3 = new S3();
+const client = new S3Client();
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.pathParameters)
@@ -28,7 +28,8 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   };
 
   try {
-    const data = await s3.listObjectsV2(params).promise();
+    const command = new ListObjectsV2Command(params);
+    const data = await client.send(command);
     const files = data.Contents?.map((item) => item.Key) || [];
 
     return generateJsonResponse({ files }, StatusCodes.OK);

@@ -1,5 +1,10 @@
 import { APIGatewayEvent } from "aws-lambda";
-import { S3 } from "aws-sdk";
+import {
+  S3Client,
+  GetObjectCommand,
+  GetObjectRequest,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import Ajv from "ajv";
 
 import { generateJsonResponse } from "../helpers/generateJsonResponse";
@@ -7,7 +12,7 @@ import { StatusCodes } from "../helpers/statusCodes";
 import { FileDataSchema } from "./schemas/file.schema";
 import { fileData } from "./types/fileData";
 
-const s3 = new S3();
+const client = new S3Client();
 const ajv = new Ajv({ allErrors: true });
 
 module.exports.handler = async (event: APIGatewayEvent) => {
@@ -27,15 +32,15 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   const { filename, path } = data;
 
   const bucketName = process.env.BUCKET_NAME || "documentos-clientes-yoox";
-  const params = {
+  const params: GetObjectRequest = {
     Bucket: bucketName,
     Key: path + filename,
-    Expires: 30, // La URL será válida por 30 segundos
     ResponseContentDisposition: `attachment; filename="${filename}"`,
   };
 
   try {
-    const signedUrl = await s3.getSignedUrlPromise("getObject", params);
+    const command = new GetObjectCommand(params);
+    const signedUrl = await getSignedUrl(client, command, { expiresIn: 10 });
     return generateJsonResponse({ signedUrl }, StatusCodes.OK);
   } catch (error) {
     console.log(error);
