@@ -11,33 +11,24 @@ export interface customer_loan_request {
 }
 
 export interface customer_request {
-  ID: number;
-  NOMBRE: string;
-  TELEFONO_FIJO: string;
-  TELEFONO_MOVIL: string;
-  CORREO_ELECTRONICO: string;
-  ESTATUS: string;
-  OBSERVACIONES: string;
-  ID_AGENTE: number;
-  OCUPACION: string;
-  CURP: string;
-  ID_DOMICILIO: number;
-  TIPO_CALLE: string;
-  NOMBRE_CALLE: string;
-  NUMERO_EXTERIOR: string;
-  NUMERO_INTERIOR: string;
-  COLONIA: string;
-  MUNICIPIO: string;
-  ESTADO: string;
-  CP: string;
-  REFERENCIAS: string;
-  CREATED_BY: number;
-  CREATED_DATE: Date;
-  MODIFIED_BY: number;
-  MODIFIED_DATE: Date;
-  APPROVED_BY: number;
-  APPROVED_DATE: Date;
-  STATUS_CODE: number;
+  id: number;
+  nombre: string;
+  telefono_fijo: string;
+  telefono_movil: string;
+  // calle: string;
+  // numero_exterior: string;
+  // numero_interior: string;
+  // colonia: string;
+  // municipio: string;
+  // codigo_postal: string; 
+  correo_electronico: string;
+  activo: number;
+  clasificacion: string;
+  observaciones: string;
+  id_agente: number;
+  ocupacion: string;
+  curp: string;
+  id_domicilio: number;
 }
 
 export interface error_code {
@@ -47,6 +38,43 @@ export interface error_code {
 }
 
 export interface last_loan_id {
-  LAST_LOAN_ID: number,
-  CURRENT_DATE_SERVER: Date
+  LAST_LOAN_ID: number;
+  CURRENT_DATE_SERVER: Date;
+}
+
+export interface loan_update_date {
+  LOAN_ID: number;
+  REQUEST_NUMBER: string;
+  LOAN_REQUEST_STATUS: string;
+  CURRENT_DATE_SERVER: Date;
+}
+
+export interface indexes_id {
+  objeto: string;
+  indice: number;
+}
+
+export interface address {
+  id: number;
+  tipo_calle: string;
+  nombre_calle: string;
+  numero_exterior: string;
+  numero_interior: string;
+  colonia: string;
+  municipio: string;
+  estado: string;
+  cp: string;
+  referencias: string;
+  created_by_usr: number;
+  created_date: Date;
+  modified_by_usr: number;
+  modified_date: Date;
+}
+
+export interface address_suite_number {
+  id_domicilio: number;
+  numero_interior: string;
+  id_cliente: number;
+  id_aval: number;
+  tipo: string;
 }

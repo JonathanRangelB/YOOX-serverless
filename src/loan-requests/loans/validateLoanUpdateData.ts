@@ -1,7 +1,7 @@
 import Ajv from "ajv";
 import formats from "ajv-formats";
 
-import { loanSchema } from "../schemas/loanNew.schema";
+import { loanSchema } from "../schemas/loanUpdate.schema";
 import { SPInsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
 import { validateLoanResponse } from "./validateLoanResponse";
 
