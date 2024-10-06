@@ -3,7 +3,7 @@ import formats from "ajv-formats";
 
 import { loanSchema } from "../schemas/loanUpdate.schema";
 import { SPInsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
-import { validateLoanResponse } from "./validateLoanResponse";
+import { validateLoanResponse } from "../types/validateLoanResponse";
 
 const ajv = new Ajv({ allErrors: true });
 formats(ajv);
@@ -16,9 +16,8 @@ export function isValidLoanData(
   const errors = ajv.errorsText(validate.errors, { separator: " AND " });
 
   if (!valid) {
-    return { valid: false, errors };
+    return { valid, errors };
   }
 
-  return { valid: true };
+  return { valid };
 }
-
