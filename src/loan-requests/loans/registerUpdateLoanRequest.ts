@@ -1,16 +1,16 @@
-import { Int } from "mssql";
+import { Int } from 'mssql';
 
-import { DbConnector } from "../../helpers/dbConnector";
-import { loan_update_date } from "../../helpers/table-schemas";
-import { SPInsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
-import { Status, statusResponse } from "../types/loanRequest";
-import { customer_request, address } from "../../helpers/table-schemas";
-import { registerNewCustomer } from "../../customer/transactions/registerNewCustomer";
+import { DbConnector } from '../../helpers/dbConnector';
+import { loan_update_date } from '../../helpers/table-schemas';
+import { SPInsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
+import { Status, statusResponse } from '../types/loanRequest';
+import { customer_request, address } from '../../helpers/table-schemas';
+import { registerNewCustomer } from '../../customer/transactions/registerNewCustomer';
 
 export const registerNewLoanRequest = async (
-  spInsertNewLoanRequest: SPInsertNewLoanRequest,
+  spInsertNewLoanRequest: SPInsertNewLoanRequest
 ): Promise<statusResponse> => {
-  let message = "";
+  let message = '';
   const pool = await DbConnector.getInstance().connection;
   const procTransaction = pool.transaction();
 
@@ -18,9 +18,9 @@ export const registerNewLoanRequest = async (
     await procTransaction.begin();
     const queryResult = await procTransaction
       .request()
-      .input("ID_LOAN_REQUEST", Int, spInsertNewLoanRequest.id)
+      .input('ID_LOAN_REQUEST', Int, spInsertNewLoanRequest.id)
       .query<loan_update_date>(
-        "SELECT ID, REQUEST_NUMBER, LOAN_REQUEST_STATUS, GETDATE() AS CURRENT_DATE_SERVER FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;",
+        'SELECT ID, REQUEST_NUMBER, LOAN_REQUEST_STATUS, GETDATE() AS CURRENT_DATE_SERVER FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;'
       );
 
     console.log(`Concurrencia: ${queryResult.rowsAffected.length}`);
@@ -30,7 +30,7 @@ export const registerNewLoanRequest = async (
     // Manejo de concurrencia
     if (!queryResult.recordset[0]) {
       await procTransaction.rollback();
-      return { message: "El registro no existe" };
+      return { message: 'El registro no existe' };
     }
 
     const currentLoanRequestStatus =
@@ -90,7 +90,7 @@ export const registerNewLoanRequest = async (
     } = spInsertNewLoanRequest;
 
     //Comienza ensamblado de la cadena del query
-    let updateQueryColumns = "";
+    let updateQueryColumns = '';
 
     if (
       currentLoanRequestStatus === `ACTUALIZAR` &&
@@ -103,7 +103,7 @@ export const registerNewLoanRequest = async (
       ,TELEFONO_FIJO = '${telefono_fijo}'
       ,TELEFONO_MOVIL = '${telefono_movil}'
       ,CORREO_ELECTRONICO = '${correo_electronico}'
-      ,OCUPACION = ${ocupacion ? "'" + ocupacion + "'" : "NULL"}
+      ,OCUPACION = ${ocupacion ? `'${ocupacion}'` : 'NULL'}
       ,CURP = '${curp}'
       ,TIPO_CALLE = '${tipo_calle}' 
       ,NOMBRE_CALLE = '${nombre_calle}' 
@@ -113,7 +113,7 @@ export const registerNewLoanRequest = async (
       ,MUNICIPIO = '${municipio}' 
       ,ESTADO = '${estado}' 
       ,CP = '${cp}'
-      ,REFERENCIAS = ${referencias ? "'" + referencias + "'" : "NULL"}
+      ,REFERENCIAS = ${referencias ? `'${referencias}'` : 'NULL'}
       ,ID_PLAZO = ${id_plazo}
       ,CANTIDAD_PRESTADA = ${cantidad_prestada}
       ,DIA_SEMANA = '${dia_semana}'
@@ -121,17 +121,19 @@ export const registerNewLoanRequest = async (
       ,FECHA_FINAL_ESTIMADA = '${fecha_final_estimada}'
       ,CANTIDAD_PAGAR = ${cantidad_pagar}
       ,TASA_INTERES = ${tasa_interes}
-      ,OBSERVACIONES = ${observaciones ? "'" + observaciones + "'" : "NULL"}
+      ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : 'NULL'}
       ,MODIFIED_DATE = @MOD_DT`; // TODO: revisar que es @MOD_DT, quiza aun no fue implementado, no mezclar tecnicas de creacion de strings para los querys
     }
 
     if (currentLoanRequestStatus === `EN REVISION`) {
       switch (newLoanRequestStatus) {
-        case "ACTUALIZAR":
+        case 'ACTUALIZAR':
+          // TODO: se requiere concatenar? en ese caso usar +=
           updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' `;
           break;
 
-        case "APROBADO":
+        case 'APROBADO':
+          // TODO: se requiere concatenar? en ese caso usar +=
           updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}'
           ,CLOSED_BY = ${closed_by}
           ,CLOSED_DATE = GETDATE()`;
@@ -144,10 +146,10 @@ export const registerNewLoanRequest = async (
               telefono_movil,
               correo_electronico,
               activo: 1,
-              clasificacion: "",
-              observaciones: "",
+              clasificacion: '',
+              observaciones: '',
               id_agente,
-              ocupacion: "",
+              ocupacion: '',
               curp,
               id_domicilio: 0,
             };
@@ -173,18 +175,19 @@ export const registerNewLoanRequest = async (
             const procNewCustomer = await registerNewCustomer(
               objCustomer,
               objAddress,
-              procTransaction,
+              procTransaction
             );
 
             console.table(objCustomer);
             console.table(objAddress);
           }
 
-        case "RECHAZADO":
+        case 'RECHAZADO':
           updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' ,CLOSED_BY = ${closed_by} ,CLOSED_DATE = GETDATE()`;
           break;
 
         default:
+          // TODO: esta linea causa conflicto, no se entiende bien lo que se quiere hacer aquí
           (message = `Cambio de status incorrecto`), procTransaction.rollback();
       }
     }
@@ -192,30 +195,30 @@ export const registerNewLoanRequest = async (
     // TODO: igual que la linea 124, no mezclar las tecnicas de creacion de strings para los querys
     let updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = @IID;`;
 
-    console.log("=================== Query statement =======================");
+    console.log('=================== Query statement =======================');
     console.log(updateQueryString);
-    console.log("===========================================================");
+    console.log('===========================================================');
 
     const reqUpdate = procTransaction.request();
-    reqUpdate.input("IID", id_loan_request);
+    reqUpdate.input('IID', id_loan_request);
 
     const updateResult = await reqUpdate.query(updateQueryString);
 
     if (!updateResult.rowsAffected.length) {
       await procTransaction.rollback();
-      message = "No se actualizó el registro";
+      message = 'No se actualizó el registro';
     }
 
     await procTransaction.commit();
-    message = "Requerimiento de préstamo actualizado";
+    message = 'Requerimiento de préstamo actualizado';
     return { message };
   } catch (error) {
     await procTransaction.rollback();
-    let message = "";
-    let errorMessage = "";
+    let message = '';
+    let errorMessage = '';
 
     if (error instanceof Error) {
-      message = "Error durante la transacción";
+      message = 'Error durante la transacción';
       errorMessage = error.message as string;
     }
     console.log({ message, error });
