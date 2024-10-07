@@ -1,4 +1,4 @@
-import { DbConnector } from "../../helpers/dbConnector";
+import { DbConnector } from '../../helpers/dbConnector';
 
 export const getLastLoadId = async () => {
   try {

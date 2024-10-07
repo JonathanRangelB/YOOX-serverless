@@ -1,5 +1,5 @@
 export interface customerReqResponse {
-    message: string;
-    idCustomer: number;
-    error?: string;
-  }
+  message: string;
+  idCustomer: number;
+  error?: string;
+}

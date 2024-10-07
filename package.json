@@ -11,7 +11,8 @@
     "getenv:dev": "infisical export --env=dev > .env",
     "getenv:stg": "infisical export --env=staging > .env.staging",
     "getenv:prod": "infisical export --env=prod > .env.prod",
-    "delete": "sls remove"
+    "delete": "sls remove",
+    "format": "prettier --write 'src/**/*.ts'"
   },
   "dependencies": {
     "@types/jsonwebtoken": "^9.0.6",

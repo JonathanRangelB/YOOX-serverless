@@ -1,15 +1,15 @@
-import { DateTime, Float, Int, Table, VarChar } from "mssql";
+import { DateTime, Float, Int, Table, VarChar } from 'mssql';
 
-import { DbConnector } from "../../helpers/dbConnector";
-import { last_loan_id } from "../../helpers/table-schemas";
-import { SPInsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
-import { statusResponse } from "../types/loanRequest";
-import { convertToBase36 } from "../../helpers/utils";
+import { DbConnector } from '../../helpers/dbConnector';
+import { last_loan_id } from '../../helpers/table-schemas';
+import { SPInsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
+import { statusResponse } from '../types/loanRequest';
+import { convertToBase36 } from '../../helpers/utils';
 
 export const registerNewLoanRequest = async (
-  spInsertNewLoanRequest: SPInsertNewLoanRequest,
+  spInsertNewLoanRequest: SPInsertNewLoanRequest
 ): Promise<statusResponse> => {
-  let message = "";
+  let message = '';
   const pool = await DbConnector.getInstance().connection;
   const procTransaction = pool.transaction();
 
@@ -19,97 +19,97 @@ export const registerNewLoanRequest = async (
     const nextIdQuery = await procTransaction
       .request()
       .query<last_loan_id>(
-        "SELECT ISNULL(MAX(ID), 0) AS LAST_LOAN_ID, GETDATE() AS CURRENT_DATE_SERVER FROM LOAN_REQUEST;",
+        'SELECT ISNULL(MAX(ID), 0) AS LAST_LOAN_ID, GETDATE() AS CURRENT_DATE_SERVER FROM LOAN_REQUEST;'
       );
 
     spInsertNewLoanRequest.id = nextIdQuery.recordset[0].LAST_LOAN_ID + 1;
     spInsertNewLoanRequest.created_date =
       nextIdQuery.recordset[0].CURRENT_DATE_SERVER;
     spInsertNewLoanRequest.request_number = convertToBase36(
-      spInsertNewLoanRequest.id,
+      spInsertNewLoanRequest.id
     );
-    spInsertNewLoanRequest.loan_request_status = "EN REVISION";
+    spInsertNewLoanRequest.loan_request_status = 'EN REVISION';
 
-    const tableNewRequestLoan = new Table("LOAN_REQUEST");
+    const tableNewRequestLoan = new Table('LOAN_REQUEST');
     tableNewRequestLoan.create = false;
 
-    tableNewRequestLoan.columns.add("ID", Int, { nullable: false });
-    tableNewRequestLoan.columns.add("REQUEST_NUMBER", VarChar, {
+    tableNewRequestLoan.columns.add('ID', Int, { nullable: false });
+    tableNewRequestLoan.columns.add('REQUEST_NUMBER', VarChar, {
       nullable: false,
     });
-    tableNewRequestLoan.columns.add("LOAN_REQUEST_STATUS", VarChar, {
+    tableNewRequestLoan.columns.add('LOAN_REQUEST_STATUS', VarChar, {
       nullable: false,
     });
-    tableNewRequestLoan.columns.add("ID_AGENTE", Int, { nullable: true });
-    tableNewRequestLoan.columns.add("ID_GRUPO_ORIGINAL", Int, {
+    tableNewRequestLoan.columns.add('ID_AGENTE', Int, { nullable: true });
+    tableNewRequestLoan.columns.add('ID_GRUPO_ORIGINAL', Int, {
       nullable: true,
     });
-    tableNewRequestLoan.columns.add("ID_CLIENTE", Int, { nullable: true });
-    tableNewRequestLoan.columns.add("NOMBRE_CLIENTE", VarChar, {
+    tableNewRequestLoan.columns.add('ID_CLIENTE', Int, { nullable: true });
+    tableNewRequestLoan.columns.add('NOMBRE_CLIENTE', VarChar, {
       nullable: false,
     });
-    tableNewRequestLoan.columns.add("APELLIDO_PATERNO_CLIENTE", VarChar, {
+    tableNewRequestLoan.columns.add('APELLIDO_PATERNO_CLIENTE', VarChar, {
       nullable: false,
     });
-    tableNewRequestLoan.columns.add("APELLIDO_MATERNO_CLIENTE", VarChar, {
+    tableNewRequestLoan.columns.add('APELLIDO_MATERNO_CLIENTE', VarChar, {
       nullable: false,
     });
-    tableNewRequestLoan.columns.add("TELEFONO_FIJO", VarChar, {
+    tableNewRequestLoan.columns.add('TELEFONO_FIJO', VarChar, {
       nullable: true,
     });
-    tableNewRequestLoan.columns.add("TELEFONO_MOVIL", VarChar, {
+    tableNewRequestLoan.columns.add('TELEFONO_MOVIL', VarChar, {
       nullable: true,
     });
-    tableNewRequestLoan.columns.add("CORREO_ELECTRONICO", VarChar, {
+    tableNewRequestLoan.columns.add('CORREO_ELECTRONICO', VarChar, {
       nullable: true,
     });
-    tableNewRequestLoan.columns.add("OCUPACION", VarChar, { nullable: true });
-    tableNewRequestLoan.columns.add("CURP", VarChar, { nullable: false });
-    tableNewRequestLoan.columns.add("TIPO_CALLE", VarChar, { nullable: true });
-    tableNewRequestLoan.columns.add("NOMBRE_CALLE", VarChar, {
+    tableNewRequestLoan.columns.add('OCUPACION', VarChar, { nullable: true });
+    tableNewRequestLoan.columns.add('CURP', VarChar, { nullable: false });
+    tableNewRequestLoan.columns.add('TIPO_CALLE', VarChar, { nullable: true });
+    tableNewRequestLoan.columns.add('NOMBRE_CALLE', VarChar, {
       nullable: true,
     });
-    tableNewRequestLoan.columns.add("NUMERO_EXTERIOR", VarChar, {
+    tableNewRequestLoan.columns.add('NUMERO_EXTERIOR', VarChar, {
       nullable: true,
     });
-    tableNewRequestLoan.columns.add("NUMERO_INTERIOR", VarChar, {
+    tableNewRequestLoan.columns.add('NUMERO_INTERIOR', VarChar, {
       nullable: true,
     });
-    tableNewRequestLoan.columns.add("COLONIA", VarChar, { nullable: true });
-    tableNewRequestLoan.columns.add("MUNICIPIO", VarChar, { nullable: true });
-    tableNewRequestLoan.columns.add("ESTADO", VarChar, { nullable: true });
-    tableNewRequestLoan.columns.add("CP", VarChar, { nullable: true });
-    tableNewRequestLoan.columns.add("REFERENCIAS", VarChar, { nullable: true });
-    tableNewRequestLoan.columns.add("ID_PLAZO", Int, { nullable: false });
-    tableNewRequestLoan.columns.add("CANTIDAD_PRESTADA", Float, {
+    tableNewRequestLoan.columns.add('COLONIA', VarChar, { nullable: true });
+    tableNewRequestLoan.columns.add('MUNICIPIO', VarChar, { nullable: true });
+    tableNewRequestLoan.columns.add('ESTADO', VarChar, { nullable: true });
+    tableNewRequestLoan.columns.add('CP', VarChar, { nullable: true });
+    tableNewRequestLoan.columns.add('REFERENCIAS', VarChar, { nullable: true });
+    tableNewRequestLoan.columns.add('ID_PLAZO', Int, { nullable: false });
+    tableNewRequestLoan.columns.add('CANTIDAD_PRESTADA', Float, {
       nullable: false,
     });
-    tableNewRequestLoan.columns.add("DIA_SEMANA", VarChar, { nullable: false });
-    tableNewRequestLoan.columns.add("FECHA_INICIAL", DateTime, {
+    tableNewRequestLoan.columns.add('DIA_SEMANA', VarChar, { nullable: false });
+    tableNewRequestLoan.columns.add('FECHA_INICIAL', DateTime, {
       nullable: false,
     });
-    tableNewRequestLoan.columns.add("FECHA_FINAL_ESTIMADA", DateTime, {
+    tableNewRequestLoan.columns.add('FECHA_FINAL_ESTIMADA', DateTime, {
       nullable: false,
     });
-    tableNewRequestLoan.columns.add("CANTIDAD_PAGAR", Float, {
+    tableNewRequestLoan.columns.add('CANTIDAD_PAGAR', Float, {
       nullable: true,
     });
-    tableNewRequestLoan.columns.add("TASA_INTERES", Int, { nullable: true });
-    tableNewRequestLoan.columns.add("OBSERVACIONES", VarChar, {
+    tableNewRequestLoan.columns.add('TASA_INTERES', Int, { nullable: true });
+    tableNewRequestLoan.columns.add('OBSERVACIONES', VarChar, {
       nullable: true,
     });
-    tableNewRequestLoan.columns.add("CREATED_BY", Int, { nullable: false });
-    tableNewRequestLoan.columns.add("CREATED_DATE", DateTime, {
+    tableNewRequestLoan.columns.add('CREATED_BY', Int, { nullable: false });
+    tableNewRequestLoan.columns.add('CREATED_DATE', DateTime, {
       nullable: false,
     });
-    tableNewRequestLoan.columns.add("MODIFIED_DATE", DateTime, {
+    tableNewRequestLoan.columns.add('MODIFIED_DATE', DateTime, {
       nullable: true,
     });
-    tableNewRequestLoan.columns.add("CLOSED_BY", Int, { nullable: true });
-    tableNewRequestLoan.columns.add("CLOSED_DATE", DateTime, {
+    tableNewRequestLoan.columns.add('CLOSED_BY', Int, { nullable: true });
+    tableNewRequestLoan.columns.add('CLOSED_DATE', DateTime, {
       nullable: true,
     });
-    tableNewRequestLoan.columns.add("STATUS_CODE", Int, { nullable: true });
+    tableNewRequestLoan.columns.add('STATUS_CODE', Int, { nullable: true });
 
     tableNewRequestLoan.rows.add(
       spInsertNewLoanRequest.id,
@@ -148,21 +148,21 @@ export const registerNewLoanRequest = async (
       spInsertNewLoanRequest.modified_date,
       spInsertNewLoanRequest.closed_by,
       spInsertNewLoanRequest.closed_date,
-      spInsertNewLoanRequest.status_code,
+      spInsertNewLoanRequest.status_code
     );
 
     await procTransaction.request().bulk(tableNewRequestLoan);
     await procTransaction.commit();
 
-    message = "Alta de nuevo requerimiento terminó de manera exitosa";
+    message = 'Alta de nuevo requerimiento terminó de manera exitosa';
     return { message };
   } catch (error) {
     await procTransaction.rollback();
-    let message = "";
-    let errorMessage = "";
+    let message = '';
+    let errorMessage = '';
 
     if (error instanceof Error) {
-      message = "Error durante la transacción";
+      message = 'Error durante la transacción';
       errorMessage = error.message as string;
     }
     console.log({ message, error });

@@ -3,7 +3,7 @@ import { Int } from 'mssql';
 import { DbConnector } from '../../helpers/dbConnector';
 import { loan_update_date } from '../../helpers/table-schemas';
 import { SPInsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
-import { Status, statusResponse } from '../types/loanRequest';
+import { statusResponse } from '../types/loanRequest';
 import { customer_request, address } from '../../helpers/table-schemas';
 import { registerNewCustomer } from '../../customer/transactions/registerNewCustomer';
 
