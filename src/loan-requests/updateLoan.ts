@@ -1,7 +1,7 @@
 import { APIGatewayEvent } from 'aws-lambda';
 
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
-import { registerNewLoanRequest } from './loans/registerUpdateLoanRequest';
+import { registerUpdateLoanRequest } from './loans/registerUpdateLoanRequest';
 import { isValidLoanData } from './loans/validateLoanUpdateData';
 import { SPInsertNewLoanRequest } from './types/SPInsertNewLoanRequest';
 
@@ -34,7 +34,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     );
   }
 
-  const result = await registerNewLoanRequest(spInsertNewLoanRequest);
+  const result = await registerUpdateLoanRequest(spInsertNewLoanRequest);
   if (result.error) {
     statusCode = 400;
   }

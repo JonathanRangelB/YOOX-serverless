@@ -6,8 +6,9 @@ import { SPInsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
 import { statusResponse } from '../types/loanRequest';
 import { customer_request, address } from '../../helpers/table-schemas';
 import { registerNewCustomer } from '../../customer/transactions/registerNewCustomer';
+import { type } from 'os';
 
-export const registerNewLoanRequest = async (
+export const registerUpdateLoanRequest = async (
   spInsertNewLoanRequest: SPInsertNewLoanRequest
 ): Promise<statusResponse> => {
   let message = '';
@@ -28,6 +29,9 @@ export const registerNewLoanRequest = async (
 
     // WARN: falso positivo, los objetos vacios son thruty y no deberia ser usado asi en el if
     // Manejo de concurrencia
+
+    console.log(typeof queryResult.recordset[0])
+
     if (!queryResult.recordset[0]) {
       await procTransaction.rollback();
       return { message: 'El registro no existe' };
@@ -199,14 +203,15 @@ export const registerNewLoanRequest = async (
     console.log(updateQueryString);
     console.log('===========================================================');
 
-    const reqUpdate = procTransaction.request();
-    reqUpdate.input('IID', id_loan_request);
+    const requestUpdate = procTransaction.request();
+    requestUpdate.input('IID', id_loan_request);
 
-    const updateResult = await reqUpdate.query(updateQueryString);
+    const updateResult = await requestUpdate.query(updateQueryString);
 
     if (!updateResult.rowsAffected.length) {
       await procTransaction.rollback();
       message = 'No se actualizó el registro';
+      return { message }
     }
 
     await procTransaction.commit();

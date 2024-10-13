@@ -102,21 +102,39 @@ export const registerNewCustomer = async (
       addressObject.created_date
     );
 
+    let updateIndexId = `` //= "UPDATE [INDICES] " //SET [INDICE] = ${lastAddressId} WHERE OBJETO = 'ID_CLIENTE'   'ID_DOMICILIO')"
+
     if (addressObject.numero_interior) {
       tableAddressSuiteNumberBD.rows.add(
         lastAddressId,
         addressObject.numero_interior,
         lastCustomerId,
-        `CLIENTE`
+        "CLIENTE"
       );
 
       await procTransaction.request().bulk(tableAddressSuiteNumberBD);
+
+      updateIndexId += `UPDATE [INDICES] SET [INDICE] = ${lastAddressId} WHERE OBJETO = 'ID_DOMICILIO' 
+                        `
     }
 
     await procTransaction.request().bulk(tableCustomerBD);
     await procTransaction.request().bulk(tableAddressBD);
 
-    message = `Alta de nuevo cliente terminó de manera exitosa`;
+
+    updateIndexId += `UPDATE [INDICES] SET [INDICE] = ${lastCustomerId} WHERE OBJETO = 'ID_CLIENTE'`
+
+    console.log("Query para indices: " + updateIndexId)
+
+    const requestUpdate = procTransaction.request()
+    const updateResult = await requestUpdate.query(updateIndexId)
+
+    if(!updateResult.rowsAffected.length) {
+      message = 'No se pudo actualizar'
+      return { message, idCustomer: 0 }
+    }
+
+    message = "Alta de nuevo cliente terminó de manera exitosa";
     return { message, idCustomer: lastCustomerId };
   } catch (error) {
     let message = '';
