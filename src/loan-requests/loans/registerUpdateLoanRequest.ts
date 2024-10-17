@@ -21,15 +21,14 @@ export const registerUpdateLoanRequest = async (
       .request()
       .input('ID_LOAN_REQUEST', Int, spInsertNewLoanRequest.id)
       .query<loan_update_date>(
-        'SELECT ID, REQUEST_NUMBER, LOAN_REQUEST_STATUS, GETDATE() AS CURRENT_DATE_SERVER FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;'
+        'SELECT id as [loan_id], request_number, loan_request_status, getdate() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;'
       );
 
     console.log(`Concurrencia: ${queryResult.rowsAffected.length}`);
-    console.table(queryResult.recordset[0]);
+    console.table(queryResult.recordset);
+    const created_date = queryResult.recordset[0].current_date_server
 
-    // WARN: falso positivo, los objetos vacios son thruty y no deberia ser usado asi en el if
     // Manejo de concurrencia
-
     console.log(typeof queryResult.recordset[0])
 
     if (!queryResult.recordset[0]) {
@@ -38,14 +37,9 @@ export const registerUpdateLoanRequest = async (
     }
 
     const currentLoanRequestStatus =
-      queryResult.recordset[0].LOAN_REQUEST_STATUS;
+      queryResult.recordset[0].loan_request_status;
 
-    if (
-      // TODO: puede ser refactorizado a: ['APROBADO', 'RECHAZADO'].includes(currentLoanRequestStatus)
-      // lo hace menos verboso y facil de leer
-      currentLoanRequestStatus === `APROBADO` ||
-      currentLoanRequestStatus === `RECHAZADO`
-    ) {
+    if (['APROBADO', 'RECHAZADO'].includes(currentLoanRequestStatus)) {
       await procTransaction.rollback();
       return {
         message: `La solicitud ya fue cerrada con el status ${currentLoanRequestStatus}`,
@@ -55,10 +49,8 @@ export const registerUpdateLoanRequest = async (
     // TODO: extrayendo todo en variables, al final del desarollo eliminar las que no se utilicen
     const {
       id: id_loan_request,
-      request_number,
       loan_request_status: newLoanRequestStatus,
       id_agente,
-      id_grupo_original,
       id_cliente,
       nombre_cliente,
       apellido_paterno_cliente,
@@ -85,16 +77,17 @@ export const registerUpdateLoanRequest = async (
       cantidad_pagar,
       tasa_interes,
       observaciones,
-      created_by,
-      created_date,
-      modified_date,
       closed_by,
-      closed_date,
-      status_code,
     } = spInsertNewLoanRequest;
 
     //Comienza ensamblado de la cadena del query
     let updateQueryColumns = '';
+
+    if(currentLoanRequestStatus === newLoanRequestStatus) {
+      message = 'Cambio de status incorrecto'
+      procTransaction.rollback()
+      return {message}
+    }
 
     if (
       currentLoanRequestStatus === `ACTUALIZAR` &&
@@ -126,23 +119,19 @@ export const registerUpdateLoanRequest = async (
       ,CANTIDAD_PAGAR = ${cantidad_pagar}
       ,TASA_INTERES = ${tasa_interes}
       ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : 'NULL'}
-      ,MODIFIED_DATE = @MOD_DT`; // TODO: revisar que es @MOD_DT, quiza aun no fue implementado, no mezclar tecnicas de creacion de strings para los querys
+      ,MODIFIED_DATE = GETDATE() 
+      `; 
     }
 
     if (currentLoanRequestStatus === `EN REVISION`) {
       switch (newLoanRequestStatus) {
         case 'ACTUALIZAR':
-          // TODO: se requiere concatenar? en ese caso usar +=
+          
           updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' `;
           break;
 
-        case 'APROBADO':
-          // TODO: se requiere concatenar? en ese caso usar +=
-          updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}'
-          ,CLOSED_BY = ${closed_by}
-          ,CLOSED_DATE = GETDATE()`;
-
-          if (id_cliente) {
+        case 'APROBADO':          
+          if (!id_cliente) {
             const objCustomer: customer_request = {
               id: 0,
               nombre: `${nombre_cliente} ${apellido_paterno_cliente} ${apellido_materno_cliente}`,
@@ -151,9 +140,9 @@ export const registerUpdateLoanRequest = async (
               correo_electronico,
               activo: 1,
               clasificacion: '',
-              observaciones: '',
+              observaciones,
               id_agente,
-              ocupacion: '',
+              ocupacion,
               curp,
               id_domicilio: 0,
             };
@@ -168,44 +157,58 @@ export const registerUpdateLoanRequest = async (
               municipio,
               estado,
               cp,
-              referencias,
-              created_by_usr: created_by,
-              created_date: queryResult.recordset[0].CURRENT_DATE_SERVER,
+              referencias: '',
+              created_by_usr: id_agente,
+              created_date,
               modified_by_usr: 0,
-              modified_date: queryResult.recordset[0].CURRENT_DATE_SERVER,
+              modified_date: created_date,
             };
 
-            // TODO: variable aun no utilizada
+            console.log(objCustomer);
+            console.log(objAddress);
+            console.log('=================== Start insert new customer =======================');            
             const procNewCustomer = await registerNewCustomer(
               objCustomer,
               objAddress,
               procTransaction
-            );
+            );            
+            console.log('=================== End insert new customer =======================');
 
-            console.table(objCustomer);
-            console.table(objAddress);
+            if(!procNewCustomer.idCustomer) {
+              return {message : procNewCustomer.message}
+            }
+
+            updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}'
+            ,ID_CLIENTE = ${procNewCustomer.idCustomer}
+            ,CLOSED_BY = ${closed_by}
+            ,CLOSED_DATE = GETDATE()`;
+
+          } else {
+            updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}'
+            ,CLOSED_BY = ${closed_by}
+            ,CLOSED_DATE = GETDATE()`;
           }
+
+          break;
 
         case 'RECHAZADO':
           updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' ,CLOSED_BY = ${closed_by} ,CLOSED_DATE = GETDATE()`;
           break;
 
         default:
-          // TODO: esta linea causa conflicto, no se entiende bien lo que se quiere hacer aquí
-          (message = `Cambio de status incorrecto`), procTransaction.rollback();
+          message = 'Cambio de status incorrecto'
+          procTransaction.rollback();
+          return {message}
       }
     }
 
-    // TODO: igual que la linea 124, no mezclar las tecnicas de creacion de strings para los querys
-    let updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = @IID;`;
+    let updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = ${id_loan_request};`;
 
     console.log('=================== Query statement =======================');
     console.log(updateQueryString);
     console.log('===========================================================');
 
     const requestUpdate = procTransaction.request();
-    requestUpdate.input('IID', id_loan_request);
-
     const updateResult = await requestUpdate.query(updateQueryString);
 
     if (!updateResult.rowsAffected.length) {
@@ -217,6 +220,7 @@ export const registerUpdateLoanRequest = async (
     await procTransaction.commit();
     message = 'Requerimiento de préstamo actualizado';
     return { message };
+
   } catch (error) {
     await procTransaction.rollback();
     let message = '';

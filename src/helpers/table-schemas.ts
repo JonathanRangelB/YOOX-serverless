@@ -43,10 +43,10 @@ export interface last_loan_id {
 }
 
 export interface loan_update_date {
-  LOAN_ID: number;
-  REQUEST_NUMBER: string;
-  LOAN_REQUEST_STATUS: string;
-  CURRENT_DATE_SERVER: Date;
+  loan_id: number;
+  request_number: string;
+  loan_request_status: string;
+  current_date_server: Date
 }
 
 export interface indexes_id {

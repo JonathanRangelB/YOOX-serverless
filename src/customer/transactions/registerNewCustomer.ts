@@ -1,4 +1,4 @@
-import { Int, Table, VarChar, Transaction, Bit } from 'mssql';
+import { Int, Table, VarChar, Transaction, Bit, DateTime } from 'mssql';
 import {
   indexes_id,
   customer_request,
@@ -11,6 +11,9 @@ export const registerNewCustomer = async (
   addressObject: address,
   procTransaction: Transaction
 ): Promise<customerReqResponse> => {
+  
+  console.log("INICIA transaccion ALTA de CLIENTE")
+
   let message = '';
   let lastCustomerId = 0;
 
@@ -18,11 +21,16 @@ export const registerNewCustomer = async (
     const nextIdQuery = await procTransaction
       .request()
       .query<indexes_id>(
-        `SELECT [OBJETO], [INDICE] FROM [INDICES] WHERE OBJETO IN ('ID_CLIENTE', 'ID_DOMICILIO') ORDER BY OBJETO; `
+        `SELECT [objeto], [indice] FROM [INDICES] WHERE OBJETO IN ('ID_CLIENTE', 'ID_DOMICILIO') ORDER BY OBJETO; `
       );
 
-    lastCustomerId = nextIdQuery.recordsets[0][0].indice + 1;
-    const lastAddressId = nextIdQuery.recordsets[0][1].indice + 1;
+      console.table(nextIdQuery)
+
+    lastCustomerId = nextIdQuery.recordset[0].indice;
+    const lastAddressId = nextIdQuery.recordset[1].indice;
+
+    console.log("lastCustomerId: " + lastCustomerId)
+    console.log("lastAddressId: " + lastAddressId)
 
     const tableCustomerBD = new Table('CLIENTES');
     const tableAddressBD = new Table('DOMICILIOS');
@@ -36,6 +44,8 @@ export const registerNewCustomer = async (
     tableCustomerBD.columns.add('NOMBRE', VarChar, { nullable: false });
     tableCustomerBD.columns.add('TELEFONO_FIJO', VarChar, { nullable: true });
     tableCustomerBD.columns.add('TELEFONO_MOVIL', VarChar, { nullable: true });
+    tableCustomerBD.columns.add('NUMERO_EXTERIOR', VarChar, { nullable: false });
+    tableCustomerBD.columns.add('NUMERO_INTERIOR', VarChar, { nullable: false });
     tableCustomerBD.columns.add('CORREO_ELECTRONICO', VarChar, {
       nullable: true,
     });
@@ -56,10 +66,10 @@ export const registerNewCustomer = async (
     tableAddressBD.columns.add('ESTADO', VarChar, { nullable: true });
     tableAddressBD.columns.add('CP', VarChar, { nullable: true });
     tableAddressBD.columns.add('REFERENCIAS', VarChar, { nullable: true });
-    tableAddressBD.columns.add('CREATED_BY_USR', VarChar, { nullable: true });
-    tableAddressBD.columns.add('CREATED_DATE', VarChar, { nullable: true });
-    tableAddressBD.columns.add('MODIFIED_BY_USR', VarChar, { nullable: true });
-    tableAddressBD.columns.add('MODIFIED_DATE', VarChar, { nullable: true });
+    tableAddressBD.columns.add('CREATED_BY_USR', Int, { nullable: true });
+    tableAddressBD.columns.add('CREATED_DATE', DateTime, { nullable: true });
+    tableAddressBD.columns.add('MODIFIED_BY_USR', Int, { nullable: true });
+    tableAddressBD.columns.add('MODIFIED_DATE', DateTime, { nullable: true });
 
     tableAddressSuiteNumberBD.columns.add('ID_DOMICILIO', Int, {
       nullable: false,
@@ -70,7 +80,6 @@ export const registerNewCustomer = async (
     tableAddressSuiteNumberBD.columns.add('ID_CLIENTE', Int, {
       nullable: true,
     });
-    // tableAddressSuiteNumberBD.columns.add("ID_AVAL",	Int	, { nullable: true});
     tableAddressSuiteNumberBD.columns.add('TIPO', VarChar, { nullable: true });
 
     tableCustomerBD.rows.add(
@@ -78,12 +87,14 @@ export const registerNewCustomer = async (
       customerObject.nombre,
       customerObject.telefono_fijo,
       customerObject.telefono_movil,
+      addressObject.numero_exterior,
+      addressObject.numero_interior,      
       customerObject.correo_electronico,
       1,
-      customerObject.clasificacion,
-      customerObject.observaciones,
+      undefined,
+      customerObject.observaciones ? customerObject.observaciones : undefined,
       customerObject.id_agente,
-      customerObject.ocupacion,
+      customerObject.ocupacion ? customerObject.ocupacion : undefined,
       customerObject.curp,
       lastAddressId
     );
@@ -102,7 +113,9 @@ export const registerNewCustomer = async (
       addressObject.created_date
     );
 
-    let updateIndexId = `` //= "UPDATE [INDICES] " //SET [INDICE] = ${lastAddressId} WHERE OBJETO = 'ID_CLIENTE'   'ID_DOMICILIO')"
+    let updateIndexIdQuery = ''
+
+    console.log("Número interior: " + addressObject.numero_interior)
 
     if (addressObject.numero_interior) {
       tableAddressSuiteNumberBD.rows.add(
@@ -114,7 +127,7 @@ export const registerNewCustomer = async (
 
       await procTransaction.request().bulk(tableAddressSuiteNumberBD);
 
-      updateIndexId += `UPDATE [INDICES] SET [INDICE] = ${lastAddressId} WHERE OBJETO = 'ID_DOMICILIO' 
+      updateIndexIdQuery += `UPDATE [INDICES] SET [INDICE] = ${lastAddressId} + 1 WHERE OBJETO = 'ID_DOMICILIO' 
                         `
     }
 
@@ -122,12 +135,12 @@ export const registerNewCustomer = async (
     await procTransaction.request().bulk(tableAddressBD);
 
 
-    updateIndexId += `UPDATE [INDICES] SET [INDICE] = ${lastCustomerId} WHERE OBJETO = 'ID_CLIENTE'`
+    updateIndexIdQuery += `UPDATE [INDICES] SET [INDICE] = ${lastCustomerId} + 1 WHERE OBJETO = 'ID_CLIENTE'`
 
-    console.log("Query para indices: " + updateIndexId)
+    console.log("Query para actualizar indices: " + updateIndexIdQuery)
 
     const requestUpdate = procTransaction.request()
-    const updateResult = await requestUpdate.query(updateIndexId)
+    const updateResult = await requestUpdate.query(updateIndexIdQuery)
 
     if(!updateResult.rowsAffected.length) {
       message = 'No se pudo actualizar'
