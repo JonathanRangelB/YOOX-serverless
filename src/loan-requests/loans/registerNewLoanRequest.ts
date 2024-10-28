@@ -102,13 +102,7 @@ export const registerNewLoanRequest = async (
     tableNewRequestLoan.columns.add('CREATED_DATE', DateTime, {
       nullable: false,
     });
-    tableNewRequestLoan.columns.add('MODIFIED_DATE', DateTime, {
-      nullable: true,
-    });
-    tableNewRequestLoan.columns.add('CLOSED_BY', Int, { nullable: true });
-    tableNewRequestLoan.columns.add('CLOSED_DATE', DateTime, {
-      nullable: true,
-    });
+
     tableNewRequestLoan.columns.add('STATUS_CODE', Int, { nullable: true });
 
     tableNewRequestLoan.rows.add(
@@ -145,9 +139,6 @@ export const registerNewLoanRequest = async (
       spInsertNewLoanRequest.observaciones,
       spInsertNewLoanRequest.created_by,
       spInsertNewLoanRequest.created_date,
-      spInsertNewLoanRequest.modified_date,
-      spInsertNewLoanRequest.closed_by,
-      spInsertNewLoanRequest.closed_date,
       spInsertNewLoanRequest.status_code
     );
 
