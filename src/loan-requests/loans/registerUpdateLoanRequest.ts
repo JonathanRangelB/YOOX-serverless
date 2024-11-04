@@ -24,12 +24,10 @@ export const registerUpdateLoanRequest = async (
         'SELECT id as [loan_id], request_number, loan_request_status, getdate() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;'
       );
 
-    console.log(`Concurrencia: ${queryResult.rowsAffected.length}`);
     console.table(queryResult.recordset);
     const created_date = queryResult.recordset[0].current_date_server
 
     // Manejo de concurrencia
-    console.log(typeof queryResult.recordset[0])
 
     if (!queryResult.recordset[0]) {
       await procTransaction.rollback();
@@ -163,16 +161,12 @@ export const registerUpdateLoanRequest = async (
               modified_by_usr: 0,
               modified_date: created_date,
             };
-
-            console.log(objCustomer);
-            console.log(objAddress);
-            console.log('=================== Start insert new customer =======================');            
+       
             const procNewCustomer = await registerNewCustomer(
               objCustomer,
               objAddress,
               procTransaction
             );            
-            console.log('=================== End insert new customer =======================');
 
             if(!procNewCustomer.idCustomer) {
               return {message : procNewCustomer.message}
@@ -204,10 +198,6 @@ export const registerUpdateLoanRequest = async (
 
     let updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = ${id_loan_request};`;
 
-    console.log('=================== Query statement =======================');
-    console.log(updateQueryString);
-    console.log('===========================================================');
-
     const requestUpdate = procTransaction.request();
     const updateResult = await requestUpdate.query(updateQueryString);
 
@@ -230,7 +220,7 @@ export const registerUpdateLoanRequest = async (
       message = 'Error durante la transacción';
       errorMessage = error.message as string;
     }
-    console.log({ message, error });
+
     return { message, error: errorMessage };
   }
 };

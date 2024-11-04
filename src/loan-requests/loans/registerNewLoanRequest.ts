@@ -1,19 +1,53 @@
 import { DateTime, Float, Int, Table, VarChar } from 'mssql';
-
 import { DbConnector } from '../../helpers/dbConnector';
 import { last_loan_id } from '../../helpers/table-schemas';
 import { SPInsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
 import { statusResponse } from '../types/loanRequest';
-import { convertToBase36 } from '../../helpers/utils';
+import { convertToBase36, convertDateTimeZone } from '../../helpers/utils';
 
 export const registerNewLoanRequest = async (
   spInsertNewLoanRequest: SPInsertNewLoanRequest
 ): Promise<statusResponse> => {
   let message = '';
+  let validData = true
   const pool = await DbConnector.getInstance().connection;
   const procTransaction = pool.transaction();
 
   try {
+
+const {
+  id_agente,
+  id_grupo_original,
+  id_cliente,
+  nombre_cliente,
+  apellido_paterno_cliente,
+  apellido_materno_cliente,
+  telefono_fijo,
+  telefono_movil,
+  correo_electronico,
+  ocupacion,
+  curp,
+  tipo_calle,
+  nombre_calle,
+  numero_exterior,
+  numero_interior,
+  colonia,
+  municipio,
+  estado,
+  cp,
+  referencias,
+  id_plazo,
+  cantidad_prestada,
+  dia_semana,
+  fecha_inicial,
+  fecha_final_estimada,
+  cantidad_pagar,
+  //tasa_interes,
+  observaciones,
+  created_by,
+  status_code
+} = spInsertNewLoanRequest;
+
     await procTransaction.begin();
 
     const nextIdQuery = await procTransaction
@@ -22,15 +56,63 @@ export const registerNewLoanRequest = async (
         'SELECT ISNULL(MAX(ID), 0) AS LAST_LOAN_ID, GETDATE() AS CURRENT_DATE_SERVER FROM LOAN_REQUEST;'
       );
 
-    spInsertNewLoanRequest.id = nextIdQuery.recordset[0].LAST_LOAN_ID + 1;
-    spInsertNewLoanRequest.created_date =
-      nextIdQuery.recordset[0].CURRENT_DATE_SERVER;
-    spInsertNewLoanRequest.request_number = convertToBase36(
-      spInsertNewLoanRequest.id
+    const getGenericData = await procTransaction
+    .request()
+    .query<{value: number | null}>(
+      `SELECT ID AS value FROM USUARIOS WHERE ACTIVO = 1 AND ID = ${id_agente}
+      SELECT ID AS value FROM USUARIOS WHERE ACTIVO = 1 AND ID = ${created_by}
+      SELECT ID_GRUPO AS value FROM GRUPOS_AGENTES WHERE ID_GRUPO = ${id_grupo_original}
+      SELECT TASA_DE_INTERES AS value FROM PLAZO WHERE ID = ${id_plazo}
+      `
     );
-    spInsertNewLoanRequest.loan_request_status = 'EN REVISION';
 
-    const tableNewRequestLoan = new Table('LOAN_REQUEST');
+    const created_date = nextIdQuery.recordset[0].CURRENT_DATE_SERVER;
+
+    convertDateTimeZone(created_date, 'America/Mexico_City')
+   
+    const [idAgente, idUsuario, idGrupo, tasaInteres] = getGenericData.recordsets.map(([record]) => record?.value)
+
+    if(  fecha_inicial > fecha_final_estimada) {
+      validData = false
+      message += `La fecha inicial no puede ser posterior a la fecha final estimada
+      `
+    }
+
+    if(!idAgente){
+      validData = false
+      message += `EL agente no existe o se encuentra inactivo
+      `
+    }
+
+    if(!idUsuario) {
+      validData = false
+      message += `EL usuario no existe o se encuentra inactivo
+      `
+    }
+
+    if(!idGrupo) {
+      validData = false
+      message += `EL grupo no existe`      
+    }
+    
+    if(!tasaInteres) {
+      validData = false
+      message += `EL plazo seleccionado no existe`      
+    }
+
+    if(!validData) {
+      await procTransaction.rollback()
+      return {message}
+    }
+
+    const id = nextIdQuery.recordset[0].LAST_LOAN_ID + 1;
+
+    const request_number = convertToBase36(
+      id
+    );
+    const loan_request_status = 'EN REVISION';
+    let tableNewRequestLoan = new Table('LOAN_REQUEST');
+
     tableNewRequestLoan.create = false;
 
     tableNewRequestLoan.columns.add('ID', Int, { nullable: false });
@@ -106,47 +188,47 @@ export const registerNewLoanRequest = async (
     tableNewRequestLoan.columns.add('STATUS_CODE', Int, { nullable: true });
 
     tableNewRequestLoan.rows.add(
-      spInsertNewLoanRequest.id,
-      spInsertNewLoanRequest.request_number,
-      spInsertNewLoanRequest.loan_request_status,
-      spInsertNewLoanRequest.id_agente,
-      spInsertNewLoanRequest.id_grupo_original,
-      spInsertNewLoanRequest.id_cliente,
-      spInsertNewLoanRequest.nombre_cliente,
-      spInsertNewLoanRequest.apellido_paterno_cliente,
-      spInsertNewLoanRequest.apellido_materno_cliente,
-      spInsertNewLoanRequest.telefono_fijo,
-      spInsertNewLoanRequest.telefono_movil,
-      spInsertNewLoanRequest.correo_electronico,
-      spInsertNewLoanRequest.ocupacion,
-      spInsertNewLoanRequest.curp,
-      spInsertNewLoanRequest.tipo_calle,
-      spInsertNewLoanRequest.nombre_calle,
-      spInsertNewLoanRequest.numero_exterior,
-      spInsertNewLoanRequest.numero_interior,
-      spInsertNewLoanRequest.colonia,
-      spInsertNewLoanRequest.municipio,
-      spInsertNewLoanRequest.estado,
-      spInsertNewLoanRequest.cp,
-      spInsertNewLoanRequest.referencias,
-      spInsertNewLoanRequest.id_plazo,
-      spInsertNewLoanRequest.cantidad_prestada,
-      spInsertNewLoanRequest.dia_semana,
-      spInsertNewLoanRequest.fecha_inicial,
-      spInsertNewLoanRequest.fecha_final_estimada,
-      spInsertNewLoanRequest.cantidad_pagar,
-      spInsertNewLoanRequest.tasa_interes,
-      spInsertNewLoanRequest.observaciones,
-      spInsertNewLoanRequest.created_by,
-      spInsertNewLoanRequest.created_date,
-      spInsertNewLoanRequest.status_code
+      id,
+      request_number,
+      loan_request_status,
+      id_agente,
+      id_grupo_original,
+      id_cliente,
+      nombre_cliente,
+      apellido_paterno_cliente,
+      apellido_materno_cliente,
+      telefono_fijo,
+      telefono_movil,
+      correo_electronico,
+      ocupacion,
+      curp,
+      tipo_calle,
+      nombre_calle,
+      numero_exterior,
+      numero_interior,
+      colonia,
+      municipio,
+      estado,
+      cp,
+      referencias,
+      id_plazo,
+      cantidad_prestada,
+      dia_semana,
+      fecha_inicial,
+      fecha_final_estimada,
+      cantidad_pagar,
+      tasaInteres,
+      observaciones,
+      created_by,
+      created_date,
+      status_code
     );
 
     await procTransaction.request().bulk(tableNewRequestLoan);
     await procTransaction.commit();
 
     message = 'Alta de nuevo requerimiento terminó de manera exitosa';
-    return { message };
+    return { message, customerFolderName: `${request_number}-${apellido_paterno_cliente}`  };
   } catch (error) {
     await procTransaction.rollback();
     let message = '';
@@ -156,7 +238,7 @@ export const registerNewLoanRequest = async (
       message = 'Error durante la transacción';
       errorMessage = error.message as string;
     }
-    console.log({ message, error });
+
     return { message, error: errorMessage };
   }
 };
