@@ -16,8 +16,6 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     spInsertNewLoanRequest: SPInsertNewLoanRequest;
   };
 
-  console.table(spInsertNewLoanRequest);
-
   if (!spInsertNewLoanRequest) {
     return generateJsonResponse(
       { message: 'spInsertNewLoanRequest is not defined' },

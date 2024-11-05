@@ -11,8 +11,7 @@ export const registerNewCustomer = async (
   addressObject: address,
   procTransaction: Transaction
 ): Promise<customerReqResponse> => {
-  
-  console.log("INICIA transaccion ALTA de CLIENTE")
+  console.log('INICIA transaccion ALTA de CLIENTE');
 
   let message = '';
   let lastCustomerId = 0;
@@ -24,13 +23,13 @@ export const registerNewCustomer = async (
         `SELECT [objeto], [indice] FROM [INDICES] WHERE OBJETO IN ('ID_CLIENTE', 'ID_DOMICILIO') ORDER BY OBJETO; `
       );
 
-      console.table(nextIdQuery)
+    // console.table(nextIdQuery);
 
     lastCustomerId = nextIdQuery.recordset[0].indice;
     const lastAddressId = nextIdQuery.recordset[1].indice;
 
-    console.log("lastCustomerId: " + lastCustomerId)
-    console.log("lastAddressId: " + lastAddressId)
+    console.log('lastCustomerId: ' + lastCustomerId);
+    console.log('lastAddressId: ' + lastAddressId);
 
     const tableCustomerBD = new Table('CLIENTES');
     const tableAddressBD = new Table('DOMICILIOS');
@@ -44,8 +43,12 @@ export const registerNewCustomer = async (
     tableCustomerBD.columns.add('NOMBRE', VarChar, { nullable: false });
     tableCustomerBD.columns.add('TELEFONO_FIJO', VarChar, { nullable: true });
     tableCustomerBD.columns.add('TELEFONO_MOVIL', VarChar, { nullable: true });
-    tableCustomerBD.columns.add('NUMERO_EXTERIOR', VarChar, { nullable: false });
-    tableCustomerBD.columns.add('NUMERO_INTERIOR', VarChar, { nullable: false });
+    tableCustomerBD.columns.add('NUMERO_EXTERIOR', VarChar, {
+      nullable: false,
+    });
+    tableCustomerBD.columns.add('NUMERO_INTERIOR', VarChar, {
+      nullable: false,
+    });
     tableCustomerBD.columns.add('CORREO_ELECTRONICO', VarChar, {
       nullable: true,
     });
@@ -88,7 +91,7 @@ export const registerNewCustomer = async (
       customerObject.telefono_fijo,
       customerObject.telefono_movil,
       addressObject.numero_exterior,
-      addressObject.numero_interior,      
+      addressObject.numero_interior,
       customerObject.correo_electronico,
       1,
       undefined,
@@ -113,41 +116,39 @@ export const registerNewCustomer = async (
       addressObject.created_date
     );
 
-    let updateIndexIdQuery = ''
+    let updateIndexIdQuery = '';
 
-    console.log("Número interior: " + addressObject.numero_interior)
+    console.log('Número interior: ' + addressObject.numero_interior);
 
     if (addressObject.numero_interior) {
       tableAddressSuiteNumberBD.rows.add(
         lastAddressId,
         addressObject.numero_interior,
         lastCustomerId,
-        "CLIENTE"
+        'CLIENTE'
       );
 
       await procTransaction.request().bulk(tableAddressSuiteNumberBD);
 
-      updateIndexIdQuery += `UPDATE [INDICES] SET [INDICE] = ${lastAddressId} + 1 WHERE OBJETO = 'ID_DOMICILIO' 
-                        `
+      updateIndexIdQuery += `UPDATE [INDICES] SET [INDICE] = ${lastAddressId} + 1 WHERE OBJETO = 'ID_DOMICILIO' `;
     }
 
     await procTransaction.request().bulk(tableCustomerBD);
     await procTransaction.request().bulk(tableAddressBD);
 
+    updateIndexIdQuery += `UPDATE [INDICES] SET [INDICE] = ${lastCustomerId} + 1 WHERE OBJETO = 'ID_CLIENTE'`;
 
-    updateIndexIdQuery += `UPDATE [INDICES] SET [INDICE] = ${lastCustomerId} + 1 WHERE OBJETO = 'ID_CLIENTE'`
+    console.log('Query para actualizar indices: ' + updateIndexIdQuery);
 
-    console.log("Query para actualizar indices: " + updateIndexIdQuery)
+    const requestUpdate = procTransaction.request();
+    const updateResult = await requestUpdate.query(updateIndexIdQuery);
 
-    const requestUpdate = procTransaction.request()
-    const updateResult = await requestUpdate.query(updateIndexIdQuery)
-
-    if(!updateResult.rowsAffected.length) {
-      message = 'No se pudo actualizar'
-      return { message, idCustomer: 0 }
+    if (!updateResult.rowsAffected.length) {
+      message = 'No se pudo actualizar';
+      return { message, idCustomer: 0 };
     }
 
-    message = "Alta de nuevo cliente terminó de manera exitosa";
+    message = 'Alta de nuevo cliente terminó de manera exitosa';
     return { message, idCustomer: lastCustomerId };
   } catch (error) {
     let message = '';

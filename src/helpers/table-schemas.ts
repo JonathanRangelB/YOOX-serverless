@@ -46,7 +46,7 @@ export interface loan_update_date {
   loan_id: number;
   request_number: string;
   loan_request_status: string;
-  current_date_server: Date
+  current_date_server: Date;
 }
 
 export interface indexes_id {
@@ -78,3 +78,4 @@ export interface address_suite_number {
   id_aval: number;
   tipo: string;
 }
+

@@ -1,7 +1,6 @@
 export type Status = 'EN_REVISION' | 'APROBADO' | 'RECHAZADO';
 
 export interface statusResponse {
-  message: string;
-  customerFolderName?: string;
+  customerFolderName: string | undefined;
   error?: string;
 }
