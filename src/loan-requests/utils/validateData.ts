@@ -1,7 +1,8 @@
 import { Table } from 'mssql';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 
 import { last_loan_id } from '../../helpers/table-schemas';
-import { convertToBase36 } from '../../helpers/utils';
+import { convertDateTimeZone, convertToBase36 } from '../../helpers/utils';
 import { SPInsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
 import { generateNewLoanRequestTable } from './generateNewLoanRequestTable';
 import { DbConnector } from '../../helpers/dbConnector';
@@ -22,7 +23,7 @@ export async function validateData(
   const nextIdQuery = pool
     .request()
     .query<last_loan_id>(
-      'SELECT ISNULL(MAX(ID), 0) AS LAST_LOAN_ID, GETDATE() AS CURRENT_DATE_SERVER FROM LOAN_REQUEST;'
+      'SELECT ISNULL(MAX(ID), 0) AS LAST_LOAN_ID, GETUTCDATE() AS CURRENT_DATE_SERVER FROM LOAN_REQUEST;'
     );
 
   const getGenericDataQuery = pool
@@ -40,12 +41,7 @@ export async function validateData(
   ]);
 
   const created_date = nextId.recordset[0].CURRENT_DATE_SERVER;
-  console.warn({
-    created_date,
-    serverDate: nextId.recordset[0].CURRENT_DATE_SERVER,
-  });
-
-  // convertDateTimeZone(created_date, 'America/Mexico_City');
+  const horaLocal = convertDateTimeZone(created_date, 'America/Mexico_City');
 
   const [idAgente, idUsuario, idGrupo, tasaInteres] =
     getGenericData.recordsets.map(([record]: any) => record?.value);
@@ -81,7 +77,7 @@ export async function validateData(
     request_number,
     loan_request_status,
     tasaInteres,
-    created_date,
+    created_date: horaLocal as Date,
   });
 
   return { tableNewRequestLoan, request_number };
