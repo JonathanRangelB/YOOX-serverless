@@ -1,5 +1,5 @@
-import { DbConnector } from "../helpers/dbConnector";
-import { pagos_reglas_dias } from "../helpers/table-schemas";
+import { DbConnector } from '../helpers/dbConnector';
+import { pagos_reglas_dias } from '../helpers/table-schemas';
 
 export const getPagosAdelantadosPermitidos = async (idCliente: number) => {
   try {
@@ -9,7 +9,7 @@ export const getPagosAdelantadosPermitidos = async (idCliente: number) => {
       `
       SELECT * from PAGOS_REGLAS_DIAS prd WHERE id = 0
       SELECT * from PAGOS_REGLAS_DIAS prd WHERE id_cliente = ${idCliente}
-      `,
+      `
     );
     const diasPorDefecto = res.recordsets[0][0].numero_dias / 7;
     const diasDelCliente = res.recordsets[1][0]?.numero_dias / 7;

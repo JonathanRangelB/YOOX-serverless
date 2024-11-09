@@ -1,7 +1,7 @@
 import { Int, Date, Float } from 'mssql';
 import { SPAltaPago } from './types/SPAltaPago';
 import { statusResponse } from './types/pagos';
-import { DbConnector } from "../helpers/dbConnector"
+import { DbConnector } from '../helpers/dbConnector';
 
 export const registerPayment = async (
   spaAltaPago: SPAltaPago

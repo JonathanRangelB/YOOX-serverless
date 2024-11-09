@@ -11,12 +11,15 @@
     "getenv:dev": "infisical export --env=dev > .env",
     "getenv:stg": "infisical export --env=staging > .env.staging",
     "getenv:prod": "infisical export --env=prod > .env.prod",
-    "delete": "sls remove"
+    "delete": "sls remove",
+    "format": "prettier --write 'src/**/*.ts'"
   },
   "dependencies": {
     "@types/jsonwebtoken": "^9.0.6",
     "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "bcryptjs": "^2.4.3",
+    "date-fns-tz": "^3.2.0",
     "jsonwebtoken": "^9.0.2",
     "md5": "^2.3.0",
     "mssql": "^10.0.4"

@@ -1,7 +1,7 @@
 org: jonathanrangel
 app: yoox-serverless-api
 service: login-service
-frameworkVersion: "3"
+frameworkVersion: '3'
 
 provider:
   name: aws
@@ -39,15 +39,6 @@ functions:
           path: /v1/tokenValidation
           method: get
 
-  loan:
-    handler: ./src/payments/loan.handler
-    events:
-      - httpApi:
-          method: get
-          path: /v1/loan/{id}
-          authorizer:
-            name: authorizerFunc
-
   payment:
     handler: ./src/payments/payment.handler
     events:
@@ -57,21 +48,39 @@ functions:
           authorizer:
             name: authorizerFunc
 
-  newClientRequest:
-    handler: ./src/new-requests/customer.handler
+  newLoanRequest:
+    handler: ./src/loan-requests/newLoan.handler
     events:
       - httpApi:
           method: post
-          path: /v1/new/customer-request
+          path: /v1/loan-request/new
           authorizer:
             name: authorizerFunc
 
-  newLoanRequest:
-    handler: ./src/new-requests/loan.handler
+  updateLoanRequest:
+    handler: ./src/loan-requests/updateLoan.handler
     events:
       - httpApi:
-          method: post
-          path: /v1/new/loan-request
+          method: put
+          path: /v1/loan-request/update
+          authorizer:
+            name: authorizerFunc
+
+  viewLoanRequest:
+    handler: ./src/loan-requests/viewLoan.handler
+    events:
+      - httpApi:
+          method: get
+          path: /v1/loan-request/view
+          authorizer:
+            name: authorizerFunc
+
+  loan:
+    handler: ./src/payments/loan.handler
+    events:
+      - httpApi:
+          method: get
+          path: /v1/loan/{id}
           authorizer:
             name: authorizerFunc
 
