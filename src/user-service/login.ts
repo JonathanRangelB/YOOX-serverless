@@ -1,11 +1,12 @@
+import jwt from 'jsonwebtoken';
+import Ajv from 'ajv';
+
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { credentials } from './types/user-service';
 import { validateCredentials } from './validateCredentials';
-import Ajv from 'ajv';
+import { userSchema } from './schemas/userSchema';
 
-const jwt = require('jsonwebtoken');
 const ajv = new Ajv({ allErrors: true });
-const userSchema = require('./schemas/user.schema.json');
 const LOGIN_FAILED = { message: 'Login failed, verify your credentials' };
 
 module.exports.handler = async (event: any) => {
@@ -26,7 +27,7 @@ module.exports.handler = async (event: any) => {
     return generateJsonResponse({ LOGIN_FAILED }, 404);
   }
 
-  const token = jwt.sign({ recordset }, process.env.TOKEN_JWT, {
+  const token = jwt.sign({ recordset }, process.env.TOKEN_JWT!, {
     expiresIn: '30m',
   });
 

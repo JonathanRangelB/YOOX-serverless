@@ -1,8 +1,8 @@
-import { generateJsonResponse } from "../helpers/generateJsonResponse";
-import { getPagosAdelantadosPermitidos } from "./getPagosAdelantadosPermitidos";
-import { getPaymentsById as getLoanDetails } from "./getPaymentsById";
-import { PrestamosDetalle } from "./types/pagos";
-import { Prestamos } from "./types/prestamos";
+import { generateJsonResponse } from '../helpers/generateJsonResponse';
+import { getPagosAdelantadosPermitidos } from './getPagosAdelantadosPermitidos';
+import { getPaymentsById as getLoanDetails } from './getPaymentsById';
+import { PrestamosDetalle } from './types/pagos';
+import { Prestamos } from './types/prestamos';
 
 module.exports.handler = async (event: any) => {
   const { id: folio } = event.pathParameters;
@@ -21,13 +21,13 @@ module.exports.handler = async (event: any) => {
       {
         message: `No se encontraron resultados para el prestamo solicitado: ${folio}`,
       },
-      404,
+      404
     );
   const pagosAdelantadosPermitidos: number | { err: unknown } =
     await getPagosAdelantadosPermitidos(prestamos.ID_CLIENTE);
 
   return generateJsonResponse(
     { prestamos, prestamosDetalle, pagosAdelantadosPermitidos },
-    200,
+    200
   );
 };

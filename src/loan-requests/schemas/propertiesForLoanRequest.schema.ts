@@ -19,7 +19,10 @@ export const propertiesForLoanRequest = {
     type: 'string',
     pattern: '^\\d{10}$',
   },
-  correo_electronico: { type: 'string', pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'},
+  correo_electronico: {
+    type: 'string',
+    pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+  },
   ocupacion: { type: 'string' },
   curp: {
     type: 'string',
@@ -83,7 +86,8 @@ export const propertiesForLoanRequest = {
   referencias: { type: 'string' },
   id_plazo: { type: 'integer' },
   cantidad_prestada: { type: 'number', minimum: 1000 },
-  dia_semana: { type: 'string', 
+  dia_semana: {
+    type: 'string',
     enum: [
       'DOMINGO',
       'LUNES',
