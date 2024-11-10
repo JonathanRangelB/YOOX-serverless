@@ -12,9 +12,9 @@ provider:
     shouldStartNameWithService: true
   httpApi:
     authorizers:
-      authorizerFunc:
+      customAuthorizer:
         type: request
-        functionName: authorizerFunc
+        functionName: customAuthorizer
         identitySource:
           - $request.header.authorization
     cors:
@@ -23,6 +23,9 @@ provider:
         - https://development.yooxgrupofinanciero.com
         - https://staging.yooxgrupofinanciero.com
         - http://localhost:4200
+      allowedHeaders:
+        - Content-Type
+        - authorization
 
 functions:
   login:
@@ -46,7 +49,7 @@ functions:
           method: post
           path: /v1/payment
           authorizer:
-            name: authorizerFunc
+            name: customAuthorizer
 
   newLoanRequest:
     handler: ./src/loan-requests/newLoan.handler
@@ -55,7 +58,7 @@ functions:
           method: post
           path: /v1/loan-request/new
           authorizer:
-            name: authorizerFunc
+            name: customAuthorizer
 
   updateLoanRequest:
     handler: ./src/loan-requests/updateLoan.handler
@@ -64,7 +67,7 @@ functions:
           method: put
           path: /v1/loan-request/update
           authorizer:
-            name: authorizerFunc
+            name: customAuthorizer
 
   viewLoanRequest:
     handler: ./src/loan-requests/viewLoan.handler
@@ -73,24 +76,53 @@ functions:
           method: get
           path: /v1/loan-request/view
           authorizer:
-            name: authorizerFunc
+            name: customAuthorizer
 
   loan:
     handler: ./src/payments/loan.handler
     events:
       - httpApi:
-          method: get
+          method: post
           path: /v1/loan/{id}
           authorizer:
-            name: authorizerFunc
+            name: customAuthorizer
 
-  authorizerFunc:
+  uploadFiles:
+    handler: ./src/customerFiles/uploadFiles.handler
+    events:
+      - httpApi:
+          path: /v1/upload
+          method: post
+          authorizer:
+            name: customAuthorizer
+
+  getFile:
+    handler: ./src/customerFiles/getFile.handler
+    events:
+      - httpApi:
+          path: /v1/file/
+          method: post
+          authorizer:
+            name: customAuthorizer
+
+  listFiles:
+    handler: ./src/customerFiles/listFiles.handler
+    events:
+      - httpApi:
+          path: /v1/list-files/{foldername}
+          method: get
+          authorizer:
+            name: customAuthorizer
+
+  customAuthorizer:
     handler: ./src/authorizer/auth.handler
 
 custom:
   stage: ${opt:stage, self:provider.stage}
   environment:
     NODE_ENV: ${self:custom.stage}
+  autoswagger:
+    apiKeyHeaders: ["authorization"]
 
 # to run swagger locally with offline mode, run: sls offline start
 plugins:

@@ -1,4 +1,9 @@
-export const generateJsonResponse = (bodyData: any, statusCode: number) => {
+import { StatusCodes } from './statusCodes';
+
+export const generateJsonResponse = (
+  bodyData: any,
+  statusCode: StatusCodes
+) => {
   return {
     statusCode,
     headers: {
