@@ -78,4 +78,3 @@ export interface address_suite_number {
   id_aval: number;
   tipo: string;
 }
-

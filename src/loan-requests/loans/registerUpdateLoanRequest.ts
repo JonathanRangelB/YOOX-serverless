@@ -3,15 +3,13 @@ import { Int } from 'mssql';
 import { DbConnector } from '../../helpers/dbConnector';
 import { loan_update_date } from '../../helpers/table-schemas';
 import { SPInsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
-import { statusResponse } from '../types/loanRequest';
+import { updateStatusResponse } from '../types/loanRequest';
 import { customer_request, address } from '../../helpers/table-schemas';
 import { registerNewCustomer } from '../../customer/transactions/registerNewCustomer';
-import { type } from 'os';
 
 export const registerUpdateLoanRequest = async (
   spInsertNewLoanRequest: SPInsertNewLoanRequest
-): Promise<statusResponse> => {
-  let message = '';
+): Promise<updateStatusResponse> => {
   const pool = await DbConnector.getInstance().connection;
   const procTransaction = pool.transaction();
 
@@ -25,13 +23,13 @@ export const registerUpdateLoanRequest = async (
       );
 
     console.table(queryResult.recordset);
-    const created_date = queryResult.recordset[0].current_date_server
+    const created_date = queryResult.recordset[0].current_date_server;
 
     // Manejo de concurrencia
 
     if (!queryResult.recordset[0]) {
       await procTransaction.rollback();
-      return { message: 'El registro no existe' };
+      throw new Error('El registro no existe');
     }
 
     const currentLoanRequestStatus =
@@ -39,9 +37,9 @@ export const registerUpdateLoanRequest = async (
 
     if (['APROBADO', 'RECHAZADO'].includes(currentLoanRequestStatus)) {
       await procTransaction.rollback();
-      return {
-        message: `La solicitud ya fue cerrada con el status ${currentLoanRequestStatus}`,
-      };
+      throw new Error(
+        `La solicitud ya fue cerrada con el status ${currentLoanRequestStatus}`
+      );
     }
 
     // TODO: extrayendo todo en variables, al final del desarollo eliminar las que no se utilicen
@@ -81,10 +79,9 @@ export const registerUpdateLoanRequest = async (
     //Comienza ensamblado de la cadena del query
     let updateQueryColumns = '';
 
-    if(currentLoanRequestStatus === newLoanRequestStatus) {
-      message = 'Cambio de status incorrecto'
-      procTransaction.rollback()
-      return {message}
+    if (currentLoanRequestStatus === newLoanRequestStatus) {
+      procTransaction.rollback();
+      throw new Error('Cambio de status incorrecto');
     }
 
     if (
@@ -118,17 +115,16 @@ export const registerUpdateLoanRequest = async (
       ,TASA_INTERES = ${tasa_interes}
       ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : 'NULL'}
       ,MODIFIED_DATE = GETDATE() 
-      `; 
+      `;
     }
 
     if (currentLoanRequestStatus === `EN REVISION`) {
       switch (newLoanRequestStatus) {
         case 'ACTUALIZAR':
-          
           updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' `;
           break;
 
-        case 'APROBADO':          
+        case 'APROBADO':
           if (!id_cliente) {
             const objCustomer: customer_request = {
               id: 0,
@@ -161,22 +157,21 @@ export const registerUpdateLoanRequest = async (
               modified_by_usr: 0,
               modified_date: created_date,
             };
-       
+
             const procNewCustomer = await registerNewCustomer(
               objCustomer,
               objAddress,
               procTransaction
-            );            
+            );
 
-            if(!procNewCustomer.idCustomer) {
-              return {message : procNewCustomer.message}
+            if (!procNewCustomer.idCustomer) {
+              throw new Error(procNewCustomer.message);
             }
 
             updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}'
             ,ID_CLIENTE = ${procNewCustomer.idCustomer}
             ,CLOSED_BY = ${closed_by}
             ,CLOSED_DATE = GETDATE()`;
-
           } else {
             updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}'
             ,CLOSED_BY = ${closed_by}
@@ -190,37 +185,33 @@ export const registerUpdateLoanRequest = async (
           break;
 
         default:
-          message = 'Cambio de status incorrecto'
           procTransaction.rollback();
-          return {message}
+          throw new Error('Cambio de status incorrecto');
       }
     }
 
-    let updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = ${id_loan_request};`;
+    const updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = ${id_loan_request};`;
 
     const requestUpdate = procTransaction.request();
     const updateResult = await requestUpdate.query(updateQueryString);
 
     if (!updateResult.rowsAffected.length) {
       await procTransaction.rollback();
-      message = 'No se actualizó el registro';
-      return { message }
+      throw new Error('No se actualizó el registro');
     }
 
     await procTransaction.commit();
-    message = 'Requerimiento de préstamo actualizado';
-    return { message };
-
+    return {
+      message: 'Requerimiento de préstamo actualizado',
+    };
   } catch (error) {
     await procTransaction.rollback();
-    let message = '';
     let errorMessage = '';
 
     if (error instanceof Error) {
-      message = 'Error durante la transacción';
       errorMessage = error.message as string;
     }
 
-    return { message, error: errorMessage };
+    return { error: errorMessage };
   }
 };

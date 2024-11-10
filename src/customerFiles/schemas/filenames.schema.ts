@@ -1,8 +1,8 @@
 export const FileNamesSchema = {
-  type: "object",
+  type: 'object',
   properties: {
-    filenames: { type: "array", items: { type: "string" }, maxItems: 10 },
+    filenames: { type: 'array', items: { type: 'string' }, maxItems: 10 },
   },
-  required: ["filenames"],
+  required: ['filenames'],
   additionalProperties: false,
 };

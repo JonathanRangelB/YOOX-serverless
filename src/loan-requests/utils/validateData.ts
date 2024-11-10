@@ -1,5 +1,4 @@
 import { Table } from 'mssql';
-import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 
 import { last_loan_id } from '../../helpers/table-schemas';
 import { convertDateTimeZone, convertToBase36 } from '../../helpers/utils';
