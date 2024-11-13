@@ -2,22 +2,23 @@ import { Table } from 'mssql';
 
 import { last_loan_id } from '../../helpers/table-schemas';
 import { convertDateTimeZone, convertToBase36 } from '../../helpers/utils';
-import { SPInsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
+import { InsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
 import { generateNewLoanRequestTable } from './generateNewLoanRequestTable';
 import { DbConnector } from '../../helpers/dbConnector';
 
 export async function validateData(
-  newLoanRequest: SPInsertNewLoanRequest
+  newLoanRequest: InsertNewLoanRequest
 ): Promise<{ tableNewRequestLoan: Table; request_number: string }> {
   const pool = await DbConnector.getInstance().connection;
   const {
-    id_agente,
-    created_by,
-    id_grupo_original,
-    id_plazo,
     fecha_inicial,
+    plazo,
     fecha_final_estimada,
+    id_agente,
+    id_grupo_original,
+    created_by,
   } = newLoanRequest;
+  const { id: id_plazo } = plazo;
 
   const nextIdQuery = pool
     .request()

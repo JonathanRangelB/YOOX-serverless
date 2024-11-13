@@ -1,9 +1,9 @@
 import { DateTime, Float, Int, Table, VarChar } from 'mssql';
 
-import { SPInsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
+import { InsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
 
 export function generateNewLoanRequestTable(
-  newLoanRequest: SPInsertNewLoanRequest,
+  newLoanRequest: InsertNewLoanRequest,
   additionalData: {
     id: number;
     request_number: string;
@@ -12,37 +12,70 @@ export function generateNewLoanRequestTable(
     created_date: Date;
   }
 ) {
+  const status_code = undefined;
+
   const {
-    id_agente,
+    formCliente,
+    fecha_inicial,
+    plazo,
+    cantidad_prestada,
     id_grupo_original,
     id_cliente,
+    id_agente,
+    dia_semana,
+    fecha_final_estimada,
+    cantidad_pagar,
+    created_by,
+  } = newLoanRequest;
+
+  const { id: id_plazo } = plazo;
+
+  const {
     nombre_cliente,
     apellido_paterno_cliente,
     apellido_materno_cliente,
-    telefono_fijo,
-    telefono_movil,
-    correo_electronico,
-    ocupacion,
-    curp,
-    tipo_calle,
-    nombre_calle,
-    numero_exterior,
-    numero_interior,
-    colonia,
-    municipio,
-    estado,
-    cp,
-    referencias,
-    id_plazo,
-    cantidad_prestada,
-    dia_semana,
-    fecha_inicial,
-    fecha_final_estimada,
-    cantidad_pagar,
-    observaciones,
-    created_by,
-    status_code,
-  } = newLoanRequest;
+    telefono_fijo_cliente,
+    telefono_movil_cliente,
+    correo_electronico_cliente,
+    ocupacion_cliente,
+    curp_cliente,
+    calle_cliente: calleC,
+    nombre_calle_cliente,
+    numero_exterior_cliente,
+    numero_interior_cliente,
+    colonia_cliente,
+    municipio_cliente,
+    entidadFederativa: efc,
+    cp_cliente,
+    observaciones_cliente,
+    referencias_cliente: referencias,
+  } = formCliente;
+
+  const { value: tipo_calle_cliente } = calleC;
+  const { value: estado_cliente } = efc;
+
+  // TODO: CAMPOS DE AVAL, PENDIENTES DE IMPLEMENTAR
+  // const {
+  //   nombre_aval,
+  //   apellido_paterno_aval,
+  //   apellido_materno_aval,
+  //   telefono_fijo_aval,
+  //   telefono_movil_aval,
+  //   correo_electronico_aval,
+  //   ocupacion_aval,
+  //   curp_aval,
+  //   calle_aval: calleA,
+  //   nombre_calle_aval,
+  //   numero_exterior_aval,
+  //   numero_interior_aval,
+  //   colonia_aval,
+  //   municipio_aval,
+  //   entidadFederativa: efa,
+  //   cp_aval,
+  //   observaciones_aval,
+  // } = formAval;
+  // const { value: tipo_calle_aval } = calleA;
+  // const { value } = efa;
 
   const { id, request_number, loan_request_status, tasaInteres, created_date } =
     additionalData;
@@ -133,19 +166,20 @@ export function generateNewLoanRequestTable(
     nombre_cliente,
     apellido_paterno_cliente,
     apellido_materno_cliente,
-    telefono_fijo,
-    telefono_movil,
-    correo_electronico,
-    ocupacion,
-    curp,
-    tipo_calle,
-    nombre_calle,
-    numero_exterior,
-    numero_interior,
-    colonia,
-    municipio,
-    estado,
-    cp,
+    telefono_fijo_cliente,
+    telefono_movil_cliente,
+    correo_electronico_cliente,
+    ocupacion_cliente,
+    curp_cliente,
+    tipo_calle_cliente,
+    nombre_calle_cliente,
+    numero_exterior_cliente,
+    numero_interior_cliente,
+    colonia_cliente,
+    municipio_cliente,
+    estado_cliente,
+    cp_cliente,
+    observaciones_cliente,
     referencias,
     id_plazo,
     cantidad_prestada,
@@ -154,7 +188,6 @@ export function generateNewLoanRequestTable(
     fecha_final_estimada,
     cantidad_pagar,
     tasaInteres,
-    observaciones,
     created_by,
     created_date,
     status_code

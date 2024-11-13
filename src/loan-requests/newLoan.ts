@@ -3,7 +3,6 @@ import { APIGatewayEvent } from 'aws-lambda';
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { registerNewLoanRequest } from './loans/registerNewLoanRequest';
 import { isValidLoanData } from './loans/validateLoanData';
-import { SPInsertNewLoanRequest } from './types/SPInsertNewLoanRequest';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   let statusCode = 200;
@@ -12,18 +11,13 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     return generateJsonResponse({ message: 'No body provided' }, 400);
   }
 
-  const { spInsertNewLoanRequest } = JSON.parse(event.body) as {
-    spInsertNewLoanRequest: SPInsertNewLoanRequest;
-  };
+  const body = JSON.parse(event.body);
 
-  if (!spInsertNewLoanRequest) {
-    return generateJsonResponse(
-      { message: 'spInsertNewLoanRequest is not defined' },
-      400
-    );
+  if (!body) {
+    return generateJsonResponse({ message: 'No body provided' }, 400);
   }
 
-  const validatedData = isValidLoanData(spInsertNewLoanRequest);
+  const validatedData = isValidLoanData(body);
 
   if (!validatedData.valid) {
     return generateJsonResponse(
@@ -32,7 +26,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     );
   }
 
-  const result = await registerNewLoanRequest(spInsertNewLoanRequest);
+  const result = await registerNewLoanRequest(body);
   if (result.error) {
     statusCode = 400;
   }

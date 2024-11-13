@@ -1,3 +1,4 @@
+// TODO: Hacer las correcciones para los campos requeridos
 import {
   propertiesForLoanRequest,
   requiredFielsForNewLoanRequest,
@@ -6,6 +7,6 @@ import {
 export const loanSchema = {
   type: 'object',
   properties: propertiesForLoanRequest,
-  required: requiredFielsForNewLoanRequest,
-  additionalProperties: false,
+  // required: requiredFielsForNewLoanRequest,
+  // additionalProperties: false,
 };
