@@ -7,14 +7,14 @@ module.exports.handler = async (event: any) => {
   try {
     const pool = await DbConnector.getInstance().connection;
 
-    let whereCondition = ` where `
+    let whereCondition = ` where `;
 
     if (id) {
-      whereCondition += `clientes.id = ${id} `
+      whereCondition += `clientes.id = ${id} `;
     } else if (curp) {
-      whereCondition += `clientes.curp = '${curp}' `
+      whereCondition += `clientes.curp = '${curp}' `;
     } else if (nombre) {
-      whereCondition += `clientes.nombre like '%${nombre.replace(/ /g, "%")}%' `
+      whereCondition += `clientes.nombre like '%${nombre.replace(/ /g, '%')}%' `;
     }
 
     const queryStatement = `select top 10
@@ -48,9 +48,9 @@ module.exports.handler = async (event: any) => {
 
                           ${whereCondition}
                                   
-                          order by clientes.id ;`
+                          order by clientes.id ;`;
 
-    console.log(queryStatement)
+    console.log(queryStatement);
 
     // Asegúrate de que cualquier elemento esté correctamente codificado en la cadena de conexión URL
     const registrosEncontrados = await pool
@@ -61,8 +61,7 @@ module.exports.handler = async (event: any) => {
   } catch (err) {
     return { err };
   }
-}
-
+};
 
 // {
 //   "id": 7261,

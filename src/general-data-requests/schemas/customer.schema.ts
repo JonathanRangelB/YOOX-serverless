@@ -21,7 +21,7 @@ export const customer = {
   municipio: { type: 'string' },
   estado: { type: 'string' },
   cp: { type: 'string' },
-  referencias: { type: 'string' }
+  referencias: { type: 'string' },
 
   // required: [
   //   'nombre_cliente',
