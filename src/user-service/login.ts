@@ -27,7 +27,7 @@ module.exports.handler = async (event: any) => {
     return generateJsonResponse({ LOGIN_FAILED }, 404);
   }
 
-  const token = jwt.sign({ recordset }, process.env.TOKEN_JWT!, {
+  const token = jwt.sign(recordset[0], process.env.TOKEN_JWT!, {
     expiresIn: '30m',
   });
 

@@ -61,7 +61,7 @@ export async function validateData(
   }
 
   if (!idGrupo) {
-    throw new Error('El grupo no existe');
+    throw new Error('El grupo no existe o el usuario no lo tiene asignado');
   }
 
   if (!tasaInteres) {
