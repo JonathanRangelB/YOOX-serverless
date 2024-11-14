@@ -21,7 +21,11 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   if (!validatedData.valid) {
     return generateJsonResponse(
-      { message: 'Object provided invalid', errors: validatedData.errors },
+      {
+        message: 'Object provided invalid',
+        error: validatedData.error,
+        additionalProperties: validatedData.additionalProperties,
+      },
       400
     );
   }

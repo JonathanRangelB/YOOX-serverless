@@ -30,8 +30,6 @@ export function generateNewLoanRequestTable(
 
   const { id: id_plazo } = plazo;
 
-  console.log({ id_plazo });
-
   const {
     nombre_cliente,
     apellido_paterno_cliente,
@@ -194,7 +192,6 @@ export function generateNewLoanRequestTable(
     created_date,
     status_code
   );
-  console.log({ table: tableNewRequestLoan.rows });
 
   return tableNewRequestLoan;
 }
