@@ -15,7 +15,6 @@ module.exports.handler = async (event: any) => {
     jwt.verify(authToken, process.env.TOKEN_JWT!);
     return generateJsonResponse({ isValid: true }, 200);
   } catch (err) {
-    console.warn('algo paso');
     if (err instanceof JsonWebTokenError) {
       return generateJsonResponse({ isValid: false, error: err }, 401);
     }
