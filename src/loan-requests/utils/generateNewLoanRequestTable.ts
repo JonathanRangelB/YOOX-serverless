@@ -30,6 +30,8 @@ export function generateNewLoanRequestTable(
 
   const { id: id_plazo } = plazo;
 
+  console.log({ id_plazo });
+
   const {
     nombre_cliente,
     apellido_paterno_cliente,
@@ -39,13 +41,13 @@ export function generateNewLoanRequestTable(
     correo_electronico_cliente,
     ocupacion_cliente,
     curp_cliente,
-    calle_cliente: calleC,
+    tipo_calle_cliente: calleC,
     nombre_calle_cliente,
     numero_exterior_cliente,
     numero_interior_cliente,
     colonia_cliente,
     municipio_cliente,
-    entidadFederativa: efc,
+    estado_cliente: efc,
     cp_cliente,
     observaciones_cliente,
     referencias_cliente: referencias,
@@ -179,7 +181,6 @@ export function generateNewLoanRequestTable(
     municipio_cliente,
     estado_cliente,
     cp_cliente,
-    observaciones_cliente,
     referencias,
     id_plazo,
     cantidad_prestada,
@@ -188,10 +189,12 @@ export function generateNewLoanRequestTable(
     fecha_final_estimada,
     cantidad_pagar,
     tasaInteres,
+    observaciones_cliente,
     created_by,
     created_date,
     status_code
   );
+  console.log({ table: tableNewRequestLoan.rows });
 
   return tableNewRequestLoan;
 }

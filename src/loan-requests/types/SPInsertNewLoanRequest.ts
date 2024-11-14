@@ -23,13 +23,13 @@ export interface FormCliente {
   correo_electronico_cliente: string;
   ocupacion_cliente: string;
   curp_cliente: string;
-  calle_cliente: Calle;
+  tipo_calle_cliente: Calle;
   nombre_calle_cliente: string;
   numero_exterior_cliente: string;
   numero_interior_cliente: string;
   colonia_cliente: string;
   municipio_cliente: string;
-  entidadFederativa: EntidadFederativa;
+  estado_cliente: EntidadFederativa;
   cp_cliente: string;
   referencias_cliente: string;
   observaciones_cliente: string;
