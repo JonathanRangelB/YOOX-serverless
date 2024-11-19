@@ -1,13 +1,20 @@
+import { error } from 'console';
 import { DbConnector } from '../helpers/dbConnector';
 import { ClienteDomicilio, DatosCliente } from './types/getCustomer.interface';
+import { generateJsonResponse } from '../helpers/generateJsonResponse';
+import { StatusCodes } from '../helpers/statusCodes';
 
 module.exports.handler = async (event: any) => {
   const { id, curp, nombre } = JSON.parse(event.body) as DatosCliente;
+  const regexCurp: RegExp = /^([A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\d])(\d)$/
+
+  if (!id && curp && !regexCurp.test(curp))
+    return generateJsonResponse({ error: 'CURP no válida' }, StatusCodes.BAD_REQUEST);
 
   try {
     const pool = await DbConnector.getInstance().connection;
 
-    let whereCondition = ` where `;
+    let whereCondition = ` where clientes.activo = 1 and `;
 
     if (id) {
       whereCondition += `clientes.id = ${id} `;
@@ -50,21 +57,14 @@ module.exports.handler = async (event: any) => {
                                   
                           order by clientes.id ;`;
 
-    console.log(queryStatement);
-
     // Asegúrate de que cualquier elemento esté correctamente codificado en la cadena de conexión URL
     const registrosEncontrados = await pool
       .request()
       .query<ClienteDomicilio>(queryStatement);
 
-    return { registrosEncontrados };
-  } catch (err) {
-    return { err };
+    return generateJsonResponse({ registrosEncontrados: registrosEncontrados.recordset }, StatusCodes.OK);
+
+  } catch (error) {
+    return generateJsonResponse({ error }, StatusCodes.BAD_REQUEST);
   }
 };
-
-// {
-//   "id": 7261,
-//   "curp": "BEGO860616HVZRRR01"
-//   "nombre": "MARIANO",
-// }
