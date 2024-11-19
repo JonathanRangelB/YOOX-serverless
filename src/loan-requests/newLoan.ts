@@ -3,38 +3,41 @@ import { APIGatewayEvent } from 'aws-lambda';
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { registerNewLoanRequest } from './loans/registerNewLoanRequest';
 import { isValidLoanData } from './loans/validateLoanData';
-import { SPInsertNewLoanRequest } from './types/SPInsertNewLoanRequest';
+import { StatusCodes } from '../helpers/statusCodes';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
-  let statusCode = 200;
-
   if (!event.body) {
-    return generateJsonResponse({ message: 'No body provided' }, 400);
-  }
-
-  const { spInsertNewLoanRequest } = JSON.parse(event.body) as {
-    spInsertNewLoanRequest: SPInsertNewLoanRequest;
-  };
-
-  if (!spInsertNewLoanRequest) {
     return generateJsonResponse(
-      { message: 'spInsertNewLoanRequest is not defined' },
-      400
+      { message: 'No body provided' },
+      StatusCodes.BAD_REQUEST
     );
   }
 
-  const validatedData = isValidLoanData(spInsertNewLoanRequest);
+  const body = JSON.parse(event.body);
+
+  if (!body) {
+    return generateJsonResponse(
+      { message: 'No body provided' },
+      StatusCodes.BAD_REQUEST
+    );
+  }
+
+  const validatedData = isValidLoanData(body);
 
   if (!validatedData.valid) {
     return generateJsonResponse(
-      { message: 'Object provided invalid', errors: validatedData.errors },
-      400
+      {
+        messbge: 'Object provided invalid',
+        error: validatedData.error,
+        additionalProperties: validatedData.additionalProperties,
+      },
+      StatusCodes.BAD_REQUEST
     );
   }
 
-  const result = await registerNewLoanRequest(spInsertNewLoanRequest);
+  const result = await registerNewLoanRequest(body);
   if (result.error) {
-    statusCode = 400;
+    return generateJsonResponse(result, StatusCodes.BAD_REQUEST);
   }
-  return generateJsonResponse(result, statusCode);
+  return generateJsonResponse(result, StatusCodes.OK);
 };

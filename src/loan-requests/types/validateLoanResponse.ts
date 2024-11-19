@@ -1,4 +1,10 @@
 export interface validateLoanResponse {
   valid: boolean;
-  errors?: string;
+  error?: string;
+  additionalProperties?: AdditionalProperties[];
+}
+
+export interface AdditionalProperties {
+  propiedad: string;
+  path: string;
 }
