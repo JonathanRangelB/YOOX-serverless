@@ -5,7 +5,7 @@ import { loan_update_date } from '../../helpers/table-schemas';
 import { SPInsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
 import { updateStatusResponse } from '../types/loanRequest';
 import { customer_request, address } from '../../helpers/table-schemas';
-import { registerNewCustomer } from '../../customer/transactions/registerNewCustomer';
+import { registerNewCustomer } from '../../general-data-requests/transactions/registerNewCustomer';
 
 export const registerUpdateLoanRequest = async (
   spInsertNewLoanRequest: SPInsertNewLoanRequest
