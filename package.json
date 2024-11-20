@@ -57,8 +57,11 @@
   },
   "pnpm": {
     "overrides": {
+      "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5",
       "jsonpointer@<5.0.0": ">=5.0.0",
-      "@azure/identity@<4.2.1": ">=4.2.1"
+      "@azure/identity@<4.2.1": ">=4.2.1",
+      "jsonpath-plus@<10.0.0": ">=10.0.0",
+      "@eslint/plugin-kit@<0.2.3": ">=0.2.3"
     }
   }
 }
