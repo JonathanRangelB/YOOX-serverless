@@ -1,5 +1,4 @@
 import { APIGatewayEvent } from 'aws-lambda';
-
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { registerNewLoanRequest } from './loans/registerNewLoanRequest';
 import { isValidLoanData } from './loans/validateLoanData';

@@ -14,7 +14,6 @@ export const loanSchema = {
     'dia_semana',
     'plazo',
     'cantidad_pagar',
-    // 'tasa_interes', // no es necesario mandarlo porque se obtiene despues en un proceso posterior
   ],
   additionalProperties: false,
 };
