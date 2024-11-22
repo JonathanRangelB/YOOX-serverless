@@ -5,6 +5,7 @@ import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { credentials } from './types/user-service';
 import { validateCredentials } from './validateCredentials';
 import { userSchema } from './schemas/userSchema';
+import { StatusCodes } from '../helpers/statusCodes';
 
 const ajv = new Ajv({ allErrors: true });
 const LOGIN_FAILED = { message: 'Login failed, verify your credentials' };
@@ -16,26 +17,29 @@ module.exports.handler = async (event: any) => {
   const errors = ajv.errorsText(validate.errors, { separator: ' AND ' });
 
   if (!valid) {
-    return generateJsonResponse({ errors }, 400);
+    return generateJsonResponse({ errors }, StatusCodes.BAD_REQUEST);
   }
 
-  const { recordset, rowsAffected } = await validateCredentials(data);
-  const rowsAffectedasNumber = rowsAffected[0];
+  try {
+    const { recordset, rowsAffected } = await validateCredentials(data);
 
-  if (!rowsAffectedasNumber) {
-    console.warn(LOGIN_FAILED);
-    return generateJsonResponse(LOGIN_FAILED, 404);
+    if (!rowsAffected[0]) {
+      console.warn(LOGIN_FAILED);
+      return generateJsonResponse(LOGIN_FAILED, StatusCodes.NOT_FOUND);
+    }
+
+    const token = jwt.sign(recordset[0], process.env.TOKEN_JWT!, {
+      expiresIn: '30m',
+    });
+
+    return generateJsonResponse(
+      {
+        user: recordset[0],
+        Autorization: `Bearer ${token}`,
+      },
+      StatusCodes.OK
+    );
+  } catch (error) {
+    return generateJsonResponse(error, StatusCodes.INTERNAL_SERVER_ERROR);
   }
-
-  const token = jwt.sign(recordset[0], process.env.TOKEN_JWT!, {
-    expiresIn: '30m',
-  });
-
-  return generateJsonResponse(
-    {
-      user: recordset[0],
-      Autorization: `Bearer ${token}`,
-    },
-    200
-  );
 };

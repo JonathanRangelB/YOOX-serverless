@@ -9,4 +9,5 @@ export const userSchema = {
     },
   },
   required: ['userId', 'password'],
+  additionalProperties: false,
 };
