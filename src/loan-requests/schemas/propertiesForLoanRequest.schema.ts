@@ -246,33 +246,6 @@ export const propertiesForLoanRequest = {
   status_code: { type: 'integer' },
 };
 
-// export const requiredFielsForNewLoanRequest = [
-//   'id_agente',
-//   'id_grupo_original',
-//   'nombre_cliente',
-//   'apellido_paterno_cliente',
-//   'apellido_materno_cliente',
-//   'telefono_fijo',
-//   'telefono_movil',
-//   'curp',
-//   'tipo_calle',
-//   'nombre_calle',
-//   'numero_exterior',
-//   'numero_interior',
-//   'colonia',
-//   'municipio',
-//   'estado',
-//   'cp',
-//   'id_plazo',
-//   'cantidad_prestada',
-//   'dia_semana',
-//   'fecha_inicial',
-//   'fecha_final_estimada',
-//   'cantidad_pagar',
-//   'tasa_interes',
-//   'created_by',
-// ];
-
 export const requiredFielsForUpdateLoanRequest = [
   'id',
   'request_number',

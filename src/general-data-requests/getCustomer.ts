@@ -1,66 +1,55 @@
 import { error } from 'console';
+import { APIGatewayEvent } from 'aws-lambda';
 import { DbConnector } from '../helpers/dbConnector';
 import { ClienteDomicilio, DatosCliente } from './types/getCustomer.interface';
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { StatusCodes } from '../helpers/statusCodes';
+import { customerSearchQuery } from './utils/querySearchCustomer';
+import { isValidSearchCustomerParameters } from './validateSearchCustomerParameters';
 
-module.exports.handler = async (event: any) => {
-  const { id, curp, nombre } = JSON.parse(event.body) as DatosCliente;
-  const regexCurp: RegExp = /^([A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\d])(\d)$/
+module.exports.handler = async (event: APIGatewayEvent) => {
+  if (!event.body) {
+    return generateJsonResponse(
+      { message: 'No body provided' },
+      StatusCodes.BAD_REQUEST
+    );
+  }
 
-  if (!id && curp && !regexCurp.test(curp))
-    return generateJsonResponse({ error: 'CURP no válida' }, StatusCodes.BAD_REQUEST);
+  const body = JSON.parse(event.body)
+
+  if (!body) {
+    return generateJsonResponse(
+      { message: 'No body provided' },
+      StatusCodes.BAD_REQUEST
+    );
+  }
+
+  const { id_cliente, curp, nombre_cliente, id_agente } = body as DatosCliente;
+  const validateSearchParameters = isValidSearchCustomerParameters(body);
+
+  if (!validateSearchParameters.valid) {
+    return generateJsonResponse(
+      {
+        messbge: 'Object provided invalid',
+        error: validateSearchParameters.error
+      },
+      StatusCodes.BAD_REQUEST
+    );
+  }
 
   try {
     const pool = await DbConnector.getInstance().connection;
 
-    let whereCondition = ` where clientes.activo = 1 and `;
-
-    if (id) {
-      whereCondition += `clientes.id = ${id} `;
-    } else if (curp) {
-      whereCondition += `clientes.curp = '${curp}' `;
-    } else if (nombre) {
-      whereCondition += `clientes.nombre like '%${nombre.replace(/ /g, '%')}%' `;
-    }
-
-    const queryStatement = `select top 10
-                          clientes.id,
-                          clientes.nombre,
-                          clientes.telefono_fijo,
-                          clientes.telefono_movil,
-                          clientes.correo_electronico ,
-                          clientes.observaciones,
-                          clientes.id_agente,
-                          t1.nombre as [nombre_agente],
-                          clientes.ocupacion,
-                          clientes.curp,
-                          clientes.id_domicilio,                                                        
-                          t2.tipo_calle,
-                          case when clientes.id_domicilio is null then clientes.calle else t2.nombre_calle end as [nombre_calle],
-                          case when clientes.id_domicilio is null then clientes.numero_exterior else t2.numero_exterior end as [numero_exterior],
-                          case when clientes.id_domicilio is null then clientes.numero_interior else t3.numero_interior end as [numero_interior],
-                          case when clientes.id_domicilio is null then clientes.colonia else t2.colonia end as [colonia],
-                          case when clientes.id_domicilio is null then clientes.municipio else t2.municipio end as [municipio],
-                          t2.estado,
-                          case when clientes.id_domicilio is null then clientes.codigo_postal else t2.cp end as [cp],
-                          t2.referencias
-
-                          from
-                          clientes 
-                          left join usuarios t1 on clientes.id_agente=t1.id  
-                          left join domicilios t2 on clientes.id_domicilio=t2.id
-                          left join domicilios_num_interior t3 on t2.id=t3.id_domicilio 
-                            and clientes.id=t3.id_cliente 
-
-                          ${whereCondition}
-                                  
-                          order by clientes.id ;`;
+    const queryStatement = customerSearchQuery(id_agente, id_cliente, curp, nombre_cliente);
 
     // Asegúrate de que cualquier elemento esté correctamente codificado en la cadena de conexión URL
     const registrosEncontrados = await pool
       .request()
       .query<ClienteDomicilio>(queryStatement);
+
+
+    if (!registrosEncontrados.rowsAffected[0])
+      return generateJsonResponse({}, StatusCodes.NOT_FOUND);
 
     return generateJsonResponse({ registrosEncontrados: registrosEncontrados.recordset }, StatusCodes.OK);
 
