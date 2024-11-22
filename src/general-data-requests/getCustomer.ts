@@ -17,20 +17,13 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   const body = JSON.parse(event.body)
 
-  if (!body) {
-    return generateJsonResponse(
-      { message: 'No body provided' },
-      StatusCodes.BAD_REQUEST
-    );
-  }
-
-  const { id_cliente, curp, nombre_cliente, id_agente } = body as DatosCliente;
+  const { id, curp, nombre, id_agente } = body as DatosCliente;
   const validateSearchParameters = isValidSearchCustomerParameters(body);
 
   if (!validateSearchParameters.valid) {
     return generateJsonResponse(
       {
-        messbge: 'Object provided invalid',
+        message: 'Object provided invalid',
         error: validateSearchParameters.error
       },
       StatusCodes.BAD_REQUEST
@@ -40,7 +33,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   try {
     const pool = await DbConnector.getInstance().connection;
 
-    const queryStatement = customerSearchQuery(id_agente, id_cliente, curp, nombre_cliente);
+    const queryStatement = customerSearchQuery(id_agente, id, curp, nombre);
 
     // Asegúrate de que cualquier elemento esté correctamente codificado en la cadena de conexión URL
     const registrosEncontrados = await pool

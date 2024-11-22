@@ -1,7 +1,7 @@
 export interface DatosCliente {
-  id_cliente: number;
+  id: number;
   curp: string;
-  nombre_cliente: string;
+  nombre: string;
   id_agente: number;
 }
 
