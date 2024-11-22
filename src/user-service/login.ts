@@ -24,7 +24,7 @@ module.exports.handler = async (event: any) => {
 
   if (!rowsAffectedasNumber) {
     console.warn(LOGIN_FAILED);
-    return generateJsonResponse({ LOGIN_FAILED }, 404);
+    return generateJsonResponse(LOGIN_FAILED, 404);
   }
 
   const token = jwt.sign(recordset[0], process.env.TOKEN_JWT!, {
