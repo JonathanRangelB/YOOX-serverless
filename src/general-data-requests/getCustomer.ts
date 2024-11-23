@@ -1,4 +1,3 @@
-import { error } from 'console';
 import { APIGatewayEvent } from 'aws-lambda';
 import { DbConnector } from '../helpers/dbConnector';
 import { ClienteDomicilio, DatosCliente } from './types/getCustomer.interface';
@@ -15,7 +14,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     );
   }
 
-  const body = JSON.parse(event.body)
+  const body = JSON.parse(event.body);
 
   const { id, curp, nombre, id_agente } = body as DatosCliente;
   const validateSearchParameters = isValidSearchCustomerParameters(body);
@@ -24,7 +23,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     return generateJsonResponse(
       {
         message: 'Object provided invalid',
-        error: validateSearchParameters.error
+        error: validateSearchParameters.error,
       },
       StatusCodes.BAD_REQUEST
     );
@@ -40,12 +39,16 @@ module.exports.handler = async (event: APIGatewayEvent) => {
       .request()
       .query<ClienteDomicilio>(queryStatement);
 
-
     if (!registrosEncontrados.rowsAffected[0])
-      return generateJsonResponse({}, StatusCodes.NOT_FOUND);
+      return generateJsonResponse(
+        { message: 'Error 404', error: 'No se encontraron registros' },
+        StatusCodes.NOT_FOUND
+      );
 
-    return generateJsonResponse({ registrosEncontrados: registrosEncontrados.recordset }, StatusCodes.OK);
-
+    return generateJsonResponse(
+      { registrosEncontrados: registrosEncontrados.recordset },
+      StatusCodes.OK
+    );
   } catch (error) {
     return generateJsonResponse({ error }, StatusCodes.BAD_REQUEST);
   }
