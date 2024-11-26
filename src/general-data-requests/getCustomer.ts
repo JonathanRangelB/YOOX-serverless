@@ -40,7 +40,10 @@ module.exports.handler = async (event: APIGatewayEvent) => {
       .query<ClienteDomicilio>(queryStatement);
 
     if (!registrosEncontrados.rowsAffected[0])
-      return generateJsonResponse({}, StatusCodes.NOT_FOUND);
+      return generateJsonResponse(
+        { message: 'Error 404', error: 'No se encontraron registros' },
+        StatusCodes.NOT_FOUND
+      );
 
     return generateJsonResponse(
       { registrosEncontrados: registrosEncontrados.recordset },

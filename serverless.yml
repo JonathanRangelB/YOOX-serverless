@@ -119,9 +119,9 @@ functions:
     events:
       - httpApi:
           method: post
-          path: /v1/getCustomer
+          path: /v1/get-customer
           authorizer:
-            name: customAuthorizer            
+            name: customAuthorizer
 
   customAuthorizer:
     handler: ./src/authorizer/auth.handler
@@ -131,7 +131,7 @@ custom:
   environment:
     NODE_ENV: ${self:custom.stage}
   autoswagger:
-    apiKeyHeaders: ["authorization"]
+    apiKeyHeaders: ['authorization']
 
 # to run swagger locally with offline mode, run: sls offline start
 plugins:
