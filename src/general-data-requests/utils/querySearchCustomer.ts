@@ -1,5 +1,9 @@
-export function customerSearchQuery(id_agente: number, id_cliente: number, curp: string, nombre_cliente: string): string {
-
+export function customerSearchQuery(
+  id_agente: number,
+  id_cliente: number,
+  curp: string,
+  nombre_cliente: string
+): string {
   let whereCondition = ` where clientes.id_agente = ${id_agente} and clientes.activo = 1 and `;
 
   if (id_cliente) {
