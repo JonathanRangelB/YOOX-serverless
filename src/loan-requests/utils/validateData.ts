@@ -40,8 +40,8 @@ export async function validateData(
     getGenericDataQuery,
   ]);
 
-  const created_date = nextId.recordset[0].CURRENT_DATE_SERVER;
-  const horaLocal = convertDateTimeZone(created_date, 'America/Mexico_City');
+  const createdDate = nextId.recordset[0].CURRENT_DATE_SERVER;
+  const horaLocal = convertDateTimeZone(createdDate, 'America/Mexico_City');
 
   const [idAgente, idUsuario, idGrupo, tasaInteres] =
     getGenericData.recordsets.map(([record]: any) => record?.value);

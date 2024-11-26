@@ -12,25 +12,25 @@ export function generateNewLoanRequestTable(
     created_date: Date;
   }
 ) {
-  const status_code = undefined;
-
   const {
-    formCliente,
-    fecha_inicial,
-    plazo,
     cantidad_prestada,
-    id_grupo_original,
-    id_cliente,
+    plazo,
     id_agente,
-    dia_semana,
-    fecha_final_estimada,
-    cantidad_pagar,
     created_by,
+    id_grupo_original,
+    fecha_final_estimada,
+    dia_semana,
+    observaciones,
+    cantidad_pagar,
+    fecha_inicial,
+    formCliente,
+    formAval,
   } = newLoanRequest;
 
   const { id: id_plazo } = plazo;
 
   const {
+    id_cliente,
     nombre_cliente,
     apellido_paterno_cliente,
     apellido_materno_cliente,
@@ -47,36 +47,34 @@ export function generateNewLoanRequestTable(
     municipio_cliente,
     estado_cliente: efc,
     cp_cliente,
-    observaciones_cliente,
-    referencias_cliente: referencias,
+    referencias_dom_cliente,
   } = formCliente;
 
-  const { value: tipo_calle_cliente } = calleC;
-  const { value: estado_cliente } = efc;
+  const { value: tipoCalleCliente } = calleC;
+  const { value: estadoCliente } = efc;
 
-  // TODO: CAMPOS DE AVAL, PENDIENTES DE IMPLEMENTAR
-  // const {
-  //   nombre_aval,
-  //   apellido_paterno_aval,
-  //   apellido_materno_aval,
-  //   telefono_fijo_aval,
-  //   telefono_movil_aval,
-  //   correo_electronico_aval,
-  //   ocupacion_aval,
-  //   curp_aval,
-  //   calle_aval: calleA,
-  //   nombre_calle_aval,
-  //   numero_exterior_aval,
-  //   numero_interior_aval,
-  //   colonia_aval,
-  //   municipio_aval,
-  //   entidadFederativa: efa,
-  //   cp_aval,
-  //   observaciones_aval,
-  // } = formAval;
-  // const { value: tipo_calle_aval } = calleA;
-  // const { value } = efa;
+  const {
+    id_aval,
+    nombre_aval,
+    apellido_paterno_aval,
+    apellido_materno_aval,
+    telefono_fijo_aval,
+    telefono_movil_aval,
+    correo_electronico_aval,
+    curp_aval,
+    tipo_calle_aval: calleA,
+    nombre_calle_aval,
+    numero_exterior_aval,
+    numero_interior_aval,
+    colonia_aval,
+    municipio_aval,
+    estado_aval: efa,
+    cp_aval,
+    referencias_dom_aval,
+  } = formAval;
 
+  const { value: tipoCalleAval } = calleA;
+  const { value: estadoAval } = efa;
   const { id, request_number, loan_request_status, tasaInteres, created_date } =
     additionalData;
 
@@ -105,32 +103,89 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add('APELLIDO_MATERNO_CLIENTE', VarChar, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add('TELEFONO_FIJO', VarChar, {
+  tableNewRequestLoan.columns.add('TELEFONO_FIJO_CLIENTE', VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('TELEFONO_MOVIL', VarChar, {
+  tableNewRequestLoan.columns.add('TELEFONO_MOVIL_CLIENTE', VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('CORREO_ELECTRONICO', VarChar, {
+  tableNewRequestLoan.columns.add('CORREO_ELECTRONICO_CLIENTE', VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('OCUPACION', VarChar, { nullable: true });
-  tableNewRequestLoan.columns.add('CURP', VarChar, { nullable: false });
-  tableNewRequestLoan.columns.add('TIPO_CALLE', VarChar, { nullable: true });
-  tableNewRequestLoan.columns.add('NOMBRE_CALLE', VarChar, {
+  tableNewRequestLoan.columns.add('OCUPACION_CLIENTE', VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('NUMERO_EXTERIOR', VarChar, {
+  tableNewRequestLoan.columns.add('CURP_CLIENTE', VarChar, { nullable: false });
+  tableNewRequestLoan.columns.add('TIPO_CALLE_CLIENTE', VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('NUMERO_INTERIOR', VarChar, {
+  tableNewRequestLoan.columns.add('NOMBRE_CALLE_CLIENTE', VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('COLONIA', VarChar, { nullable: true });
-  tableNewRequestLoan.columns.add('MUNICIPIO', VarChar, { nullable: true });
-  tableNewRequestLoan.columns.add('ESTADO', VarChar, { nullable: true });
-  tableNewRequestLoan.columns.add('CP', VarChar, { nullable: true });
-  tableNewRequestLoan.columns.add('REFERENCIAS', VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add('NUMERO_EXTERIOR_CLIENTE', VarChar, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add('NUMERO_INTERIOR_CLIENTE', VarChar, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add('COLONIA_CLIENTE', VarChar, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add('MUNICIPIO_CLIENTE', VarChar, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add('ESTADO_CLIENTE', VarChar, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add('CP_CLIENTE', VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add('REFERENCIAS_DOM_CLIENTE', VarChar, {
+    nullable: true,
+  });
+
+  //AVAL INICIO
+  tableNewRequestLoan.columns.add('ID_AVAL', Int, { nullable: true });
+  tableNewRequestLoan.columns.add('NOMBRE_AVAL', VarChar, {
+    nullable: false,
+  });
+  tableNewRequestLoan.columns.add('APELLIDO_PATERNO_AVAL', VarChar, {
+    nullable: false,
+  });
+  tableNewRequestLoan.columns.add('APELLIDO_MATERNO_AVAL', VarChar, {
+    nullable: false,
+  });
+  tableNewRequestLoan.columns.add('TELEFONO_FIJO_AVAL', VarChar, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add('TELEFONO_MOVIL_AVAL', VarChar, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add('CORREO_ELECTRONICO_AVAL', VarChar, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add('CURP_AVAL', VarChar, { nullable: false });
+  tableNewRequestLoan.columns.add('TIPO_CALLE_AVAL', VarChar, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add('NOMBRE_CALLE_AVAL', VarChar, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add('NUMERO_EXTERIOR_AVAL', VarChar, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add('NUMERO_INTERIOR_AVAL', VarChar, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add('COLONIA_AVAL', VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add('MUNICIPIO_AVAL', VarChar, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add('ESTADO_AVAL', VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add('CP_AVAL', VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add('REFERENCIAS_DOM_AVAL', VarChar, {
+    nullable: true,
+  });
+  //AVAL FIN
+
   tableNewRequestLoan.columns.add('ID_PLAZO', Int, { nullable: false });
   tableNewRequestLoan.columns.add('CANTIDAD_PRESTADA', Float, {
     nullable: false,
@@ -154,8 +209,6 @@ export function generateNewLoanRequestTable(
     nullable: false,
   });
 
-  tableNewRequestLoan.columns.add('STATUS_CODE', Int, { nullable: true });
-
   tableNewRequestLoan.rows.add(
     id,
     request_number,
@@ -171,15 +224,32 @@ export function generateNewLoanRequestTable(
     correo_electronico_cliente,
     ocupacion_cliente,
     curp_cliente,
-    tipo_calle_cliente,
+    tipoCalleCliente,
     nombre_calle_cliente,
     numero_exterior_cliente,
     numero_interior_cliente,
     colonia_cliente,
     municipio_cliente,
-    estado_cliente,
+    estadoCliente,
     cp_cliente,
-    referencias,
+    referencias_dom_cliente,
+    id_aval,
+    nombre_aval,
+    apellido_paterno_aval,
+    apellido_materno_aval,
+    telefono_fijo_aval,
+    telefono_movil_aval,
+    correo_electronico_aval,
+    curp_aval,
+    tipoCalleAval,
+    nombre_calle_aval,
+    numero_exterior_aval,
+    numero_interior_aval,
+    colonia_aval,
+    municipio_aval,
+    estadoAval,
+    cp_aval,
+    referencias_dom_aval,
     id_plazo,
     cantidad_prestada,
     dia_semana,
@@ -187,10 +257,9 @@ export function generateNewLoanRequestTable(
     fecha_final_estimada,
     cantidad_pagar,
     tasaInteres,
-    observaciones_cliente,
+    observaciones,
     created_by,
-    created_date,
-    status_code
+    created_date
   );
 
   return tableNewRequestLoan;

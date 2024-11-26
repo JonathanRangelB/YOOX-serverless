@@ -13,10 +13,11 @@ export const registerNewLoanRequest = async (
   const { formCliente } = newLoanRequest;
   const { apellido_paterno_cliente } = formCliente;
 
+  const { tableNewRequestLoan, request_number } =
+    await validateData(newLoanRequest);
+
   try {
     await procTransaction.begin();
-    const { tableNewRequestLoan, request_number } =
-      await validateData(newLoanRequest);
     await procTransaction.request().bulk(tableNewRequestLoan);
     await procTransaction.commit();
 
