@@ -5,8 +5,8 @@ export interface InsertNewLoanRequest {
   created_by: number;
   id_grupo_original: number;
   fecha_final_estimada: Date;
-  id_cliente: number;
   dia_semana: string;
+  observaciones: string;
   cantidad_pagar: number;
   status_code: number;
   fecha_inicial: Date;
@@ -15,6 +15,7 @@ export interface InsertNewLoanRequest {
 }
 
 export interface FormCliente {
+  id_cliente: number;
   nombre_cliente: string;
   apellido_paterno_cliente: string;
   apellido_materno_cliente: string;
@@ -23,7 +24,7 @@ export interface FormCliente {
   correo_electronico_cliente: string;
   ocupacion_cliente: string;
   curp_cliente: string;
-  tipo_calle_cliente: Calle;
+  tipo_calle_cliente: TipoCalle;
   nombre_calle_cliente: string;
   numero_exterior_cliente: string;
   numero_interior_cliente: string;
@@ -31,11 +32,11 @@ export interface FormCliente {
   municipio_cliente: string;
   estado_cliente: EntidadFederativa;
   cp_cliente: string;
-  referencias_cliente: string;
-  observaciones_cliente: string;
+  referencias_dom_cliente: string;
 }
 
 export interface FormAval {
+  id_aval: number;
   nombre_aval: string;
   apellido_paterno_aval: string;
   apellido_materno_aval: string;
@@ -44,19 +45,18 @@ export interface FormAval {
   correo_electronico_aval: string;
   ocupacion_aval: string;
   curp_aval: string;
-  calle_aval: Calle;
+  tipo_calle_aval: TipoCalle;
   nombre_calle_aval: string;
   numero_exterior_aval: string;
   numero_interior_aval: string;
   colonia_aval: string;
   municipio_aval: string;
-  entidadFederativa: EntidadFederativa;
+  estado_aval: EntidadFederativa;
   cp_aval: string;
-  referencias_aval: string;
-  observaciones_aval: string;
+  referencias_dom_aval: string;
 }
 
-export interface Calle {
+export interface TipoCalle {
   name: string;
   value: string;
 }

@@ -13,6 +13,7 @@ export const propertiesForLoanRequest = {
   formCliente: {
     type: 'object',
     properties: {
+      id_cliente: { type: 'integer' },
       nombre_cliente: { type: 'string' },
       apellido_paterno_cliente: { type: 'string' },
       apellido_materno_cliente: { type: 'string' },
@@ -100,8 +101,7 @@ export const propertiesForLoanRequest = {
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
       },
       ocupacion_cliente: { type: 'string' },
-      referencias_cliente: { type: 'string' },
-      observaciones_cliente: { type: 'string' },
+      referencias_dom_cliente: { type: 'string' },
     },
     required: [
       'nombre_cliente',
@@ -124,28 +124,28 @@ export const propertiesForLoanRequest = {
   formAval: {
     type: 'object',
     properties: {
-      nombre_cliente: { type: 'string' },
-      apellido_paterno_cliente: { type: 'string' },
-      telefono_fijo: {
+      id_aval: { type: 'integer' },
+      nombre_aval: { type: 'string' },
+      apellido_paterno_aval: { type: 'string' },
+      telefono_fijo_aval: {
         type: 'string',
         pattern: '^\\d{10}$',
       },
-      telefono_movil: {
+      telefono_movil_aval: {
         type: 'string',
         pattern: '^\\d{10}$',
       },
-      correo_electronico_cliente: {
+      correo_electronico_aval: {
         type: 'string',
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
       },
-      ocupacion: { type: 'string' },
-      curp_cliente: {
+      curp_aval: {
         type: 'string',
         pattern:
           '^([A-Z][AEIOUX][A-Z]{2}\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\\d])(\\d)$',
       },
-      apellido_materno_cliente: { type: 'string' },
-      tipo_calle_cliente: {
+      apellido_materno_aval: { type: 'string' },
+      tipo_calle_aval: {
         type: 'object',
         properties: {
           name: { type: 'string' },
@@ -162,12 +162,12 @@ export const propertiesForLoanRequest = {
           },
         },
       },
-      nombre_calle_cliente: { type: 'string' },
-      numero_exterior_cliente: { type: 'string' },
-      numero_interior_cliente: { type: 'string' },
-      colonia_cliente_cliente: { type: 'string' },
-      municipio_cliente: { type: 'string' },
-      estado_cliente: {
+      nombre_calle_aval: { type: 'string' },
+      numero_exterior_aval: { type: 'string' },
+      numero_interior_aval: { type: 'string' },
+      colonia_aval_aval: { type: 'string' },
+      municipio_aval: { type: 'string' },
+      estado_aval: {
         type: 'object',
         properties: {
           name: { type: 'string' },
@@ -210,8 +210,8 @@ export const propertiesForLoanRequest = {
           },
         },
       },
-      cp_cliente: { type: 'string', pattern: '^\\d{5}$' },
-      referencias: { type: 'string' },
+      cp_aval: { type: 'string', pattern: '^\\d{5}$' },
+      referencias_dom_aval: { type: 'string' },
       additionalProperties: false,
     },
   },
@@ -223,7 +223,6 @@ export const propertiesForLoanRequest = {
   },
   id_agente: { type: 'integer' },
   id_grupo_original: { type: 'integer' },
-  id_cliente: { type: 'integer' },
   dia_semana: {
     type: 'string',
     enum: [
@@ -240,6 +239,7 @@ export const propertiesForLoanRequest = {
   tasa_interes: { type: 'integer' },
   created_by: { type: 'integer' },
   created_date: { type: 'string', format: 'date-time' },
+  observaciones: { type: 'string' },
   modified_date: { type: 'string', format: 'date-time' },
   closed_by: { type: 'integer' },
   closed_date: { type: 'string', format: 'date-time' },
