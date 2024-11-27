@@ -123,6 +123,24 @@ functions:
           authorizer:
             name: customAuthorizer
 
+  validateCURP:
+    handler: ./src/validators/validateCURP.handler
+    events:
+      - httpApi:
+          method: post
+          path: /v1/validate/curp
+          authorizer:
+            name: customAuthorizer
+
+  validatePhones:
+    handler: ./src/validators/validatePhones.handler
+    events:
+      - httpApi:
+          method: post
+          path: /v1/validate/phones
+          authorizer:
+            name: customAuthorizer
+
   customAuthorizer:
     handler: ./src/authorizer/auth.handler
 
