@@ -97,8 +97,13 @@ export const propertiesForLoanRequest = {
       },
       cp_cliente: { type: 'string', pattern: '^\\d{5}$' },
       correo_electronico_cliente: {
-        type: 'string',
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+        anyOf: [
+          {
+            type: 'string',
+            pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+          },
+          { type: 'string', enum: ['', null], nullable: true },
+        ],
       },
       ocupacion_cliente: { type: 'string' },
       referencias_dom_cliente: { type: 'string' },
@@ -136,8 +141,13 @@ export const propertiesForLoanRequest = {
         pattern: '^\\d{10}$',
       },
       correo_electronico_aval: {
-        type: 'string',
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+        anyOf: [
+          {
+            type: 'string',
+            pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+          },
+          { type: 'string', enum: ['', null], nullable: true },
+        ],
       },
       curp_aval: {
         type: 'string',
