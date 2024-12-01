@@ -2,9 +2,11 @@ import { APIGatewayEvent } from 'aws-lambda';
 import { DbConnector } from '../helpers/dbConnector';
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { StatusCodes } from '../helpers/statusCodes';
-import { DatosBusquedaCurp, ResultadoCurp } from './types/DatosBusqueda.interface';
+import {
+  DatosBusquedaCurp,
+  ResultadoCurp,
+} from './types/DatosBusqueda.interface';
 import { isValidSearchCustomerParametersCurp } from './validateSearchParameters';
-import { ClienteDomicilio } from '../general-data-requests/types/getCustomer.interface';
 import { searchCurpQuery } from './utils/querySearchData';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
@@ -34,7 +36,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
     const queryStatement = searchCurpQuery(id, curp, table);
 
-    console.log(queryStatement)
+    console.log(queryStatement);
 
     // Asegúrate de que cualquier elemento esté correctamente codificado en la cadena de conexión URL
     const registrosEncontrados = await pool
@@ -54,5 +56,4 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   } catch (error) {
     return generateJsonResponse({ error }, StatusCodes.BAD_REQUEST);
   }
-
 };
