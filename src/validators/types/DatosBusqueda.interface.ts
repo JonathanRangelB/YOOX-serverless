@@ -12,3 +12,17 @@ export interface ValidateSearchCurpParametersResponse {
 export interface ResultadoCurp {
   id: number;
 }
+export interface DatosBusquedaTelefono {
+  telefono_fijo: string;
+  telefono_movil: string;
+  table: string;
+}
+
+export interface ResultadoTelefono {
+  id: number;
+}
+
+export interface ValidateSearchTelefonoParametersResponse {
+  valid: boolean;
+  error?: string;
+}

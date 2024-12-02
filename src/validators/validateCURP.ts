@@ -36,8 +36,6 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
     const queryStatement = searchCurpQuery(id, curp, table);
 
-    console.log(queryStatement);
-
     // Asegúrate de que cualquier elemento esté correctamente codificado en la cadena de conexión URL
     const registrosEncontrados = await pool
       .request()
