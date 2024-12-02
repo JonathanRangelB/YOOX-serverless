@@ -2,7 +2,6 @@ export const customerSearchCURPSchema = {
   type: 'object',
 
   properties: {
-    id: { type: 'integer' },
     curp: {
       type: 'string',
       pattern:

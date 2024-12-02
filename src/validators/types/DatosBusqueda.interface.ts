@@ -1,5 +1,4 @@
 export interface DatosBusquedaCurp {
-  id: number;
   curp: string;
   table: string;
 }

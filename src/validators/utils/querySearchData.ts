@@ -1,5 +1,4 @@
 export function searchCurpQuery(
-  id: number,
   curp: string,
   table: string
 ): string {
@@ -15,21 +14,9 @@ export function searchCurpQuery(
 
     case 'AVALES':
       selectStatement = `select 
-                          id_aval 
+                          id_aval as [id]
                           from `;
       break;
-  }
-
-  if (id) {
-    switch (table) {
-      case 'CLIENTES':
-        whereCondition += ` and ID not in (${id})  `;
-        break;
-
-      case 'AVALES':
-        whereCondition += ` and ID_AVAL not in (${id})  `;
-        break;
-    }
   }
 
   selectStatement += `
@@ -56,7 +43,7 @@ export function searchTelefonoQuery(
 
     case 'AVALES':
       selectStatement = `select 
-                          id_aval 
+                          id_aval as [id]
                           from `;
       break;
   }
