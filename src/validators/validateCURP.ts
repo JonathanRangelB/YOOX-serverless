@@ -18,7 +18,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   }
 
   const body = JSON.parse(event.body);
-  const { id, curp, table } = body as DatosBusquedaCurp;
+  const { curp, table } = body as DatosBusquedaCurp;
   const validateSearchParameters = isValidSearchCustomerParametersCurp(body);
 
   if (!validateSearchParameters.valid) {
@@ -34,7 +34,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   try {
     const pool = await DbConnector.getInstance().connection;
 
-    const queryStatement = searchCurpQuery(id, curp, table);
+    const queryStatement = searchCurpQuery(curp, table);
 
     // Asegúrate de que cualquier elemento esté correctamente codificado en la cadena de conexión URL
     const registrosEncontrados = await pool
