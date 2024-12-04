@@ -78,6 +78,15 @@ functions:
           authorizer:
             name: customAuthorizer
 
+  viewRequestList:
+    handler: ./src/loan-requests/viewRequestList.handler
+    events:
+      - httpApi:
+          method: post
+          path: /v1/loan-request/list
+          authorizer:
+            name: customAuthorizer
+
   loan:
     handler: ./src/payments/loan.handler
     events:
