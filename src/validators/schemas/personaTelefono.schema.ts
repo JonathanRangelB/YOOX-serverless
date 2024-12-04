@@ -2,8 +2,25 @@ export const customerSearchTelefonoSchema = {
   type: 'object',
 
   properties: {
-    telefono_fijo: { type: 'string', pattern: '^\\d{10}$' },
-    telefono_movil: { type: 'string', pattern: '^\\d{10}$' },
+    telefono_fijo: {
+      anyOf: [
+        {
+          type: 'string', pattern: '^\\d{10}$'
+        },
+        { type: 'string', enum: ['', null], nullable: true },
+      ]
+    },
+
+    telefono_movil: {
+      anyOf: [
+        {
+          type: 'string', pattern: '^\\d{10}$'
+        },
+        { type: 'string', enum: ['', null], nullable: true },
+      ]
+    },
+
+
     table: { type: 'string', enum: ['CLIENTES', 'AVALES'] },
   },
 
