@@ -100,7 +100,7 @@ functions:
     handler: ./src/customerFiles/getFile.handler
     events:
       - httpApi:
-          path: /v1/file/
+          path: /v1/file
           method: post
           authorizer:
             name: customAuthorizer
