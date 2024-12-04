@@ -3,30 +3,25 @@ export const customerSearchTelefonoSchema = {
 
   properties: {
     telefono_fijo: {
-      anyOf: [
-        {
-          type: 'string', pattern: '^\\d{10}$'
-        },
-        { type: 'string', enum: ['', null], nullable: true },
-      ]
+      type: 'string',
     },
 
     telefono_movil: {
-      anyOf: [
-        {
-          type: 'string', pattern: '^\\d{10}$'
-        },
-        { type: 'string', enum: ['', null], nullable: true },
-      ]
+      type: 'string',
     },
-
 
     table: { type: 'string', enum: ['CLIENTES', 'AVALES'] },
   },
 
-  required: ['table'],
-
-  anyOf: [{ required: ['telefono_fijo'] }, { required: ['telefono_movil'] }],
+  required: ['table', 'telefono_fijo', 'telefono_movil'],
 
   additionalProperties: false,
+
+  anyOf: [
+    { type: 'object', properties: { telefono_fijo: { pattern: '^\\d{10}$' } } },
+    {
+      type: 'object',
+      properties: { telefono_movil: { pattern: '^\\d{10}$' } },
+    },
+  ],
 };
