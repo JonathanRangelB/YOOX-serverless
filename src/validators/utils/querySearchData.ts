@@ -1,9 +1,6 @@
-export function searchCurpQuery(
-  curp: string,
-  table: string
-): string {
+export function searchCurpQuery(curp: string, table: string): string {
   let selectStatement = ``;
-  let whereCondition = ` where CURP = '${curp}' `;
+  const whereCondition = ` where CURP = '${curp}' `;
 
   switch (table) {
     case 'CLIENTES':
