@@ -18,12 +18,22 @@ export const propertiesForLoanRequest = {
       apellido_paterno_cliente: { type: 'string' },
       apellido_materno_cliente: { type: 'string' },
       telefono_fijo_cliente: {
-        type: 'string',
-        pattern: '^\\d{10}$',
+        anyOf: [
+          {
+            type: 'string',
+            pattern: '^\\d{10}$',
+          },
+          { type: 'string', enum: ['', null], nullable: true },
+        ],
       },
       telefono_movil_cliente: {
-        type: 'string',
-        pattern: '^\\d{10}$',
+        anyOf: [
+          {
+            type: 'string',
+            pattern: '^\\d{10}$',
+          },
+          { type: 'string', enum: ['', null], nullable: true },
+        ],
       },
       curp_cliente: {
         type: 'string',
@@ -133,12 +143,22 @@ export const propertiesForLoanRequest = {
       nombre_aval: { type: 'string' },
       apellido_paterno_aval: { type: 'string' },
       telefono_fijo_aval: {
-        type: 'string',
-        pattern: '^\\d{10}$',
+        anyOf: [
+          {
+            type: 'string',
+            pattern: '^\\d{10}$',
+          },
+          { type: 'string', enum: ['', null], nullable: true },
+        ],
       },
       telefono_movil_aval: {
-        type: 'string',
-        pattern: '^\\d{10}$',
+        anyOf: [
+          {
+            type: 'string',
+            pattern: '^\\d{10}$',
+          },
+          { type: 'string', enum: ['', null], nullable: true },
+        ],
       },
       correo_electronico_aval: {
         anyOf: [
