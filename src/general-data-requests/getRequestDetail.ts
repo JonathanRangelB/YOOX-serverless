@@ -1,10 +1,13 @@
 import { APIGatewayEvent } from 'aws-lambda';
 import { DbConnector } from '../helpers/dbConnector';
-import { ClienteDomicilio, DatosCliente } from './types/getCustomer.interface';
+import {
+  DatosSolicitudDetalle,
+  SolicitudDetalle,
+} from './types/getRequest.interface';
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { StatusCodes } from '../helpers/statusCodes';
-import { customerSearchQuery } from './utils/querySearchCustomer';
-import { isValidSearchCustomerParameters } from './validateSearchCustomerParameters';
+import { requestDetailSearchQuery } from './utils/querySearchRequestDetail';
+import { isValidSearchRequestDetailParameter } from './validateSearchRequestDetailParameters';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
@@ -16,8 +19,8 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   const body = JSON.parse(event.body);
 
-  const { id, curp, nombre, id_agente } = body as DatosCliente;
-  const validateSearchParameters = isValidSearchCustomerParameters(body);
+  const { request_number } = body as DatosSolicitudDetalle;
+  const validateSearchParameters = isValidSearchRequestDetailParameter(body);
 
   if (!validateSearchParameters.valid) {
     return generateJsonResponse(
@@ -32,12 +35,11 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   try {
     const pool = await DbConnector.getInstance().connection;
 
-    const queryStatement = customerSearchQuery(id_agente, id, curp, nombre);
+    const queryStatement = requestDetailSearchQuery(request_number);
 
-    // Asegúrate de que cualquier elemento esté correctamente codificado en la cadena de conexión URL
     const registrosEncontrados = await pool
       .request()
-      .query<ClienteDomicilio>(queryStatement);
+      .query<SolicitudDetalle>(queryStatement);
 
     if (!registrosEncontrados.rowsAffected[0])
       return generateJsonResponse(
@@ -45,7 +47,10 @@ module.exports.handler = async (event: APIGatewayEvent) => {
         StatusCodes.NOT_FOUND
       );
 
-    return generateJsonResponse(registrosEncontrados.recordset, StatusCodes.OK);
+    return generateJsonResponse(
+      registrosEncontrados.recordset[0],
+      StatusCodes.OK
+    );
   } catch (error) {
     return generateJsonResponse({ error }, StatusCodes.BAD_REQUEST);
   }

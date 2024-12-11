@@ -70,13 +70,13 @@ functions:
             name: customAuthorizer
 
   viewLoanRequest:
-    handler: ./src/loan-requests/viewLoan.handler
+    handler: ./src/general-data-requests/getRequestDetail.handler
     events:
       - httpApi:
-          method: get
+          method: post
           path: /v1/loan-request/view
           authorizer:
-            name: customAuthorizer
+            name: customAuthorizer 
 
   viewRequestList:
     handler: ./src/loan-requests/viewRequestList.handler
@@ -148,7 +148,7 @@ functions:
           method: post
           path: /v1/validate/phones
           authorizer:
-            name: customAuthorizer
+            name: customAuthorizer     
 
   customAuthorizer:
     handler: ./src/authorizer/auth.handler
