@@ -45,10 +45,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
         StatusCodes.NOT_FOUND
       );
 
-    return generateJsonResponse(
-      { registrosEncontrados: registrosEncontrados.recordset },
-      StatusCodes.OK
-    );
+    return generateJsonResponse(registrosEncontrados.recordset, StatusCodes.OK);
   } catch (error) {
     return generateJsonResponse({ error }, StatusCodes.BAD_REQUEST);
   }
