@@ -9,3 +9,4 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     statusCode
   );
 };
+
