@@ -11,11 +11,15 @@ export interface updateStatusResponse {
 }
 
 export interface DatosSolicitudPrestamoLista {
-  id_agente: number
+  id_agente: number;
 }
 
 export interface SolicitudPrestamoLista {
-
+  request_number: string;
+  nombre_cliente: string;
+  cantidad_prestada: number;
+  created_date: Date;
+  loan_request_status: string;
 }
 
 export interface validateSearchLoanRequestListResponse {

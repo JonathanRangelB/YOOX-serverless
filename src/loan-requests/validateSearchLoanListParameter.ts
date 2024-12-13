@@ -2,21 +2,24 @@ import Ajv from 'ajv';
 import formats from 'ajv-formats';
 
 import { loanRequestListSearchParametersSchema } from './schemas/loanList.schema';
-import { DatosSolicitudPrestamoLista, validateSearchLoanRequestListResponse } from './types/loanRequest';
+import {
+  DatosSolicitudPrestamoLista,
+  validateSearchLoanRequestListResponse,
+} from './types/loanRequest';
 
-const ajv = new Ajv({ allErrors: true })
+const ajv = new Ajv({ allErrors: true });
 formats(ajv);
 
 export function isValidSearchLoanRequestListParameter(
-    datosSolicitudLista: DatosSolicitudPrestamoLista
+  datosSolicitudLista: DatosSolicitudPrestamoLista
 ): validateSearchLoanRequestListResponse {
-    const validate = ajv.compile(loanRequestListSearchParametersSchema)
-    const valid = validate(datosSolicitudLista)
-    const error = ajv.errorsText(validate.errors, { separator: ' AND ' })
+  const validate = ajv.compile(loanRequestListSearchParametersSchema);
+  const valid = validate(datosSolicitudLista);
+  const error = ajv.errorsText(validate.errors, { separator: ' AND ' });
 
-    if (!valid) {
-        return { valid, error }
-    }
+  if (!valid) {
+    return { valid, error };
+  }
 
-    return { valid }
+  return { valid };
 }

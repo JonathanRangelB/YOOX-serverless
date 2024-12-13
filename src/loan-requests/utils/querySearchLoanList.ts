@@ -1,7 +1,5 @@
-export function loanRequestListSearchQuery(
-    id_agente: number
-): string {
-    return `
+export function loanRequestListSearchQuery(id_agente: number): string {
+  return `
             SELECT
             request_number,
             nombre_cliente + ' ' + apellido_paterno_cliente + ' ' + apellido_materno_cliente  as [nombre_cliente],
@@ -50,5 +48,5 @@ export function loanRequestListSearchQuery(
 
             ORDER BY LOAN_REQUEST_STATUS, request_number desc    
 
-    `
+    `;
 }

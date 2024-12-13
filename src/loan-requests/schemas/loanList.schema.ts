@@ -1,11 +1,11 @@
 export const loanRequestListSearchParametersSchema = {
-    type: 'object',
+  type: 'object',
 
-    properties: {
-        id_agente: { type: 'number' },
-    },
+  properties: {
+    id_agente: { type: 'number' },
+  },
 
-    required: ['id_agente'],
+  required: ['id_agente'],
 
-    additionalProperties: false,
+  additionalProperties: false,
 };
