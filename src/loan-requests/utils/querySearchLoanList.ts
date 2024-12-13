@@ -1,10 +1,10 @@
-export function requestListSearchQuery(
+export function loanRequestListSearchQuery(
     id_agente: number
 ): string {
     return `
             SELECT
             request_number,
-            apellido_paterno_cliente,
+            nombre_cliente + ' ' + apellido_paterno_cliente + ' ' + apellido_materno_cliente  as [nombre_cliente],
             cantidad_prestada,
             created_date,
             loan_request_status
@@ -13,6 +13,8 @@ export function requestListSearchQuery(
             (
                 SELECT
                 request_number,
+                nombre_cliente,
+                apellido_materno_cliente,
                 apellido_paterno_cliente,
                 cantidad_prestada,
                 created_date,
@@ -27,6 +29,8 @@ export function requestListSearchQuery(
 
                 SELECT
                 request_number,
+                nombre_cliente,
+                apellido_materno_cliente,                
                 apellido_paterno_cliente,
                 cantidad_prestada,
                 created_date,

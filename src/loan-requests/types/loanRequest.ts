@@ -9,3 +9,16 @@ export interface updateStatusResponse {
   message?: string;
   error?: string;
 }
+
+export interface DatosSolicitudPrestamoLista {
+  id_agente: number
+}
+
+export interface SolicitudPrestamoLista {
+
+}
+
+export interface validateSearchLoanRequestListResponse {
+  valid: boolean;
+  error?: string;
+}
