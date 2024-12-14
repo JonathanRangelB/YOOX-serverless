@@ -40,8 +40,8 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   try {
     const command = new GetObjectCommand(params);
-    const signedUrl = await getSignedUrl(client, command, { expiresIn: 10 });
-    return generateJsonResponse({ signedUrl }, StatusCodes.OK);
+    const signedUrl = await getSignedUrl(client, command, { expiresIn: 60 });
+    return generateJsonResponse(signedUrl, StatusCodes.OK);
   } catch (error) {
     console.log(error);
     if (error instanceof Error)
