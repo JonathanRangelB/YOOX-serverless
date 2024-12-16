@@ -32,9 +32,10 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   const { filename, path } = data;
 
   const bucketName = process.env.BUCKET_NAME || 'documentos-clientes-yoox';
+  const upperCasePath = path.toUpperCase();
   const params: GetObjectRequest = {
     Bucket: bucketName,
-    Key: path + filename,
+    Key: upperCasePath + filename,
     ResponseContentDisposition: `attachment; filename="${filename}"`,
   };
 

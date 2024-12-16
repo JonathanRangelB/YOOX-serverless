@@ -34,17 +34,18 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   try {
     const uploadUrls = await Promise.all(
-      filenames.map(async (filename: string) => {
+      filenames.map(async (fullFileName: string) => {
+        const [path, filename] = fullFileName.split('/');
         const params: PutObjectRequest = {
           Bucket: bucketName,
-          Key: filename, // Archivo que se subirá con su ruta completa. Ej: documentos/imagen/{filename}
+          Key: `${path.toUpperCase()}/${filename}`, // Archivo que se subirá con su ruta completa. Ej: documentos/imagen/{filename}
           ContentType: 'application/octet-stream', // Tipo de contenido generico binario, osea cualquier tipo de archivo
         };
         const command = new PutObjectCommand(params);
         const signedUrl = await getSignedUrl(client, command, {
           expiresIn: 30,
         });
-        return { filename, signedUrl };
+        return { filename: fullFileName, signedUrl };
       })
     );
 
