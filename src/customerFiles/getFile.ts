@@ -32,16 +32,17 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   const { filename, path } = data;
 
   const bucketName = process.env.BUCKET_NAME || 'documentos-clientes-yoox';
+  const upperCasePath = path.toUpperCase();
   const params: GetObjectRequest = {
     Bucket: bucketName,
-    Key: path + filename,
+    Key: upperCasePath + filename,
     ResponseContentDisposition: `attachment; filename="${filename}"`,
   };
 
   try {
     const command = new GetObjectCommand(params);
-    const signedUrl = await getSignedUrl(client, command, { expiresIn: 10 });
-    return generateJsonResponse({ signedUrl }, StatusCodes.OK);
+    const signedUrl = await getSignedUrl(client, command, { expiresIn: 60 });
+    return generateJsonResponse(signedUrl, StatusCodes.OK);
   } catch (error) {
     console.log(error);
     if (error instanceof Error)
