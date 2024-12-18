@@ -11,7 +11,8 @@ export interface updateStatusResponse {
 }
 
 export interface DatosSolicitudPrestamoLista {
-  id_agente: number;
+  id_usuario: number;
+  rol_usuario: string;
 }
 
 export interface SolicitudPrestamoLista {
