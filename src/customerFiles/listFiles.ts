@@ -32,7 +32,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     const data = await client.send(command);
     const files = data.Contents?.map((item) => item.Key) || [];
 
-    return generateJsonResponse({ files }, StatusCodes.OK);
+    return generateJsonResponse(files, StatusCodes.OK);
   } catch (error) {
     console.error(error);
     if (error instanceof Error)
