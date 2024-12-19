@@ -19,7 +19,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   const body = JSON.parse(event.body);
 
-  const { id_usuario, rol_usuario } = body as DatosSolicitudPrestamoLista;
+  const { id_usuario, rol_usuario, offSetRows, fetchRowsNumber } = body as DatosSolicitudPrestamoLista;
   const validateSearchParameters = isValidSearchLoanRequestListParameter(body);
 
   if (!validateSearchParameters.valid) {
@@ -34,7 +34,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   try {
     const pool = await DbConnector.getInstance().connection;
-    const queryStatement = loanRequestListSearchQuery(id_usuario, rol_usuario);
+    const queryStatement = loanRequestListSearchQuery(id_usuario, rol_usuario, offSetRows, fetchRowsNumber);
     const registrosEncontrados = await pool
       .request()
       .query<SolicitudPrestamoLista>(queryStatement);

@@ -2,7 +2,9 @@ import { accessByUserRolTable } from '../../secure-data-access/getAccessByUserRo
 
 export function loanRequestListSearchQuery(
   id_usuario: number,
-  rol_usuario: string
+  rol_usuario: string,
+  offSetRows: number,
+  fetchRowsNumber: number
 ): string {
   let whereCondition = ` `;
   let limitOneWeekData = ` `;
@@ -74,6 +76,8 @@ export function loanRequestListSearchQuery(
     
         SELECT * FROM LOAN_REQUEST_LIST_TABLA 
         ORDER BY LOAN_REQUEST_STATUS, request_number desc
+        OFFSET ${offSetRows} ROWS
+        FETCH NEXT ${fetchRowsNumber} ROWS ONLY
     
     `;
   return cteQuery;

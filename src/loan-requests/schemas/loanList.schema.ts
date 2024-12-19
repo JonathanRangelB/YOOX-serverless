@@ -7,9 +7,11 @@ export const loanRequestListSearchParametersSchema = {
       type: 'string',
       enum: ['Administrador', 'Cobrador', 'Líder de grupo', 'Usuario normal'],
     },
+    offSetRows: { type: 'number' },
+    fetchRowsNumber: { type: 'number' },
   },
 
-  required: ['id_usuario', 'rol_usuario'],
+  required: ['id_usuario', 'rol_usuario', 'offSetRows', 'fetchRowsNumber'],
 
   additionalProperties: false,
 };
