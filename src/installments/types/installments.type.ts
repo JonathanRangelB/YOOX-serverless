@@ -1,6 +1,6 @@
 export interface Plazo {
-  ID: number;
-  TASA_DE_INTERES: number;
-  SEMANAS_PLAZO: string;
-  SEMANAS_REFINANCIA: string;
+  id: number;
+  tasa_de_interes: number;
+  semanas_plazo: string;
+  semanas_refinancia: string;
 }
