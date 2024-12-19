@@ -8,7 +8,7 @@ module.exports.handler = async () => {
   try {
     const pool = await DbConnector.getInstance().connection;
     const result = await pool.query<Plazo>(
-      'SELECT ID, TASA_DE_INTERES, SEMANAS_PLAZO, SEMANAS_REFINANCIA FROM PLAZO'
+      'SELECT id, tasa_de_interes, semanas_plazo, semanas_refinancia FROM PLAZO'
     );
     if (result.recordset.length == 0)
       throw new Error('No se encontraron registros');

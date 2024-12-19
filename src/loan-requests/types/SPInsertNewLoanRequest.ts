@@ -1,3 +1,5 @@
+import { Plazo } from '../../installments/types/installments.type';
+
 export interface InsertNewLoanRequest {
   cantidad_prestada: number;
   plazo: Plazo;
@@ -64,10 +66,4 @@ export interface TipoCalle {
 export interface EntidadFederativa {
   name: string;
   value: string;
-}
-
-export interface Plazo {
-  name: string;
-  value: string;
-  id: number;
 }
