@@ -43,7 +43,6 @@ module.exports.handler = async (event: APIGatewayEvent) => {
         { message: 'Error 404', error: 'No se encontraron registros' },
         StatusCodes.NOT_FOUND
       );
-    console.log(registrosEncontrados.recordset.length);
     return generateJsonResponse(registrosEncontrados.recordset, StatusCodes.OK);
   } catch (error) {
     return generateJsonResponse({ error }, StatusCodes.BAD_REQUEST);
