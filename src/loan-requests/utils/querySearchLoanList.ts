@@ -40,7 +40,9 @@ export function loanRequestListSearchQuery(
             LOAN_REQUEST_LIST_TABLA AS (
                 SELECT
                 TAB.request_number,
-                TAB.nombre_cliente + ' ' + TAB.apellido_paterno_cliente + ' ' + TAB.apellido_materno_cliente  as [nombre_cliente],
+                TAB.nombre_cliente,
+                TAB.apellido_paterno_cliente,
+                TAB.apellido_materno_cliente,
                 TAB.cantidad_prestada,
                 TAB.created_date,
                 TAB.loan_request_status,
