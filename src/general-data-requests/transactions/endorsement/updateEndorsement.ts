@@ -10,7 +10,7 @@ export const updateEndorsement = async (
     formAval: formEndorsement,
     procTransaction: Transaction
 ): Promise<genericBDRequest> => {
-
+    console.log('Entra a updateEndorsement')
     try {
         const {
             id_aval,
@@ -49,7 +49,7 @@ export const updateEndorsement = async (
             usuario: aval_modificado_por,
             fecha_operacion: fecha_modificacion_aval
         }
-
+        console.log('DireccionAval: ', direccionAval)
         let resultadoOperacion
         let idDomicilio
 
@@ -60,39 +60,39 @@ export const updateEndorsement = async (
             resultadoOperacion = await registerNewAddress(direccionAval, id_aval, 'AVAL', procTransaction)
             idDomicilio = resultadoOperacion.generatedId
         }
-
+        console.log(`id generado para actualizar domicilio de aval: ${idDomicilio}`)
         if (!resultadoOperacion.generatedId)
             return {
-                message: 'No se pudo actualizar la dirección',
+                message: 'Error al registrar/actualizar el domicilio del aval',
                 generatedId: 0,
                 error: StatusCodes.BAD_REQUEST
             }
-
+        console.log(`actualizar aval linea 70`)
         let queryUpdateEndorsement = `
                     UPDATE
                     AVALES
 
                     SET
                     NOMBRE = '${nombre_aval} ${apellido_paterno_aval} ${apellido_materno_aval}',
-                    TELEFONO_FIJO_AVAL = '${telefono_fijo_aval}',
-                    TELEFONO_MOVIL_AVAL = '${telefono_movil_aval}',
+                    TELEFONO_FIJO = '${telefono_fijo_aval}',
+                    TELEFONO_MOVIL = '${telefono_movil_aval}',
                     CORREO_ELECTRONICO = '${correo_electronico_aval}',
                     CURP = '${curp_aval}',
-                    ID_DOMICILIO = ${idDomicilio},
+                    ID_DOMICILIO = ${idDomicilio}
 
                     WHERE ID_AVAL = ${id_aval}
 
                     `
-
+        console.log(`actualizar aval linea 86`)
         const updateEndorsementResult = await procTransaction.request().query(queryUpdateEndorsement)
-
-        if (!updateEndorsementResult.rowsAffected)
+        console.log(`actualizar aval linea 88`)
+        if (!updateEndorsementResult.rowsAffected[0])
             return {
                 message: 'Aval no actualizado',
                 generatedId: 0,
                 error: StatusCodes.BAD_REQUEST
             }
-
+        console.log(`actualizar aval linea 95`)
         return {
             message: 'Aval actualizado',
             generatedId: id_aval,
@@ -101,9 +101,10 @@ export const updateEndorsement = async (
 
     } catch (error) {
         let errorMessage = '';
-
+        console.log(`actualizar aval linea 104`)
         if (error instanceof Error) {
             errorMessage = error.message as string;
+            console.log(`error actualizar aval: ${errorMessage}`)
         }
 
         return {

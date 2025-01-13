@@ -9,7 +9,7 @@ export const updateAddress = async (
     tipo: string,
     procTransaction: Transaction
 ): Promise<genericBDRequest> => {
-
+    console.log('Entra a updateAddress')
     const {
         id,
         tipo_calle,
@@ -59,7 +59,7 @@ export const updateAddress = async (
         ,CP = '${cp}'
         ,REFERENCIAS = '${referencias_dom}'
         ,MODIFIED_BY_USR = ${usuario}
-        ,MODIFIED_DATE = '${fecha_operacion as Date}'
+        ,MODIFIED_DATE = '${fecha_operacion.toISOString()}'
 
         WHERE
         ID = ${id}  
@@ -68,6 +68,8 @@ export const updateAddress = async (
 
         let tipoId = ''
         let valoresAInsertar = ''
+        let queryClearSuiteNumber = ''
+        let queryUpdateSuiteNumber = ''
 
         switch (tipo) {
             case 'CLIENTE':
@@ -80,20 +82,23 @@ export const updateAddress = async (
                 break;
         }
 
-        let queryClearSuiteNumber = `
-                DELETE 
-                FROM DOMICILIOS_NUM_INTERIOR 
-                WHERE TIPO = '${tipo}' AND ${tipoId} = ${id_persona}  
-                
-                `
-        let queryUpdateSuiteNumber = `
-                INSERT INTO
-                DOMICILIOS_NUM_INTERIOR
-                (ID_DOMICILIO, NUMERO_INTERIOR, ID_CLIENTE, ID_AVAL, TIPO)
-                VALUES
-                ${valoresAInsertar}
-                                
+        queryClearSuiteNumber = `
+        DELETE 
+        FROM DOMICILIOS_NUM_INTERIOR 
+        WHERE TIPO = '${tipo}' AND ${tipoId} = ${id_persona}  
+        
         `
+
+        if (numero_interior) {
+            queryUpdateSuiteNumber = `
+                    INSERT INTO
+                    DOMICILIOS_NUM_INTERIOR
+                    (ID_DOMICILIO, NUMERO_INTERIOR, ID_CLIENTE, ID_AVAL, TIPO)
+                    VALUES
+                    ${valoresAInsertar}
+                                    
+            `
+        }
 
         console.log(queryUpdateAddress + queryClearSuiteNumber + queryUpdateSuiteNumber)
 

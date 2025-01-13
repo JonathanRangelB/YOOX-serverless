@@ -24,12 +24,9 @@ export const registerUpdateLoanRequest = async (
         'SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;'
       );
 
-    console.table(queryResult.recordset);
-
     const serverTime = queryResult.recordset[0].current_date_server;
-    console.log(`Fecha y hora servidor:  ${serverTime.toISOString()}`);
-    const current_local_date = ((convertDateTimeZone(serverTime, 'America/Mexico_City')) as Date).toISOString();
-    console.log(`Fecha y hora local:  ${current_local_date}`);
+    const current_local_date = (convertDateTimeZone(serverTime, 'America/Mexico_City')) as Date
+    console.log(`Fecha y hora local:  ${(current_local_date.toISOString())}`);
     // Manejo de concurrencia
 
     if (!queryResult.recordset[0]) {
@@ -46,7 +43,7 @@ export const registerUpdateLoanRequest = async (
         `La solicitud ya ha sido cerrada con el estatus ${currentLoanRequestStatus}`
       );
     }
-    console.log('Linea 47');
+
     const {
       id: id_loan_request,
       request_number,
@@ -64,8 +61,7 @@ export const registerUpdateLoanRequest = async (
       formEndorsement: datosAval,
       id_usuario,
     } = updateLoanRequest;
-    console.log(datosCliente)
-    console.log('Linea 66');
+
     const {
       id_cliente,
       nombre_cliente,
@@ -86,7 +82,7 @@ export const registerUpdateLoanRequest = async (
       cp_cliente,
       referencias_dom_cliente,
     } = datosCliente
-    console.log('Linea 87');
+
     const {
       id_aval,
       nombre_aval,
@@ -106,14 +102,14 @@ export const registerUpdateLoanRequest = async (
       cp_aval,
       referencias_dom_aval,
     } = datosAval
-    console.log('Linea 107');
+
     const {
       id: id_plazo,
       tasa_de_interes,
       semanas_plazo,
       semanas_refinancia,
     } = datosPlazo
-    console.log('Linea 114');
+
     //Comienza ensamblado de la cadena del query
     let updateQueryColumns = '';
 
@@ -177,7 +173,7 @@ export const registerUpdateLoanRequest = async (
       ,TASA_INTERES = ${tasa_de_interes}
       ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : 'NULL'}
       ,MODIFIED_BY = ${id_usuario}
-      ,MODIFIED_DATE = ${current_local_date}
+      ,MODIFIED_DATE = ${current_local_date.toISOString()}
       `;
     }
 
@@ -197,7 +193,7 @@ export const registerUpdateLoanRequest = async (
 
           if (!id_cliente) {
             datosCliente.cliente_creado_por = id_usuario
-            datosCliente.fecha_creacion_cliente = current_local_date as Date
+            datosCliente.fecha_creacion_cliente = current_local_date
             datosCliente.observaciones_cliente = `Solicitud de préstamo ${request_number}`
 
             const procNewCustomer = await registerNewCustomer(
@@ -214,10 +210,10 @@ export const registerUpdateLoanRequest = async (
 
           } else {
             datosCliente.cliente_modificado_por = id_usuario
-            datosCliente.fecha_modificacion_cliente = current_local_date as Date
+            datosCliente.fecha_modificacion_cliente = current_local_date
             console.log(`fecha_modificacion_cliente: ${datosCliente.fecha_modificacion_cliente}`)
             const procUpdateCustomer = await updateCustomer(datosCliente, procTransaction);
-
+            console.log('id generado para actualizar cliente: ', procUpdateCustomer.generatedId)
             if (!procUpdateCustomer.generatedId) {
               procTransaction.rollback();
               throw new Error(procUpdateCustomer.message);
@@ -226,7 +222,7 @@ export const registerUpdateLoanRequest = async (
 
           if (!id_aval) {
             datosAval.aval_creado_por = id_usuario
-            datosAval.fecha_creacion_aval = current_local_date as Date
+            datosAval.fecha_creacion_aval = current_local_date
             datosAval.observaciones_aval = `Solicitud de préstamo ${request_number}`
 
             const procNewEndorsement = await registerNewEndorsement(datosAval, procTransaction)
@@ -239,10 +235,10 @@ export const registerUpdateLoanRequest = async (
           }
           else {
             datosAval.aval_modificado_por = id_usuario
-            datosAval.fecha_modificacion_aval = current_local_date as Date
+            datosAval.fecha_modificacion_aval = current_local_date
 
             const procNewEndorsement = await updateEndorsement(datosAval, procTransaction)
-
+            console.log('id generado para actualizar aval: ', procNewEndorsement.generatedId)
             if (!procNewEndorsement.generatedId) {
               procTransaction.rollback();
               throw new Error(procNewEndorsement.message)
@@ -251,12 +247,12 @@ export const registerUpdateLoanRequest = async (
 
           updateQueryColumns += `
           ,CLOSED_BY = ${id_usuario}
-          ,CLOSED_DATE = ${current_local_date}`;
+          ,CLOSED_DATE = '${current_local_date.toISOString()}' `;
 
           break;
 
         case 'RECHAZADO':
-          updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' ,CLOSED_BY = ${id_usuario} ,CLOSED_DATE = ${current_local_date} `;
+          updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' ,CLOSED_BY = ${id_usuario} ,CLOSED_DATE = '${current_local_date.toISOString()}' `;
           break;
 
         default:
@@ -266,11 +262,11 @@ export const registerUpdateLoanRequest = async (
     }
 
     const updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = ${id_loan_request};`;
+    console.log(`Query de actualización: ${updateQueryString}`);
+    const updateResult = await procTransaction.request().query(updateQueryString);
+    //const updateResult = await requestUpdate.query(updateQueryString);
 
-    const requestUpdate = procTransaction.request();
-    const updateResult = await requestUpdate.query(updateQueryString);
-
-    if (!updateResult.rowsAffected.length) {
+    if (!updateResult.rowsAffected[0]) {
       await procTransaction.rollback();
       throw new Error('No se actualizó el registro');
     }

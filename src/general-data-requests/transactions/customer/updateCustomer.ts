@@ -10,7 +10,7 @@ export const updateCustomer = async (
   formCliente: formCustomer,
   procTransaction: Transaction
 ): Promise<genericBDRequest> => {
-
+  console.log('Entra a updateCustomer')
   try {
     const {
       id_cliente,
@@ -67,7 +67,7 @@ export const updateCustomer = async (
 
     if (!resultadoOperacion.generatedId)
       return {
-        message: 'Error al registrar/actualizar el domicilio',
+        message: 'Error al registrar/actualizar el domicilio del cliente',
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST
       }

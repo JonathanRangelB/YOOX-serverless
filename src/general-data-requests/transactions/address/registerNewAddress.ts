@@ -69,7 +69,7 @@ export const registerNewAddress = async (
             cp,
             referencias_dom,
             usuario,
-            fecha_operacion,
+            fecha_operacion.toISOString(),
         );
 
         const insertResult = await procTransaction.request().bulk(tableAddressBD);
