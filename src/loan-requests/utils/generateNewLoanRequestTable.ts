@@ -8,7 +8,6 @@ export function generateNewLoanRequestTable(
     id: number;
     request_number: string;
     loan_request_status: string;
-    tasaInteres: number;
     created_date: Date;
   }
 ) {
@@ -27,7 +26,10 @@ export function generateNewLoanRequestTable(
     formAval,
   } = newLoanRequest;
 
-  const { id: id_plazo } = plazo;
+  const { id: id_plazo
+    , semanas_plazo
+    , tasa_de_interes
+  } = plazo;
 
   const {
     id_cliente,
@@ -48,6 +50,7 @@ export function generateNewLoanRequestTable(
     estado_cliente: efc,
     cp_cliente,
     referencias_dom_cliente,
+    id_domicilio_cliente
   } = formCliente;
 
   const { value: tipoCalleCliente } = calleC;
@@ -71,11 +74,12 @@ export function generateNewLoanRequestTable(
     estado_aval: efa,
     cp_aval,
     referencias_dom_aval,
+    id_domicilio_aval
   } = formAval;
 
   const { value: tipoCalleAval } = calleA;
   const { value: estadoAval } = efa;
-  const { id, request_number, loan_request_status, tasaInteres, created_date } =
+  const { id, request_number, loan_request_status, created_date } =
     additionalData;
 
   const tableNewRequestLoan = new Table('LOAN_REQUEST');
@@ -116,6 +120,9 @@ export function generateNewLoanRequestTable(
     nullable: true,
   });
   tableNewRequestLoan.columns.add('CURP_CLIENTE', VarChar, { nullable: false });
+
+  tableNewRequestLoan.columns.add('ID_DOMICILIO_CLIENTE', Int, { nullable: true });
+
   tableNewRequestLoan.columns.add('TIPO_CALLE_CLIENTE', VarChar, {
     nullable: true,
   });
@@ -163,6 +170,9 @@ export function generateNewLoanRequestTable(
     nullable: true,
   });
   tableNewRequestLoan.columns.add('CURP_AVAL', VarChar, { nullable: false });
+
+  tableNewRequestLoan.columns.add('ID_DOMICILIO_AVAL', Int, { nullable: true });
+
   tableNewRequestLoan.columns.add('TIPO_CALLE_AVAL', VarChar, {
     nullable: true,
   });
@@ -187,6 +197,10 @@ export function generateNewLoanRequestTable(
   //AVAL FIN
 
   tableNewRequestLoan.columns.add('ID_PLAZO', Int, { nullable: false });
+
+  tableNewRequestLoan.columns.add('TASA_DE_INTERES', Int, { nullable: true });
+  tableNewRequestLoan.columns.add('SEMANAS_PLAZO', VarChar, { nullable: true });
+
   tableNewRequestLoan.columns.add('CANTIDAD_PRESTADA', Float, {
     nullable: false,
   });
@@ -200,7 +214,6 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add('CANTIDAD_PAGAR', Float, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('TASA_INTERES', Int, { nullable: true });
   tableNewRequestLoan.columns.add('OBSERVACIONES', VarChar, {
     nullable: true,
   });
@@ -208,7 +221,7 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add('CREATED_DATE', DateTime, {
     nullable: false,
   });
-
+  console.log('termina construccion de tabla')
   tableNewRequestLoan.rows.add(
     id,
     request_number,
@@ -224,6 +237,7 @@ export function generateNewLoanRequestTable(
     correo_electronico_cliente,
     ocupacion_cliente,
     curp_cliente,
+    id_domicilio_cliente,
     tipoCalleCliente,
     nombre_calle_cliente,
     numero_exterior_cliente,
@@ -241,6 +255,7 @@ export function generateNewLoanRequestTable(
     telefono_movil_aval,
     correo_electronico_aval,
     curp_aval,
+    id_domicilio_aval,
     tipoCalleAval,
     nombre_calle_aval,
     numero_exterior_aval,
@@ -251,16 +266,17 @@ export function generateNewLoanRequestTable(
     cp_aval,
     referencias_dom_aval,
     id_plazo,
+    tasa_de_interes,
+    semanas_plazo,
     cantidad_prestada,
     dia_semana,
     fecha_inicial,
     fecha_final_estimada,
     cantidad_pagar,
-    tasaInteres,
     observaciones,
     created_by,
-    created_date
+    created_date.toISOString()
   );
-
+  console.log('termina agregado de registro nuevo')
   return tableNewRequestLoan;
 }

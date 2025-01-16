@@ -18,7 +18,7 @@ export const registerNewLoanRequest = async (
 
     const { tableNewRequestLoan, request_number } =
       await validateData(newLoanRequest, procTransaction);
-
+    console.log(tableNewRequestLoan)
     await procTransaction.request().bulk(tableNewRequestLoan);
     await procTransaction.commit();
 
@@ -28,6 +28,8 @@ export const registerNewLoanRequest = async (
   } catch (error) {
     await procTransaction.rollback();
     let errorMessage = '';
+
+    console.log(error)
 
     if (error instanceof Error) {
       errorMessage = error.message as string;

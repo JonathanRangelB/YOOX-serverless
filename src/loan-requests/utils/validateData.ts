@@ -70,7 +70,7 @@ export async function validateData(
     id,
     request_number,
     loan_request_status,
-    tasaInteres,
+    //tasaInteres,
     created_date: horaLocal as Date,
   });
 
