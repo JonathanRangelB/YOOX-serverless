@@ -45,7 +45,7 @@ export function searchTelefonoQuery(
       break;
   }
 
-  let listInCondition = ``;
+  let listInCondition = '';
 
   if (telefono_fijo) listInCondition += `'${telefono_fijo}'`;
 
@@ -59,6 +59,8 @@ export function searchTelefonoQuery(
                           ${table}
                           where telefono_fijo in (${listInCondition})
                                 or telefono_movil in (${listInCondition})  `;
+
+  console.log('Where st string: ' + selectStatement)
 
   return selectStatement;
 }

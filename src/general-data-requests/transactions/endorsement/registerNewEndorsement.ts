@@ -101,7 +101,7 @@ export const registerNewEndorsement = async (
         if (!insertBulkData.rowsAffected || !updateResult.rowsAffected.length) {
             return { message: 'No se pudo registrar el aval', idEndorsment: 0 };
         }
-
+        console.log('Id generado para nuevo aval: ', lastEndorsmentId);
         return { message: 'Alta de nuevo aval terminó de manera exitosa', idEndorsment: lastEndorsmentId };
 
     } catch (error) {

@@ -4,18 +4,18 @@ import { formEndorsement } from '../../interfaces/endorsement-interface';
 
 export interface InsertNewLoanRequest {
   cantidad_prestada: number;
-  plazo: Plazo;
+  cantidad_pagar: number;
   id_agente: number;
-  created_by: number;
   id_grupo_original: number;
+  fecha_inicial: Date;
   fecha_final_estimada: Date;
   dia_semana: string;
   observaciones: string;
-  cantidad_pagar: number;
-  status_code: number;
-  fecha_inicial: Date;
+  plazo: Plazo;
   formCliente: formCustomer;
   formAval: formEndorsement;
+  created_by: number;
+  status_code: number;
 }
 
 export interface UpdateLoanRequest {
@@ -31,8 +31,8 @@ export interface UpdateLoanRequest {
   dia_semana: string;
   observaciones: string;
   plazo: Plazo;
-  formCustomer: formCustomer;
-  formEndorsement: formEndorsement;
-  id_usuario: number;
+  formCliente: formCustomer;
+  formAval: formEndorsement;
+  modified_by: number;
   status_code: number;
 }

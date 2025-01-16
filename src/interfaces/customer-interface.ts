@@ -28,5 +28,6 @@ export interface formCustomer {
     cliente_activo: number;
     observaciones_cliente: string;
     id_domicilio_cliente: number;
+    id_aval: number;
 }
 

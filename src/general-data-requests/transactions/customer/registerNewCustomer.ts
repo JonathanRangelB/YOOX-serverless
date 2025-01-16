@@ -31,7 +31,8 @@ export const registerNewCustomer = async (
       id_agente,
       cliente_creado_por,
       fecha_creacion_cliente,
-      cliente_activo
+      cliente_activo,
+      id_aval
     } = formCliente
 
     const direccionCliente: Direccion = {
@@ -75,6 +76,8 @@ export const registerNewCustomer = async (
     tableCustomerBD.columns.add('NOMBRE', VarChar, { nullable: false });
     tableCustomerBD.columns.add('TELEFONO_FIJO', VarChar, { nullable: true });
     tableCustomerBD.columns.add('TELEFONO_MOVIL', VarChar, { nullable: true });
+    tableCustomerBD.columns.add('NUMERO_EXTERIOR', VarChar, { nullable: false });
+    tableCustomerBD.columns.add('NUMERO_INTERIOR', VarChar, { nullable: false });
     tableCustomerBD.columns.add('CORREO_ELECTRONICO', VarChar, {
       nullable: true,
     });
@@ -89,6 +92,8 @@ export const registerNewCustomer = async (
       nombre_cliente + ' ' + apellido_paterno_cliente + ' ' + apellido_materno_cliente,
       telefono_fijo_cliente,
       telefono_movil_cliente,
+      numero_exterior_cliente,
+      numero_interior_cliente,
       correo_electronico_cliente,
       cliente_activo,
       id_agente,
@@ -101,15 +106,23 @@ export const registerNewCustomer = async (
 
     const insertBulkData = await procTransaction.request().bulk(tableCustomerBD);
 
-    updateIndexIdQuery += `UPDATE [INDICES] SET [INDICE] = ${lastCustomerId} + 1 WHERE OBJETO = 'ID_CLIENTE'`;
+    updateIndexIdQuery += `UPDATE [INDICES] SET [INDICE] = ${lastCustomerId} + 1 WHERE OBJETO = 'ID_CLIENTE'
+                           
+                          `
+
+    let queryUpdateCustomerEndorsement = ''
+
+    if (id_aval) {
+      queryUpdateCustomerEndorsement = ` INSERT INTO CLIENTES_AVALES (ID_CLIENTE, ID_AVAL) VALUES (${lastCustomerId}, ${id_aval}) `
+    }
 
     const requestUpdate = procTransaction.request();
-    const updateResult = await requestUpdate.query(updateIndexIdQuery);
+    const updateResult = await requestUpdate.query(updateIndexIdQuery + queryUpdateCustomerEndorsement);
 
     if (!insertBulkData.rowsAffected || !updateResult.rowsAffected.length) {
       return { message: 'No se pudo registrar el cliente', idCustomer: 0 };
     }
-
+    console.log('Id generado para nuevo cliente: ', lastCustomerId);
     return { message: 'Alta de nuevo cliente terminó de manera exitosa', idCustomer: lastCustomerId };
 
   } catch (error) {
@@ -117,6 +130,7 @@ export const registerNewCustomer = async (
 
     if (error instanceof Error) {
       errorMessage = error.message as string;
+      console.log('Error SQL: ', errorMessage);
     }
 
     return { message: 'Error durante la transacción', idCustomer: 0, error: errorMessage };

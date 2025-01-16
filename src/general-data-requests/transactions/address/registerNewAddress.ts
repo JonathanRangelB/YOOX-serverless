@@ -122,7 +122,7 @@ export const registerNewAddress = async (
                 generatedId: 0,
                 error: StatusCodes.BAD_REQUEST,
             }
-
+        console.log('Id generado para nuevo domicilio: ', lastAddressId);
         return {
             message: 'Domicilio registrado correctamente',
             generatedId: lastAddressId,

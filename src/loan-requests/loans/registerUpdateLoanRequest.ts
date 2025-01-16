@@ -8,6 +8,7 @@ import { convertDateTimeZone } from '../../helpers/utils';
 import { updateCustomer } from '../../general-data-requests/transactions/customer/updateCustomer';
 import { registerNewEndorsement } from '../../general-data-requests/transactions/endorsement/registerNewEndorsement';
 import { updateEndorsement } from '../../general-data-requests/transactions/endorsement/updateEndorsement';
+import { validateDataLoanRequestUpdate } from '../utils/validateData';
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest
@@ -17,6 +18,15 @@ export const registerUpdateLoanRequest = async (
 
   try {
     await procTransaction.begin();
+
+    const {
+      idClienteCurp: validateCurpCustomer
+      , idAvalCurp: validateCurpAval
+      , idClienteTelefono: validatePhoneCustomer
+      , idAvalTelefono: validateEndorsementPhone
+
+    } = await validateDataLoanRequestUpdate(updateLoanRequest, procTransaction);
+
     const queryResult = await procTransaction
       .request()
       .input('ID_LOAN_REQUEST', Int, updateLoanRequest.id)
@@ -24,25 +34,22 @@ export const registerUpdateLoanRequest = async (
         'SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;'
       );
 
-    const serverTime = queryResult.recordset[0].current_date_server;
-    const current_local_date = (convertDateTimeZone(serverTime, 'America/Mexico_City')) as Date
-    console.log(`Fecha y hora local:  ${(current_local_date.toISOString())}`);
-    // Manejo de concurrencia
-
     if (!queryResult.recordset[0]) {
-      await procTransaction.rollback();
-      throw new Error('El registro no existe');
+      throw new Error('La solicitud de préstamo no existe');
     }
 
     const currentLoanRequestStatus =
       queryResult.recordset[0].loan_request_status;
 
     if (['APROBADO', 'RECHAZADO'].includes(currentLoanRequestStatus)) {
-      await procTransaction.rollback();
       throw new Error(
         `La solicitud ya ha sido cerrada con el estatus ${currentLoanRequestStatus}`
       );
     }
+
+    const current_local_date = (convertDateTimeZone(queryResult.recordset[0].current_date_server, 'America/Mexico_City')) as Date
+
+    // Manejo de concurrencia
 
     const {
       id: id_loan_request,
@@ -57,9 +64,9 @@ export const registerUpdateLoanRequest = async (
       dia_semana,
       observaciones,
       plazo: datosPlazo,
-      formCustomer: datosCliente,
-      formEndorsement: datosAval,
-      id_usuario,
+      formCliente: datosCliente,
+      formAval: datosAval,
+      modified_by: id_usuario,
     } = updateLoanRequest;
 
     const {
@@ -81,6 +88,7 @@ export const registerUpdateLoanRequest = async (
       estado_cliente,
       cp_cliente,
       referencias_dom_cliente,
+      id_domicilio_cliente
     } = datosCliente
 
     const {
@@ -101,20 +109,19 @@ export const registerUpdateLoanRequest = async (
       estado_aval,
       cp_aval,
       referencias_dom_aval,
+      id_domicilio_aval
     } = datosAval
 
     const {
       id: id_plazo,
       tasa_de_interes,
       semanas_plazo,
-      semanas_refinancia,
     } = datosPlazo
 
     //Comienza ensamblado de la cadena del query
     let updateQueryColumns = '';
 
     if (currentLoanRequestStatus === newLoanRequestStatus) {
-      procTransaction.rollback();
       throw new Error('Cambio de status incorrecto');
     }
 
@@ -122,74 +129,130 @@ export const registerUpdateLoanRequest = async (
       currentLoanRequestStatus === 'ACTUALIZAR' &&
       newLoanRequestStatus === 'EN REVISION'
     ) {
+
+      preValidatedData(validateCurpCustomer
+        , validateCurpAval
+        , validatePhoneCustomer
+        , validateEndorsementPhone
+      )
+
       updateQueryColumns = `SET 
       LOAN_REQUEST_STATUS = '${newLoanRequestStatus}'
       ,ID_AGENTE = ${id_agente}
       ,ID_GRUPO_ORIGINAL = ${id_grupo_original}
-      
-      ,ID_CLIENTE = ${id_cliente ? id_cliente : 'NULL'}
+      ,ID_CLIENTE = ${id_cliente ? id_cliente : `NULL`}
       ,NOMBRE_CLIENTE = '${nombre_cliente}'
       ,APELLIDO_PATERNO_CLIENTE = '${apellido_paterno_cliente}'
       ,APELLIDO_MATERNO_CLIENTE = '${apellido_materno_cliente}'    
       ,TELEFONO_FIJO_CLIENTE = '${telefono_fijo_cliente}'
       ,TELEFONO_MOVIL_CLIENTE = '${telefono_movil_cliente}'
-      ,CORREO_ELECTRONICO_CLIENTE = '${correo_electronico_cliente ? correo_electronico_cliente : 'NULL'}'
-      ,OCUPACION_CLIENTE = ${ocupacion_cliente ? `'${ocupacion_cliente}'` : 'NULL'}
+      ,CORREO_ELECTRONICO_CLIENTE = ${correo_electronico_cliente ? `'${correo_electronico_cliente}'` : `NULL`}
+      ,OCUPACION_CLIENTE = ${ocupacion_cliente ? `'${ocupacion_cliente}'` : `NULL`}
       ,CURP_CLIENTE = '${curp_cliente}'
-      ,TIPO_CALLE_CLIENTE = '${tipo_calle_cliente}' 
+      ,ID_DOMICILIO_CLIENTE = ${id_domicilio_cliente ? id_domicilio_cliente : `NULL`}
+      ,TIPO_CALLE_CLIENTE = '${tipo_calle_cliente.value}' 
       ,NOMBRE_CALLE_CLIENTE = '${nombre_calle_cliente}' 
       ,NUMERO_EXTERIOR_CLIENTE = '${numero_exterior_cliente}' 
       ,NUMERO_INTERIOR_CLIENTE = '${numero_interior_cliente}' 
       ,COLONIA_CLIENTE = '${colonia_cliente}' 
       ,MUNICIPIO_CLIENTE = '${municipio_cliente}' 
-      ,ESTADO_CLIENTE = '${estado_cliente}' 
+      ,ESTADO_CLIENTE = '${estado_cliente.value}' 
       ,CP_CLIENTE = '${cp_cliente}'
-      ,REFERENCIAS_DOM_CLIENTE = ${referencias_dom_cliente ? `'${referencias_dom_cliente}'` : 'NULL'}
-
-      ,ID_AVAL = ${id_aval ? id_aval : 'NULL'}
+      ,REFERENCIAS_DOM_CLIENTE = ${referencias_dom_cliente ? `'${referencias_dom_cliente}'` : `NULL`}
+      ,ID_AVAL = ${id_aval ? id_aval : `NULL`}
       ,NOMBRE_AVAL = '${nombre_aval}'
       ,APELLIDO_PATERNO_AVAL = '${apellido_paterno_aval}'
       ,APELLIDO_MATERNO_AVAL = '${apellido_materno_aval}'
       ,TELEFONO_FIJO_AVAL = '${telefono_fijo_aval}'
       ,TELEFONO_MOVIL_AVAL = '${telefono_movil_aval}'
-      ,CORREO_ELECTRONICO_AVAL = '${correo_electronico_aval ? correo_electronico_aval : 'NULL'}'
+      ,CORREO_ELECTRONICO_AVAL = ${correo_electronico_aval ? `'${correo_electronico_aval}'` : `NULL`}
       ,CURP_AVAL = '${curp_aval}'
-      ,TIPO_CALLE_AVAL = '${tipo_calle_aval}'
+      ,ID_DOMICILIO_AVAL = ${id_domicilio_aval ? id_domicilio_aval : `NULL`}
+      ,TIPO_CALLE_AVAL = '${tipo_calle_aval.value}'
       ,NOMBRE_CALLE_AVAL = '${nombre_calle_aval}'
       ,NUMERO_EXTERIOR_AVAL = '${numero_exterior_aval}'
       ,NUMERO_INTERIOR_AVAL = '${numero_interior_aval}'
       ,COLONIA_AVAL = '${colonia_aval}'
       ,MUNICIPIO_AVAL = '${municipio_aval}'
-      ,ESTADO_AVAL = '${estado_aval}'
+      ,ESTADO_AVAL = '${estado_aval.value}'
       ,CP_AVAL = '${cp_aval}'
-      ,REFERENCIAS_DOM_AVAL = '${referencias_dom_aval ? referencias_dom_aval : 'NULL'}'
-
+      ,REFERENCIAS_DOM_AVAL = ${referencias_dom_aval ? `'${referencias_dom_aval}'` : `NULL`}
       ,ID_PLAZO = ${id_plazo}
+		  ,TASA_DE_INTERES = ${tasa_de_interes} 
+		  ,SEMANAS_PLAZO = ${semanas_plazo}
       ,CANTIDAD_PRESTADA = ${cantidad_prestada}
       ,DIA_SEMANA = '${dia_semana}'
       ,FECHA_INICIAL = '${fecha_inicial}'
       ,FECHA_FINAL_ESTIMADA = '${fecha_final_estimada}'
-      ,CANTIDAD_PAGAR = ${cantidad_pagar}
-      ,TASA_INTERES = ${tasa_de_interes}
-      ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : 'NULL'}
+      ,CANTIDAD_PAGAR = ${cantidad_pagar}      
+      ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
       ,MODIFIED_BY = ${id_usuario}
-      ,MODIFIED_DATE = ${current_local_date.toISOString()}
+      ,MODIFIED_DATE = '${current_local_date.toISOString()}'
+
       `;
     }
 
-    if (currentLoanRequestStatus === `EN REVISION`) {
+    else if (currentLoanRequestStatus === `EN REVISION`) {
+
+      updateQueryColumns = `SET 
+                        LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
+                        ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
+                        `
+
       switch (newLoanRequestStatus) {
         case 'ACTUALIZAR':
-          updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' `;
+          console.log('Entra a caso ACTUALIZAR');
+          updateQueryColumns += ` ,MODIFIED_BY = ${id_usuario}
+                                  ,MODIFIED_DATE = '${current_local_date.toISOString()}'                                 
+          `;
+          break;
+
+        case 'RECHAZADO':
+          console.log('Entra a caso RECHAZADO');
+          updateQueryColumns += ` ,CLOSED_BY = ${id_usuario} 
+                                  ,CLOSED_DATE = '${current_local_date.toISOString()}'                                  
+                                  `;
+
           break;
 
         case 'APROBADO':
           console.log('Entra a caso APROBADO');
+
+          // await validateDataLoanRequestUpdate(updateLoanRequest, procTransaction);
+
           datosCliente.id_agente = id_agente
           datosCliente.cliente_activo = 1
 
-          updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}'          
-          `
+          updateQueryColumns += ` ,CLOSED_BY = ${id_usuario} 
+                                  ,CLOSED_DATE = '${current_local_date.toISOString()}'
+                                  `
+
+          if (!id_aval) {
+            datosAval.aval_creado_por = id_usuario
+            datosAval.fecha_creacion_aval = current_local_date
+            datosAval.observaciones_aval = `Solicitud de préstamo ${request_number}`
+
+            const procNewEndorsement = await registerNewEndorsement(datosAval, procTransaction)
+
+            if (!procNewEndorsement.idEndorsment) {
+              throw new Error(procNewEndorsement.message)
+            }
+
+            datosCliente.id_aval = procNewEndorsement.idEndorsment
+            updateQueryColumns += `,ID_AVAL = ${datosCliente.id_aval}`
+          }
+          else {
+            datosAval.aval_modificado_por = id_usuario
+            datosAval.fecha_modificacion_aval = current_local_date
+
+            const procUpdateEndorsement = await updateEndorsement(datosAval, procTransaction)
+
+            if (!procUpdateEndorsement.generatedId) {
+              throw new Error(procUpdateEndorsement.message)
+            }
+
+            datosCliente.id_aval = procUpdateEndorsement.generatedId
+          }
 
           if (!id_cliente) {
             datosCliente.cliente_creado_por = id_usuario
@@ -202,7 +265,6 @@ export const registerUpdateLoanRequest = async (
             );
 
             if (!procNewCustomer.idCustomer) {
-              procTransaction.rollback();
               throw new Error(procNewCustomer.message);
             }
 
@@ -213,50 +275,14 @@ export const registerUpdateLoanRequest = async (
             datosCliente.fecha_modificacion_cliente = current_local_date
             console.log(`fecha_modificacion_cliente: ${datosCliente.fecha_modificacion_cliente}`)
             const procUpdateCustomer = await updateCustomer(datosCliente, procTransaction);
-            console.log('id generado para actualizar cliente: ', procUpdateCustomer.generatedId)
             if (!procUpdateCustomer.generatedId) {
-              procTransaction.rollback();
               throw new Error(procUpdateCustomer.message);
             }
           }
 
-          if (!id_aval) {
-            datosAval.aval_creado_por = id_usuario
-            datosAval.fecha_creacion_aval = current_local_date
-            datosAval.observaciones_aval = `Solicitud de préstamo ${request_number}`
-
-            const procNewEndorsement = await registerNewEndorsement(datosAval, procTransaction)
-
-            if (!procNewEndorsement.idEndorsment) {
-              procTransaction.rollback();
-              throw new Error(procNewEndorsement.message)
-            }
-
-          }
-          else {
-            datosAval.aval_modificado_por = id_usuario
-            datosAval.fecha_modificacion_aval = current_local_date
-
-            const procNewEndorsement = await updateEndorsement(datosAval, procTransaction)
-            console.log('id generado para actualizar aval: ', procNewEndorsement.generatedId)
-            if (!procNewEndorsement.generatedId) {
-              procTransaction.rollback();
-              throw new Error(procNewEndorsement.message)
-            }
-          }
-
-          updateQueryColumns += `
-          ,CLOSED_BY = ${id_usuario}
-          ,CLOSED_DATE = '${current_local_date.toISOString()}' `;
-
-          break;
-
-        case 'RECHAZADO':
-          updateQueryColumns = `SET LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' ,CLOSED_BY = ${id_usuario} ,CLOSED_DATE = '${current_local_date.toISOString()}' `;
           break;
 
         default:
-          procTransaction.rollback();
           throw new Error('Cambio de status incorrecto');
       }
     }
@@ -264,14 +290,13 @@ export const registerUpdateLoanRequest = async (
     const updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = ${id_loan_request};`;
     console.log(`Query de actualización: ${updateQueryString}`);
     const updateResult = await procTransaction.request().query(updateQueryString);
-    //const updateResult = await requestUpdate.query(updateQueryString);
 
     if (!updateResult.rowsAffected[0]) {
-      await procTransaction.rollback();
       throw new Error('No se actualizó el registro');
     }
 
     await procTransaction.commit();
+
     return {
       message: 'Requerimiento de préstamo actualizado',
     };
@@ -286,3 +311,22 @@ export const registerUpdateLoanRequest = async (
     return { error: errorMessage };
   }
 };
+
+function preValidatedData(
+  validateCurpCustomer: number
+  , validateCurpAval: number
+  , validatePhoneCustomer: number
+  , validateEndorsementPhone: number
+) {
+  if (validateCurpCustomer)
+    throw new Error('CURP de cliente ya existe para otro cliente')
+
+  if (validateCurpAval)
+    throw new Error('CURP de cliente ya existe para otro aval')
+
+  if (validatePhoneCustomer)
+    throw new Error('El número de teléfono ya existe para otro cliente')
+
+  if (validateEndorsementPhone)
+    throw new Error('El número de teléfono ya existe para otro aval')
+}

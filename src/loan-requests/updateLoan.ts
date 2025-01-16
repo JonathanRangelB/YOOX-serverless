@@ -3,7 +3,6 @@ import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { registerUpdateLoanRequest } from './loans/registerUpdateLoanRequest';
 import { isValidLoanData } from './loans/validateLoanUpdateData';
 import { StatusCodes } from '../helpers/statusCodes';
-import { InsertNewLoanRequest } from './types/SPInsertNewLoanRequest';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
@@ -29,8 +28,10 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   }
 
   const result = await registerUpdateLoanRequest(body);
+
   if (result.error) {
-    StatusCodes.BAD_REQUEST;
+    return generateJsonResponse(result, StatusCodes.BAD_REQUEST);
   }
+
   return generateJsonResponse(result, StatusCodes.OK);
 };

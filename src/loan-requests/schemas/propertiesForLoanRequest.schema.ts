@@ -28,13 +28,13 @@ export const propertiesForLoanRequest = {
   plazo: {
     type: 'object',
     properties: {
-      name: { type: 'string' },
-      value: { type: 'string' },
+      semanas_plazo: { type: 'string' },
+      tasa_de_interes: { type: 'integer' },
       id: { type: 'integer' },
     },
   },
 
-  formCustomer: {
+  formCliente: {
     type: 'object',
     properties: {
       id_cliente: { type: 'integer' },
@@ -160,7 +160,7 @@ export const propertiesForLoanRequest = {
     additionalProperties: false,
   },
 
-  formEndorsement: {
+  formAval: {
     type: 'object',
     properties: {
       id_aval: { type: 'integer' },
@@ -287,7 +287,8 @@ export const propertiesForLoanRequest = {
     additionalProperties: false,
   },
 
-  id_usuario: { type: 'integer' },
+  created_by: { type: 'integer' },
+  modified_by: { type: 'integer' },
   status_code: { type: 'integer' },
 };
 
@@ -303,9 +304,9 @@ export const requiredFielsForUpdateLoanRequest = [
   'fecha_final_estimada',
   'dia_semana',
   'plazo',
-  'formCustomer',
-  'formEndorsement',
-  'id_usuario'
+  'formCliente',
+  'formAval',
+  'modified_by'
 ];
 
 export const requiredFielsForNewLoanRequest = [
@@ -317,7 +318,7 @@ export const requiredFielsForNewLoanRequest = [
   'fecha_final_estimada',
   'dia_semana',
   'plazo',
-  'formCustomer',
-  'formEndorsement',
-  'id_usuario'
+  'formCliente',
+  'formAval',
+  'created_by'
 ];

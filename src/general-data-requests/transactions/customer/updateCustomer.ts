@@ -35,7 +35,8 @@ export const updateCustomer = async (
       cliente_modificado_por,
       fecha_modificacion_cliente,
       cliente_activo,
-      id_domicilio_cliente
+      id_domicilio_cliente,
+      id_aval
 
     } = formCliente
 
@@ -54,18 +55,18 @@ export const updateCustomer = async (
       fecha_operacion: fecha_modificacion_cliente
     }
 
-    let resultadoOperacion
+    let resultadoOperacionActualizaDomicilio
     let idDomicilio
 
     if (id_domicilio_cliente) {
-      resultadoOperacion = await updateAddress(direccionCliente, id_cliente, 'CLIENTE', procTransaction)
+      resultadoOperacionActualizaDomicilio = await updateAddress(direccionCliente, id_cliente, 'CLIENTE', procTransaction)
       idDomicilio = id_domicilio_cliente
     } else {
-      resultadoOperacion = await registerNewAddress(direccionCliente, id_cliente, 'CLIENTE', procTransaction)
-      idDomicilio = resultadoOperacion.generatedId
+      resultadoOperacionActualizaDomicilio = await registerNewAddress(direccionCliente, id_cliente, 'CLIENTE', procTransaction)
+      idDomicilio = resultadoOperacionActualizaDomicilio.generatedId
     }
 
-    if (!resultadoOperacion.generatedId)
+    if (!resultadoOperacionActualizaDomicilio.generatedId)
       return {
         message: 'Error al registrar/actualizar el domicilio del cliente',
         generatedId: 0,
@@ -87,11 +88,20 @@ export const updateCustomer = async (
                   ,CURP = '${curp_cliente}'
                   ,ID_DOMICILIO = ${idDomicilio}
 
-                  WHERE ID = ${id_cliente} 
+                  WHERE ID = ${id_cliente}
                   
                   `
+    let queryLimpiaAvalCliente = ` DELETE FROM AVALES_CLIENTES WHERE ID_CLIENTE = ${id_cliente} 
 
-    const customerUpdate = await procTransaction.request().query(queryUpdateCustomer)
+                  `
+    let queryActualizaAvalCliente = ''
+
+    if (id_aval) {
+      queryActualizaAvalCliente = ` INSERT INTO CLIENTES_AVALES (ID_CLIENTE, ID_AVAL) VALUES (${id_cliente}, ${id_aval}) 
+                  `
+    }
+
+    const customerUpdate = await procTransaction.request().query(queryUpdateCustomer + queryLimpiaAvalCliente + queryActualizaAvalCliente)
 
     if (!customerUpdate.rowsAffected[0])
       return {
@@ -99,7 +109,7 @@ export const updateCustomer = async (
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST
       }
-
+    console.log('Id de cliente actualizado: ', id_cliente);
     return {
       message: 'Cliente actualizado',
       generatedId: id_cliente,

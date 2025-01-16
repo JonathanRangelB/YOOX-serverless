@@ -9,7 +9,7 @@ export const updateAddress = async (
     tipo: string,
     procTransaction: Transaction
 ): Promise<genericBDRequest> => {
-    console.log('Entra a updateAddress')
+
     const {
         id,
         tipo_calle,
@@ -100,8 +100,6 @@ export const updateAddress = async (
             `
         }
 
-        console.log(queryUpdateAddress + queryClearSuiteNumber + queryUpdateSuiteNumber)
-
         const updateResult = await procTransaction.request().query(queryUpdateAddress + queryClearSuiteNumber + queryUpdateSuiteNumber)
 
         if (!updateResult.rowsAffected[0])
@@ -110,7 +108,7 @@ export const updateAddress = async (
                 generatedId: 0,
                 error: StatusCodes.BAD_REQUEST,
             }
-
+        console.log('Id de direccion actualizada: ', id);
         return {
             message: 'Domicilio actualizado',
             generatedId: id
