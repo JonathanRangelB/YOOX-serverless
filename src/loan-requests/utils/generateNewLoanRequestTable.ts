@@ -26,10 +26,7 @@ export function generateNewLoanRequestTable(
     formAval,
   } = newLoanRequest;
 
-  const { id: id_plazo
-    , semanas_plazo
-    , tasa_de_interes
-  } = plazo;
+  const { id: id_plazo, semanas_plazo, tasa_de_interes } = plazo;
 
   const {
     id_cliente,
@@ -50,7 +47,7 @@ export function generateNewLoanRequestTable(
     estado_cliente: efc,
     cp_cliente,
     referencias_dom_cliente,
-    id_domicilio_cliente
+    id_domicilio_cliente,
   } = formCliente;
 
   const { value: tipoCalleCliente } = calleC;
@@ -74,7 +71,7 @@ export function generateNewLoanRequestTable(
     estado_aval: efa,
     cp_aval,
     referencias_dom_aval,
-    id_domicilio_aval
+    id_domicilio_aval,
   } = formAval;
 
   const { value: tipoCalleAval } = calleA;
@@ -121,7 +118,9 @@ export function generateNewLoanRequestTable(
   });
   tableNewRequestLoan.columns.add('CURP_CLIENTE', VarChar, { nullable: false });
 
-  tableNewRequestLoan.columns.add('ID_DOMICILIO_CLIENTE', Int, { nullable: true });
+  tableNewRequestLoan.columns.add('ID_DOMICILIO_CLIENTE', Int, {
+    nullable: true,
+  });
 
   tableNewRequestLoan.columns.add('TIPO_CALLE_CLIENTE', VarChar, {
     nullable: true,

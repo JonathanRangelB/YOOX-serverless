@@ -10,7 +10,6 @@ export const updateCustomer = async (
   formCliente: formCustomer,
   procTransaction: Transaction
 ): Promise<genericBDRequest> => {
-
   try {
     const {
       id_cliente,
@@ -36,9 +35,8 @@ export const updateCustomer = async (
       fecha_modificacion_cliente,
       cliente_activo,
       id_domicilio_cliente,
-      id_aval
-
-    } = formCliente
+      id_aval,
+    } = formCliente;
 
     const direccionCliente: Direccion = {
       id: id_domicilio_cliente,
@@ -52,28 +50,38 @@ export const updateCustomer = async (
       cp: cp_cliente,
       referencias_dom: referencias_dom_cliente,
       usuario: cliente_modificado_por,
-      fecha_operacion: fecha_modificacion_cliente
-    }
+      fecha_operacion: fecha_modificacion_cliente,
+    };
 
-    let resultadoOperacionActualizaDomicilio
-    let idDomicilio
+    let resultadoOperacionActualizaDomicilio;
+    let idDomicilio;
 
     if (id_domicilio_cliente) {
-      resultadoOperacionActualizaDomicilio = await updateAddress(direccionCliente, id_cliente, 'CLIENTE', procTransaction)
-      idDomicilio = id_domicilio_cliente
+      resultadoOperacionActualizaDomicilio = await updateAddress(
+        direccionCliente,
+        id_cliente,
+        'CLIENTE',
+        procTransaction
+      );
+      idDomicilio = id_domicilio_cliente;
     } else {
-      resultadoOperacionActualizaDomicilio = await registerNewAddress(direccionCliente, id_cliente, 'CLIENTE', procTransaction)
-      idDomicilio = resultadoOperacionActualizaDomicilio.generatedId
+      resultadoOperacionActualizaDomicilio = await registerNewAddress(
+        direccionCliente,
+        id_cliente,
+        'CLIENTE',
+        procTransaction
+      );
+      idDomicilio = resultadoOperacionActualizaDomicilio.generatedId;
     }
 
     if (!resultadoOperacionActualizaDomicilio.generatedId)
       return {
         message: 'Error al registrar/actualizar el domicilio del cliente',
         generatedId: 0,
-        error: StatusCodes.BAD_REQUEST
-      }
+        error: StatusCodes.BAD_REQUEST,
+      };
 
-    let queryUpdateCustomer = `
+    const queryUpdateCustomer = `
                   UPDATE
                   CLIENTES
 
@@ -90,32 +98,35 @@ export const updateCustomer = async (
 
                   WHERE ID = ${id_cliente}
                   
-                  `
-    let queryLimpiaAvalCliente = ` DELETE FROM AVALES_CLIENTES WHERE ID_CLIENTE = ${id_cliente} 
+                  `;
+    const queryLimpiaAvalCliente = ` DELETE FROM AVALES_CLIENTES WHERE ID_CLIENTE = ${id_cliente} 
 
-                  `
-    let queryActualizaAvalCliente = ''
+                  `;
+    let queryActualizaAvalCliente = '';
 
     if (id_aval) {
       queryActualizaAvalCliente = ` INSERT INTO CLIENTES_AVALES (ID_CLIENTE, ID_AVAL) VALUES (${id_cliente}, ${id_aval}) 
-                  `
+                  `;
     }
 
-    const customerUpdate = await procTransaction.request().query(queryUpdateCustomer + queryLimpiaAvalCliente + queryActualizaAvalCliente)
+    const customerUpdate = await procTransaction
+      .request()
+      .query(
+        queryUpdateCustomer + queryLimpiaAvalCliente + queryActualizaAvalCliente
+      );
 
     if (!customerUpdate.rowsAffected[0])
       return {
         message: 'Cliente no actualizado',
         generatedId: 0,
-        error: StatusCodes.BAD_REQUEST
-      }
+        error: StatusCodes.BAD_REQUEST,
+      };
 
     return {
       message: 'Cliente actualizado',
       generatedId: id_cliente,
-      error: StatusCodes.OK
-    }
-
+      error: StatusCodes.OK,
+    };
   } catch (error) {
     let errorMessage = '';
 
@@ -126,8 +137,7 @@ export const updateCustomer = async (
     return {
       message: errorMessage,
       generatedId: 0,
-      error: StatusCodes.BAD_REQUEST
-    }
+      error: StatusCodes.BAD_REQUEST,
+    };
   }
-
-}
+};

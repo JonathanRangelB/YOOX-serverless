@@ -1,5 +1,5 @@
 export interface genericBDRequest {
-    message: string;
-    generatedId: number;
-    error?: number
+  message: string;
+  generatedId: number;
+  error?: number;
 }

@@ -20,11 +20,10 @@ export const registerUpdateLoanRequest = async (
     await procTransaction.begin();
 
     const {
-      idClienteCurp: validateCurpCustomer
-      , idAvalCurp: validateCurpAval
-      , idClienteTelefono: validatePhoneCustomer
-      , idAvalTelefono: validateEndorsementPhone
-
+      idClienteCurp: validateCurpCustomer,
+      idAvalCurp: validateCurpAval,
+      idClienteTelefono: validatePhoneCustomer,
+      idAvalTelefono: validateEndorsementPhone,
     } = await validateDataLoanRequestUpdate(updateLoanRequest, procTransaction);
 
     const queryResult = await procTransaction
@@ -47,7 +46,10 @@ export const registerUpdateLoanRequest = async (
       );
     }
 
-    const current_local_date = (convertDateTimeZone(queryResult.recordset[0].current_date_server, 'America/Mexico_City')) as Date
+    const current_local_date = convertDateTimeZone(
+      queryResult.recordset[0].current_date_server,
+      'America/Mexico_City'
+    ) as Date;
 
     // Manejo de concurrencia
 
@@ -88,8 +90,8 @@ export const registerUpdateLoanRequest = async (
       estado_cliente,
       cp_cliente,
       referencias_dom_cliente,
-      id_domicilio_cliente
-    } = datosCliente
+      id_domicilio_cliente,
+    } = datosCliente;
 
     const {
       id_aval,
@@ -109,14 +111,10 @@ export const registerUpdateLoanRequest = async (
       estado_aval,
       cp_aval,
       referencias_dom_aval,
-      id_domicilio_aval
-    } = datosAval
+      id_domicilio_aval,
+    } = datosAval;
 
-    const {
-      id: id_plazo,
-      tasa_de_interes,
-      semanas_plazo,
-    } = datosPlazo
+    const { id: id_plazo, tasa_de_interes, semanas_plazo } = datosPlazo;
 
     //Comienza ensamblado de la cadena del query
     let updateQueryColumns = '';
@@ -129,12 +127,12 @@ export const registerUpdateLoanRequest = async (
       currentLoanRequestStatus === 'ACTUALIZAR' &&
       newLoanRequestStatus === 'EN REVISION'
     ) {
-
-      preValidatedData(validateCurpCustomer
-        , validateCurpAval
-        , validatePhoneCustomer
-        , validateEndorsementPhone
-      )
+      preValidatedData(
+        validateCurpCustomer,
+        validateCurpAval,
+        validatePhoneCustomer,
+        validateEndorsementPhone
+      );
 
       updateQueryColumns = `SET 
       LOAN_REQUEST_STATUS = '${newLoanRequestStatus}'
@@ -190,14 +188,11 @@ export const registerUpdateLoanRequest = async (
       ,MODIFIED_DATE = '${current_local_date.toISOString()}'
 
       `;
-    }
-
-    else if (currentLoanRequestStatus === `EN REVISION`) {
-
+    } else if (currentLoanRequestStatus === `EN REVISION`) {
       updateQueryColumns = `SET 
                         LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
                         ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
-                        `
+                        `;
 
       switch (newLoanRequestStatus) {
         case 'ACTUALIZAR':
@@ -214,44 +209,49 @@ export const registerUpdateLoanRequest = async (
           break;
 
         case 'APROBADO':
-          datosCliente.id_agente = id_agente
-          datosCliente.cliente_activo = 1
+          datosCliente.id_agente = id_agente;
+          datosCliente.cliente_activo = 1;
 
           updateQueryColumns += ` ,CLOSED_BY = ${id_usuario} 
                                   ,CLOSED_DATE = '${current_local_date.toISOString()}'
-                                  `
+                                  `;
 
           if (!id_aval) {
-            datosAval.aval_creado_por = id_usuario
-            datosAval.fecha_creacion_aval = current_local_date
-            datosAval.observaciones_aval = `Solicitud de préstamo ${request_number}`
+            datosAval.aval_creado_por = id_usuario;
+            datosAval.fecha_creacion_aval = current_local_date;
+            datosAval.observaciones_aval = `Solicitud de préstamo ${request_number}`;
 
-            const procNewEndorsement = await registerNewEndorsement(datosAval, procTransaction)
+            const procNewEndorsement = await registerNewEndorsement(
+              datosAval,
+              procTransaction
+            );
 
             if (!procNewEndorsement.idEndorsment) {
-              throw new Error(procNewEndorsement.message)
+              throw new Error(procNewEndorsement.message);
             }
 
-            datosCliente.id_aval = procNewEndorsement.idEndorsment
-            updateQueryColumns += `,ID_AVAL = ${datosCliente.id_aval}`
-          }
-          else {
-            datosAval.aval_modificado_por = id_usuario
-            datosAval.fecha_modificacion_aval = current_local_date
+            datosCliente.id_aval = procNewEndorsement.idEndorsment;
+            updateQueryColumns += `,ID_AVAL = ${datosCliente.id_aval}`;
+          } else {
+            datosAval.aval_modificado_por = id_usuario;
+            datosAval.fecha_modificacion_aval = current_local_date;
 
-            const procUpdateEndorsement = await updateEndorsement(datosAval, procTransaction)
+            const procUpdateEndorsement = await updateEndorsement(
+              datosAval,
+              procTransaction
+            );
 
             if (!procUpdateEndorsement.generatedId) {
-              throw new Error(procUpdateEndorsement.message)
+              throw new Error(procUpdateEndorsement.message);
             }
 
-            datosCliente.id_aval = procUpdateEndorsement.generatedId
+            datosCliente.id_aval = procUpdateEndorsement.generatedId;
           }
 
           if (!id_cliente) {
-            datosCliente.cliente_creado_por = id_usuario
-            datosCliente.fecha_creacion_cliente = current_local_date
-            datosCliente.observaciones_cliente = `Solicitud de préstamo ${request_number}`
+            datosCliente.cliente_creado_por = id_usuario;
+            datosCliente.fecha_creacion_cliente = current_local_date;
+            datosCliente.observaciones_cliente = `Solicitud de préstamo ${request_number}`;
 
             const procNewCustomer = await registerNewCustomer(
               datosCliente,
@@ -262,12 +262,14 @@ export const registerUpdateLoanRequest = async (
               throw new Error(procNewCustomer.message);
             }
 
-            updateQueryColumns += `,ID_CLIENTE = ${procNewCustomer.idCustomer}`
-
+            updateQueryColumns += `,ID_CLIENTE = ${procNewCustomer.idCustomer}`;
           } else {
-            datosCliente.cliente_modificado_por = id_usuario
-            datosCliente.fecha_modificacion_cliente = current_local_date
-            const procUpdateCustomer = await updateCustomer(datosCliente, procTransaction);
+            datosCliente.cliente_modificado_por = id_usuario;
+            datosCliente.fecha_modificacion_cliente = current_local_date;
+            const procUpdateCustomer = await updateCustomer(
+              datosCliente,
+              procTransaction
+            );
             if (!procUpdateCustomer.generatedId) {
               throw new Error(procUpdateCustomer.message);
             }
@@ -281,7 +283,9 @@ export const registerUpdateLoanRequest = async (
     }
 
     const updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = ${id_loan_request};`;
-    const updateResult = await procTransaction.request().query(updateQueryString);
+    const updateResult = await procTransaction
+      .request()
+      .query(updateQueryString);
 
     if (!updateResult.rowsAffected[0]) {
       throw new Error('No se actualizó el registro');
@@ -305,20 +309,20 @@ export const registerUpdateLoanRequest = async (
 };
 
 function preValidatedData(
-  validateCurpCustomer: number
-  , validateCurpAval: number
-  , validatePhoneCustomer: number
-  , validateEndorsementPhone: number
+  validateCurpCustomer: number,
+  validateCurpAval: number,
+  validatePhoneCustomer: number,
+  validateEndorsementPhone: number
 ) {
   if (validateCurpCustomer)
-    throw new Error('CURP de cliente ya existe para otro cliente')
+    throw new Error('CURP de cliente ya existe para otro cliente');
 
   if (validateCurpAval)
-    throw new Error('CURP de cliente ya existe para otro aval')
+    throw new Error('CURP de cliente ya existe para otro aval');
 
   if (validatePhoneCustomer)
-    throw new Error('El número de teléfono ya existe para otro cliente')
+    throw new Error('El número de teléfono ya existe para otro cliente');
 
   if (validateEndorsementPhone)
-    throw new Error('El número de teléfono ya existe para otro aval')
+    throw new Error('El número de teléfono ya existe para otro aval');
 }

@@ -6,10 +6,13 @@ import { StatusCodes } from '../helpers/statusCodes';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
-    return generateJsonResponse({ message: 'No body provided' }, StatusCodes.BAD_REQUEST);
+    return generateJsonResponse(
+      { message: 'No body provided' },
+      StatusCodes.BAD_REQUEST
+    );
   }
 
-  const body = JSON.parse(event.body)
+  const body = JSON.parse(event.body);
 
   if (!body) {
     return generateJsonResponse(

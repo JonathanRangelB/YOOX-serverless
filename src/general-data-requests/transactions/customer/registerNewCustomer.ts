@@ -1,4 +1,4 @@
-import { Int, Table, VarChar, Transaction, Bit, DateTime } from 'mssql';
+import { Int, Table, VarChar, Transaction, Bit } from 'mssql';
 import { indexes_id } from '../../../helpers/table-schemas';
 import { customerReqResponse } from '../../types/customerRequest';
 import { formCustomer } from '../../../interfaces/customer-interface';
@@ -32,8 +32,8 @@ export const registerNewCustomer = async (
       cliente_creado_por,
       fecha_creacion_cliente,
       cliente_activo,
-      id_aval
-    } = formCliente
+      id_aval,
+    } = formCliente;
 
     const direccionCliente: Direccion = {
       id: 0,
@@ -47,8 +47,8 @@ export const registerNewCustomer = async (
       cp: cp_cliente,
       referencias_dom: referencias_dom_cliente,
       usuario: cliente_creado_por,
-      fecha_operacion: fecha_creacion_cliente
-    }
+      fecha_operacion: fecha_creacion_cliente,
+    };
 
     let lastCustomerId = 0;
 
@@ -60,7 +60,12 @@ export const registerNewCustomer = async (
 
     lastCustomerId = nextIdQuery.recordset[0].indice;
 
-    const addAddressResult = await registerNewAddress(direccionCliente, lastCustomerId, 'CLIENTE', procTransaction)
+    const addAddressResult = await registerNewAddress(
+      direccionCliente,
+      lastCustomerId,
+      'CLIENTE',
+      procTransaction
+    );
 
     if (!addAddressResult.generatedId) {
       return { message: 'Error al registrar domicilio', idCustomer: 0 };
@@ -76,8 +81,12 @@ export const registerNewCustomer = async (
     tableCustomerBD.columns.add('NOMBRE', VarChar, { nullable: false });
     tableCustomerBD.columns.add('TELEFONO_FIJO', VarChar, { nullable: true });
     tableCustomerBD.columns.add('TELEFONO_MOVIL', VarChar, { nullable: true });
-    tableCustomerBD.columns.add('NUMERO_EXTERIOR', VarChar, { nullable: false });
-    tableCustomerBD.columns.add('NUMERO_INTERIOR', VarChar, { nullable: false });
+    tableCustomerBD.columns.add('NUMERO_EXTERIOR', VarChar, {
+      nullable: false,
+    });
+    tableCustomerBD.columns.add('NUMERO_INTERIOR', VarChar, {
+      nullable: false,
+    });
     tableCustomerBD.columns.add('CORREO_ELECTRONICO', VarChar, {
       nullable: true,
     });
@@ -89,7 +98,11 @@ export const registerNewCustomer = async (
 
     tableCustomerBD.rows.add(
       lastCustomerId,
-      nombre_cliente + ' ' + apellido_paterno_cliente + ' ' + apellido_materno_cliente,
+      nombre_cliente +
+        ' ' +
+        apellido_paterno_cliente +
+        ' ' +
+        apellido_materno_cliente,
       telefono_fijo_cliente,
       telefono_movil_cliente,
       numero_exterior_cliente,
@@ -104,26 +117,32 @@ export const registerNewCustomer = async (
 
     let updateIndexIdQuery = '';
 
-    const insertBulkData = await procTransaction.request().bulk(tableCustomerBD);
+    const insertBulkData = await procTransaction
+      .request()
+      .bulk(tableCustomerBD);
 
     updateIndexIdQuery += `UPDATE [INDICES] SET [INDICE] = ${lastCustomerId} + 1 WHERE OBJETO = 'ID_CLIENTE'
                            
-                          `
+                          `;
 
-    let queryUpdateCustomerEndorsement = ''
+    let queryUpdateCustomerEndorsement = '';
 
     if (id_aval) {
-      queryUpdateCustomerEndorsement = ` INSERT INTO CLIENTES_AVALES (ID_CLIENTE, ID_AVAL) VALUES (${lastCustomerId}, ${id_aval}) `
+      queryUpdateCustomerEndorsement = ` INSERT INTO CLIENTES_AVALES (ID_CLIENTE, ID_AVAL) VALUES (${lastCustomerId}, ${id_aval}) `;
     }
 
     const requestUpdate = procTransaction.request();
-    const updateResult = await requestUpdate.query(updateIndexIdQuery + queryUpdateCustomerEndorsement);
+    const updateResult = await requestUpdate.query(
+      updateIndexIdQuery + queryUpdateCustomerEndorsement
+    );
 
     if (!insertBulkData.rowsAffected || !updateResult.rowsAffected.length) {
       return { message: 'No se pudo registrar el cliente', idCustomer: 0 };
     }
-    return { message: 'Alta de nuevo cliente terminó de manera exitosa', idCustomer: lastCustomerId };
-
+    return {
+      message: 'Alta de nuevo cliente terminó de manera exitosa',
+      idCustomer: lastCustomerId,
+    };
   } catch (error) {
     let errorMessage = '';
 
@@ -131,6 +150,10 @@ export const registerNewCustomer = async (
       errorMessage = error.message as string;
     }
 
-    return { message: 'Error durante la transacción', idCustomer: 0, error: errorMessage };
+    return {
+      message: 'Error durante la transacción',
+      idCustomer: 0,
+      error: errorMessage,
+    };
   }
 };

@@ -14,7 +14,7 @@ export interface DatosSolicitudPrestamoLista {
   id_usuario: number;
   rol_usuario: string;
   offSetRows: number;
-  fetchRowsNumber: number
+  fetchRowsNumber: number;
 }
 
 export interface SolicitudPrestamoLista {
