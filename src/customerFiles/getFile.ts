@@ -44,7 +44,6 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     const signedUrl = await getSignedUrl(client, command, { expiresIn: 60 });
     return generateJsonResponse(signedUrl, StatusCodes.OK);
   } catch (error) {
-    console.log(error);
     if (error instanceof Error)
       return generateJsonResponse(
         { error: error.message },

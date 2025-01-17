@@ -201,14 +201,12 @@ export const registerUpdateLoanRequest = async (
 
       switch (newLoanRequestStatus) {
         case 'ACTUALIZAR':
-          console.log('Entra a caso ACTUALIZAR');
           updateQueryColumns += ` ,MODIFIED_BY = ${id_usuario}
                                   ,MODIFIED_DATE = '${current_local_date.toISOString()}'                                 
           `;
           break;
 
         case 'RECHAZADO':
-          console.log('Entra a caso RECHAZADO');
           updateQueryColumns += ` ,CLOSED_BY = ${id_usuario} 
                                   ,CLOSED_DATE = '${current_local_date.toISOString()}'                                  
                                   `;
@@ -216,10 +214,6 @@ export const registerUpdateLoanRequest = async (
           break;
 
         case 'APROBADO':
-          console.log('Entra a caso APROBADO');
-
-          // await validateDataLoanRequestUpdate(updateLoanRequest, procTransaction);
-
           datosCliente.id_agente = id_agente
           datosCliente.cliente_activo = 1
 
@@ -273,7 +267,6 @@ export const registerUpdateLoanRequest = async (
           } else {
             datosCliente.cliente_modificado_por = id_usuario
             datosCliente.fecha_modificacion_cliente = current_local_date
-            console.log(`fecha_modificacion_cliente: ${datosCliente.fecha_modificacion_cliente}`)
             const procUpdateCustomer = await updateCustomer(datosCliente, procTransaction);
             if (!procUpdateCustomer.generatedId) {
               throw new Error(procUpdateCustomer.message);
@@ -288,7 +281,6 @@ export const registerUpdateLoanRequest = async (
     }
 
     const updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = ${id_loan_request};`;
-    console.log(`Query de actualización: ${updateQueryString}`);
     const updateResult = await procTransaction.request().query(updateQueryString);
 
     if (!updateResult.rowsAffected[0]) {

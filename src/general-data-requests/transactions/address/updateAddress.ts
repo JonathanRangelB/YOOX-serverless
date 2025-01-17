@@ -108,7 +108,6 @@ export const updateAddress = async (
                 generatedId: 0,
                 error: StatusCodes.BAD_REQUEST,
             }
-        console.log('Id de direccion actualizada: ', id);
         return {
             message: 'Domicilio actualizado',
             generatedId: id

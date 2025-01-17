@@ -36,7 +36,6 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   const result = await registerNewLoanRequest(body);
   if (result.error) {
-    console.log('Exception error' + result.error)
     return generateJsonResponse(result, StatusCodes.BAD_REQUEST);
   }
   return generateJsonResponse(result, StatusCodes.OK);

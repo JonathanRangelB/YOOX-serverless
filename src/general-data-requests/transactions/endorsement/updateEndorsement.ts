@@ -92,7 +92,7 @@ export const updateEndorsement = async (
                 generatedId: 0,
                 error: StatusCodes.BAD_REQUEST
             }
-        console.log('Id de aval actualizado: ', id_aval);
+
         return {
             message: 'Aval actualizado',
             generatedId: id_aval,

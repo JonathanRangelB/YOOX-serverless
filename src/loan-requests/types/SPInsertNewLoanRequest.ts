@@ -16,6 +16,7 @@ export interface InsertNewLoanRequest {
   formAval: formEndorsement;
   created_by: number;
   status_code: number;
+  user_role: number;
 }
 
 export interface UpdateLoanRequest {
@@ -35,4 +36,5 @@ export interface UpdateLoanRequest {
   formAval: formEndorsement;
   modified_by: number;
   status_code: number;
+  user_role: number;
 }

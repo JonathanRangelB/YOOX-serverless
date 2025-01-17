@@ -122,7 +122,6 @@ export const registerNewCustomer = async (
     if (!insertBulkData.rowsAffected || !updateResult.rowsAffected.length) {
       return { message: 'No se pudo registrar el cliente', idCustomer: 0 };
     }
-    console.log('Id generado para nuevo cliente: ', lastCustomerId);
     return { message: 'Alta de nuevo cliente terminó de manera exitosa', idCustomer: lastCustomerId };
 
   } catch (error) {
@@ -130,7 +129,6 @@ export const registerNewCustomer = async (
 
     if (error instanceof Error) {
       errorMessage = error.message as string;
-      console.log('Error SQL: ', errorMessage);
     }
 
     return { message: 'Error durante la transacción', idCustomer: 0, error: errorMessage };

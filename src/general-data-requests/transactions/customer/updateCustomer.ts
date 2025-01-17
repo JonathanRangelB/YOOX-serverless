@@ -10,7 +10,7 @@ export const updateCustomer = async (
   formCliente: formCustomer,
   procTransaction: Transaction
 ): Promise<genericBDRequest> => {
-  console.log('Entra a updateCustomer')
+
   try {
     const {
       id_cliente,
@@ -109,7 +109,7 @@ export const updateCustomer = async (
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST
       }
-    console.log('Id de cliente actualizado: ', id_cliente);
+
     return {
       message: 'Cliente actualizado',
       generatedId: id_cliente,

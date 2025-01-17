@@ -221,7 +221,7 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add('CREATED_DATE', DateTime, {
     nullable: false,
   });
-  console.log('termina construccion de tabla')
+
   tableNewRequestLoan.rows.add(
     id,
     request_number,
@@ -277,6 +277,6 @@ export function generateNewLoanRequestTable(
     created_by,
     created_date.toISOString()
   );
-  console.log('termina agregado de registro nuevo')
+
   return tableNewRequestLoan;
 }

@@ -22,17 +22,14 @@ export const registerPayment = async (
       .execute('SP_ALTA_PAGO');
 
     if (result.returnValue != 0) throw new Error(result.returnValue);
-    console.log(result);
 
     message = `Alta del pago para el folio ${spaAltaPago.ID_PRESTAMO} correspondiente a la semana ${spaAltaPago.NUMERO_SEMANA} de manera exitosa`;
-    console.log({ message });
     return { message };
   } catch (err) {
     if (err instanceof Error) {
       message =
         'Error al intentar registrar el pago. Posible pago adelantado no permitido.';
     }
-    console.log({ message, err });
     return { message, err: err as Error };
   }
 };
