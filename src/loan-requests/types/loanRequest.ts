@@ -15,6 +15,9 @@ export interface DatosSolicitudPrestamoLista {
   rol_usuario: string;
   offSetRows: number;
   fetchRowsNumber: number;
+  status?: string;
+  nombreCliente?: string;
+  folio?: string;
 }
 
 export interface SolicitudPrestamoLista {

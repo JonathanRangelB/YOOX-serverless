@@ -17,10 +17,8 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     );
   }
 
-  const body = JSON.parse(event.body);
+  const body = JSON.parse(event.body) as DatosSolicitudPrestamoLista;
 
-  const { id_usuario, rol_usuario, offSetRows, fetchRowsNumber } =
-    body as DatosSolicitudPrestamoLista;
   const validateSearchParameters = isValidSearchLoanRequestListParameter(body);
 
   if (!validateSearchParameters.valid) {
@@ -35,12 +33,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   try {
     const pool = await DbConnector.getInstance().connection;
-    const queryStatement = loanRequestListSearchQuery(
-      id_usuario,
-      rol_usuario,
-      offSetRows,
-      fetchRowsNumber
-    );
+    const queryStatement = loanRequestListSearchQuery(body);
     const registrosEncontrados = await pool
       .request()
       .query<SolicitudPrestamoLista>(queryStatement);
@@ -50,7 +43,6 @@ module.exports.handler = async (event: APIGatewayEvent) => {
         { message: 'Error 404', error: 'No se encontraron registros' },
         StatusCodes.NOT_FOUND
       );
-
     return generateJsonResponse(registrosEncontrados.recordset, StatusCodes.OK);
   } catch (error) {
     return generateJsonResponse({ error }, StatusCodes.BAD_REQUEST);

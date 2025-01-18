@@ -9,9 +9,12 @@ export const loanRequestListSearchParametersSchema = {
     },
     offSetRows: { type: 'number' },
     fetchRowsNumber: { type: 'number' },
+    status: { type: 'string' },
+    nombre_cliente: { type: 'string' },
+    folio: { type: 'string' },
   },
 
   required: ['id_usuario', 'rol_usuario', 'offSetRows', 'fetchRowsNumber'],
 
-  additionalProperties: false,
+  additionalProperties: true,
 };
