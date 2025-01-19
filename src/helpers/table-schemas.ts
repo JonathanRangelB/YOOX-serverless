@@ -15,12 +15,6 @@ export interface customer_request {
   nombre: string;
   telefono_fijo: string;
   telefono_movil: string;
-  // calle: string;
-  // numero_exterior: string;
-  // numero_interior: string;
-  // colonia: string;
-  // municipio: string;
-  // codigo_postal: string;
   correo_electronico: string;
   activo: number;
   clasificacion: string;

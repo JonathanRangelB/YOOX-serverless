@@ -45,7 +45,7 @@ export function searchTelefonoQuery(
       break;
   }
 
-  let listInCondition = ``;
+  let listInCondition = '';
 
   if (telefono_fijo) listInCondition += `'${telefono_fijo}'`;
 
