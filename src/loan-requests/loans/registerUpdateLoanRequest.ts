@@ -119,7 +119,10 @@ export const registerUpdateLoanRequest = async (
     //Comienza ensamblado de la cadena del query
     let updateQueryColumns = '';
 
-    if (currentLoanRequestStatus === newLoanRequestStatus) {
+    if (currentLoanRequestStatus === newLoanRequestStatus
+      || (currentLoanRequestStatus === 'ACTUALIZAR' && ['APROBADO', 'RECHAZADO'].includes(newLoanRequestStatus))
+
+    ) {
       throw new Error('Cambio de status incorrecto');
     }
 
@@ -189,6 +192,7 @@ export const registerUpdateLoanRequest = async (
 
       `;
     } else if (currentLoanRequestStatus === `EN REVISION`) {
+
       updateQueryColumns = `SET 
                         LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
                         ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
