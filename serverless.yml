@@ -64,7 +64,7 @@ functions:
     handler: ./src/loan-requests/updateLoan.handler
     events:
       - httpApi:
-          method: put
+          method: post
           path: /v1/loan-request/update
           authorizer:
             name: customAuthorizer
