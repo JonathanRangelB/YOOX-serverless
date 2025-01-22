@@ -55,7 +55,8 @@ export function requestDetailSearchQuery(request_number: string): string {
       ,[closed_by]
       ,[closed_date]
       ,[status_code]
-  
+      ,[id_loan]  
+
   FROM [LOAN_REQUEST]
 
   WHERE REQUEST_NUMBER = '${request_number}'                                                     

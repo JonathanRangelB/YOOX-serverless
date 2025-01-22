@@ -350,7 +350,7 @@ export const registerUpdateLoanRequest = async (
     if (error instanceof Error) {
       errorMessage = error.message;
     }
-    console.log(`Error linea 351: ${errorMessage}`)
+
     return { error: errorMessage };
   }
 };

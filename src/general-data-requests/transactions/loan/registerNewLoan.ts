@@ -3,7 +3,6 @@ import { loanHeader } from '../../../interfaces/loan-interface';
 import { genericBDRequest } from '../../types/genericBDRequest';
 import { indexes_id } from '../../../helpers/table-schemas';
 import { StatusCodes } from '../../../helpers/statusCodes';
-import { convertDateTimeZone } from '../../../helpers/utils';
 
 export const registerNewLoan = async (
     loan_header: loanHeader,
@@ -25,8 +24,7 @@ export const registerNewLoan = async (
             id_grupo_original,
             semanas_plazo
         } = loan_header
-        console.log('Loan header enviado: ')
-        console.table(loan_header)
+
         const nextIdQuery = await procTransaction
             .request()
             .query<indexes_id>(
@@ -34,7 +32,6 @@ export const registerNewLoan = async (
             );
 
         const lastLoanId = nextIdQuery.recordset[0].indice
-        console.log(`Folio de préstamo: ${lastLoanId}`)
         const tableLoanHeaderBD = new Table('PRESTAMOS')
         const tableLoanDetailBD = new Table('PRESTAMOS_DETALLE')
 
@@ -90,32 +87,11 @@ export const registerNewLoan = async (
 
         //Inicia llenado del detalle del prestamo
 
-        const fechaVencCST = new Date(fecha_inicial)
-        console.log(`fechaVencCST: ${fechaVencCST}
-            `)
-
-        // Obtener la hora en milisegundos (hora local + offset)
-        //const utcDateInMs = fechaVencCST.getTime()
-
-
-        // Crear un nuevo objeto Date en UTC
         const dateInUTC = new Date((new Date(fecha_inicial)).getTime())
-        console.log(`dateInUTC: ${dateInUTC}
-            `)
-        console.log(`dateInUTC ISO str: ${dateInUTC.toISOString()}
-            `)
-
         const cantidad_semanal = cantidad_pagar / semanas_plazo
 
-
         for (let counter = 1; counter <= semanas_plazo; counter++) {
-
-            const oneWeekInMs = (7 * counter) * 24 * 60 * 60 * 1000
-            const fechaDePago = new Date(dateInUTC.getTime() + oneWeekInMs)
-            console.log(`counter: ${counter}`)
-            console.log(`fecha pago: ${fechaDePago}`)
-            console.log(`fecha pago ISO str: ${fechaDePago.toISOString()}
-            `)
+            const fechaDePago = new Date(dateInUTC.getTime() + ((7 * counter) * 24 * 60 * 60 * 1000))
 
             tableLoanDetailBD.rows.add(
                 lastLoanId
@@ -129,11 +105,11 @@ export const registerNewLoan = async (
                 , 'SYSTEM'
             )
         }
-        console.log(`registerNewLoan.ts linea 109`)
+
         const bulkTableHeaderResult = await procTransaction.request().bulk(tableLoanHeaderBD)
         const bulkTableDetailResult = await procTransaction.request().bulk(tableLoanDetailBD)
         const updateIndexResult = await procTransaction.request().query(`UPDATE [INDICES] SET [INDICE] = ${lastLoanId} + 1 WHERE OBJETO = 'ID_PRESTAMOS'`)
-        console.log(`registerNewLoan.ts linea 113`)
+
         if (!bulkTableHeaderResult.rowsAffected
             || !bulkTableDetailResult.rowsAffected
             || !updateIndexResult.rowsAffected[0]
@@ -142,14 +118,12 @@ export const registerNewLoan = async (
             error: StatusCodes.BAD_REQUEST,
             generatedId: 0,
         }
-        console.log(`registerNewLoan.ts linea 122`)
         return {
             message: `Préstamo generado con folio ${lastLoanId}`,
             generatedId: lastLoanId
         }
 
     } catch (exception) {
-        console.log(`registerNewLoan.ts linea 129 : ${(exception as Error).message}`)
         return {
             message: (exception as Error).message,
             generatedId: 0,
