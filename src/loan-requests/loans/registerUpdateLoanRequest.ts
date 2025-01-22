@@ -9,6 +9,8 @@ import { updateCustomer } from '../../general-data-requests/transactions/custome
 import { registerNewEndorsement } from '../../general-data-requests/transactions/endorsement/registerNewEndorsement';
 import { updateEndorsement } from '../../general-data-requests/transactions/endorsement/updateEndorsement';
 import { validateDataLoanRequestUpdate } from '../utils/validateData';
+import { loanHeader } from '../../interfaces/loan-interface';
+import { registerNewLoan } from '../../general-data-requests/transactions/loan/registerNewLoan';
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest
@@ -215,6 +217,8 @@ export const registerUpdateLoanRequest = async (
         case 'APROBADO':
           datosCliente.id_agente = id_agente;
           datosCliente.cliente_activo = 1;
+          let idClienteGenerado = 0
+          let idPrestamoGenerado = 0
 
           updateQueryColumns += ` ,CLOSED_BY = ${id_usuario} 
                                   ,CLOSED_DATE = '${current_local_date.toISOString()}'
@@ -264,9 +268,10 @@ export const registerUpdateLoanRequest = async (
 
             if (!procNewCustomer.idCustomer) {
               throw new Error(procNewCustomer.message);
-            }
+            } else
+              idClienteGenerado = procNewCustomer.idCustomer
 
-            updateQueryColumns += `,ID_CLIENTE = ${procNewCustomer.idCustomer}`;
+            updateQueryColumns += `,ID_CLIENTE = ${idClienteGenerado}`;
           } else {
             datosCliente.cliente_modificado_por = id_usuario;
             datosCliente.fecha_modificacion_cliente = current_local_date;
@@ -276,8 +281,46 @@ export const registerUpdateLoanRequest = async (
             );
             if (!procUpdateCustomer.generatedId) {
               throw new Error(procUpdateCustomer.message);
-            }
+            } else
+              idClienteGenerado = procUpdateCustomer.generatedId
           }
+
+          //Genera encabezado de nuevo préstamo
+          const encabezadoPrestamo: loanHeader = {
+            id: 0,
+            id_cliente: idClienteGenerado,
+            id_plazo: id_plazo,
+            id_usuario: id_usuario,
+            cantidad_prestada: cantidad_prestada,
+            dia_semana: dia_semana,
+            fecha_inicial: fecha_inicial,
+            fecha_final_estimada: fecha_final_estimada,
+            fecha_final_real: fecha_final_estimada,
+            id_cobrador: id_agente,
+            id_corte: 0,
+            cantidad_restante: cantidad_pagar,
+            cantidad_pagar: cantidad_pagar,
+            estatus: 'EMITIDO',
+            fecha_cancelado: fecha_final_estimada,
+            usuario_cancelo: 0,
+            id_concepto: 0,
+            id_multa: 0,
+            tasa_interes: tasa_de_interes,
+            id_grupo_original: id_grupo_original,
+            semanas_plazo: Number(semanas_plazo),
+          }
+
+          const procInsertLoan = await registerNewLoan(encabezadoPrestamo, procTransaction)
+
+          if (!procInsertLoan.generatedId) {
+            throw new Error(procInsertLoan.message);
+          } else
+            idPrestamoGenerado = procInsertLoan.generatedId
+
+          updateQueryColumns += `,ID_LOAN = ${idPrestamoGenerado}
+                                 ,ID_DOMICILIO_CLIENTE = (SELECT ID_DOMICILIO FROM CLIENTES WHERE ID = ${idClienteGenerado})
+                                 ,ID_DOMICILIO_AVAL = (SELECT ID_DOMICILIO FROM AVALES WHERE ID_AVAL = ${datosCliente.id_aval})
+          `;
 
           break;
 
@@ -305,9 +348,9 @@ export const registerUpdateLoanRequest = async (
     let errorMessage = '';
 
     if (error instanceof Error) {
-      errorMessage = error.message as string;
+      errorMessage = error.message;
     }
-
+    console.log(`Error linea 351: ${errorMessage}`)
     return { error: errorMessage };
   }
 };
