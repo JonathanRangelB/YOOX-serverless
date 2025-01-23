@@ -121,9 +121,10 @@ export const registerUpdateLoanRequest = async (
     //Comienza ensamblado de la cadena del query
     let updateQueryColumns = '';
 
-    if (currentLoanRequestStatus === newLoanRequestStatus
-      || (currentLoanRequestStatus === 'ACTUALIZAR' && ['APROBADO', 'RECHAZADO'].includes(newLoanRequestStatus))
-
+    if (
+      currentLoanRequestStatus === newLoanRequestStatus ||
+      (currentLoanRequestStatus === 'ACTUALIZAR' &&
+        ['APROBADO', 'RECHAZADO'].includes(newLoanRequestStatus))
     ) {
       throw new Error('Cambio de status incorrecto');
     }
@@ -194,7 +195,6 @@ export const registerUpdateLoanRequest = async (
 
       `;
     } else if (currentLoanRequestStatus === `EN REVISION`) {
-
       updateQueryColumns = `SET 
                         LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
                         ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
@@ -217,8 +217,8 @@ export const registerUpdateLoanRequest = async (
         case 'APROBADO':
           datosCliente.id_agente = id_agente;
           datosCliente.cliente_activo = 1;
-          let idClienteGenerado = 0
-          let idPrestamoGenerado = 0
+          let idClienteGenerado;
+          let idPrestamoGenerado;
 
           updateQueryColumns += ` ,CLOSED_BY = ${id_usuario} 
                                   ,CLOSED_DATE = '${current_local_date.toISOString()}'
@@ -268,8 +268,7 @@ export const registerUpdateLoanRequest = async (
 
             if (!procNewCustomer.idCustomer) {
               throw new Error(procNewCustomer.message);
-            } else
-              idClienteGenerado = procNewCustomer.idCustomer
+            } else idClienteGenerado = procNewCustomer.idCustomer;
 
             updateQueryColumns += `,ID_CLIENTE = ${idClienteGenerado}`;
           } else {
@@ -281,8 +280,7 @@ export const registerUpdateLoanRequest = async (
             );
             if (!procUpdateCustomer.generatedId) {
               throw new Error(procUpdateCustomer.message);
-            } else
-              idClienteGenerado = procUpdateCustomer.generatedId
+            } else idClienteGenerado = procUpdateCustomer.generatedId;
           }
 
           //Genera encabezado de nuevo préstamo
@@ -308,14 +306,16 @@ export const registerUpdateLoanRequest = async (
             tasa_interes: tasa_de_interes,
             id_grupo_original: id_grupo_original,
             semanas_plazo: Number(semanas_plazo),
-          }
+          };
 
-          const procInsertLoan = await registerNewLoan(encabezadoPrestamo, procTransaction)
+          const procInsertLoan = await registerNewLoan(
+            encabezadoPrestamo,
+            procTransaction
+          );
 
           if (!procInsertLoan.generatedId) {
             throw new Error(procInsertLoan.message);
-          } else
-            idPrestamoGenerado = procInsertLoan.generatedId
+          } else idPrestamoGenerado = procInsertLoan.generatedId;
 
           updateQueryColumns += `,ID_LOAN = ${idPrestamoGenerado}
                                  ,ID_DOMICILIO_CLIENTE = (SELECT ID_DOMICILIO FROM CLIENTES WHERE ID = ${idClienteGenerado})
