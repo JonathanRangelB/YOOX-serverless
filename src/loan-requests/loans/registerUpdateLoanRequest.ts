@@ -200,6 +200,11 @@ export const registerUpdateLoanRequest = async (
                         ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
                         `;
 
+      let idClienteGenerado;
+      let idPrestamoGenerado;
+      let encabezadoPrestamo: loanHeader;
+      let procInsertLoan;
+
       switch (newLoanRequestStatus) {
         case 'ACTUALIZAR':
           updateQueryColumns += ` ,MODIFIED_BY = ${id_usuario}
@@ -217,8 +222,6 @@ export const registerUpdateLoanRequest = async (
         case 'APROBADO':
           datosCliente.id_agente = id_agente;
           datosCliente.cliente_activo = 1;
-          let idClienteGenerado;
-          let idPrestamoGenerado;
 
           updateQueryColumns += ` ,CLOSED_BY = ${id_usuario} 
                                   ,CLOSED_DATE = '${current_local_date.toISOString()}'
@@ -284,7 +287,7 @@ export const registerUpdateLoanRequest = async (
           }
 
           //Genera encabezado de nuevo préstamo
-          const encabezadoPrestamo: loanHeader = {
+          encabezadoPrestamo = {
             id: 0,
             id_cliente: idClienteGenerado,
             id_plazo: id_plazo,
@@ -308,7 +311,7 @@ export const registerUpdateLoanRequest = async (
             semanas_plazo: Number(semanas_plazo),
           };
 
-          const procInsertLoan = await registerNewLoan(
+          procInsertLoan = await registerNewLoan(
             encabezadoPrestamo,
             procTransaction
           );

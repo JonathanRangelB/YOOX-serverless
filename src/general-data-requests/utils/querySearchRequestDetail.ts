@@ -46,7 +46,7 @@ export function requestDetailSearchQuery(request_number: string): string {
       ,[fecha_inicial]
       ,[fecha_final_estimada]
       ,[cantidad_pagar]
-      ,[tasa_interes]
+      ,[tasa_de_interes]
       ,[observaciones]
       ,[created_by]
       ,[created_date]

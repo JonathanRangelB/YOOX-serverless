@@ -50,17 +50,8 @@ export async function validateData(
 
   const createdDate = nextId.recordset[0].CURRENT_DATE_SERVER;
   const horaLocal = convertDateTimeZone(createdDate, 'America/Mexico_City');
-  const [
-    idAgente,
-    idUsuario,
-    idGrupo,
-    tasaInteres,
-    idClienteCurp,
-    idAvalCurp,
-    idClienteTelefono,
-    idAvalTelefono,
-    rolDeUsuario,
-  ] = getGenericData.recordsets.map(([record]: any) => record?.value);
+  const [idAgente, idUsuario, idGrupo, tasaInteres, , , , , rolDeUsuario] =
+    getGenericData.recordsets.map(([record]: any) => record?.value);
 
   const resultValidation = validateDataResult(
     fecha_inicial,
