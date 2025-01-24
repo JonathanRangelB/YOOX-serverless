@@ -156,8 +156,8 @@ export const registerUpdateLoanRequest = async (
       ,ID_DOMICILIO_CLIENTE = ${id_domicilio_cliente ? id_domicilio_cliente : `NULL`}
       ,TIPO_CALLE_CLIENTE = '${tipo_calle_cliente.value}' 
       ,NOMBRE_CALLE_CLIENTE = '${nombre_calle_cliente}' 
-      ,NUMERO_EXTERIOR_CLIENTE = '${numero_exterior_cliente}' 
-      ,NUMERO_INTERIOR_CLIENTE = '${numero_interior_cliente}' 
+      ,NUMERO_EXTERIOR_CLIENTE = ${numero_exterior_cliente ? `'${numero_exterior_cliente}'` : `NULL`}
+      ,NUMERO_INTERIOR_CLIENTE = ${numero_interior_cliente ? `'${numero_interior_cliente}'` : `NULL`} 
       ,COLONIA_CLIENTE = '${colonia_cliente}' 
       ,MUNICIPIO_CLIENTE = '${municipio_cliente}' 
       ,ESTADO_CLIENTE = '${estado_cliente.value}' 
@@ -174,8 +174,8 @@ export const registerUpdateLoanRequest = async (
       ,ID_DOMICILIO_AVAL = ${id_domicilio_aval ? id_domicilio_aval : `NULL`}
       ,TIPO_CALLE_AVAL = '${tipo_calle_aval.value}'
       ,NOMBRE_CALLE_AVAL = '${nombre_calle_aval}'
-      ,NUMERO_EXTERIOR_AVAL = '${numero_exterior_aval}'
-      ,NUMERO_INTERIOR_AVAL = '${numero_interior_aval}'
+      ,NUMERO_EXTERIOR_AVAL = ${numero_exterior_aval ? `'${numero_exterior_aval}'` : `NULL`}
+      ,NUMERO_INTERIOR_AVAL = ${numero_interior_aval ? `'${numero_interior_aval}'` : `NULL`}
       ,COLONIA_AVAL = '${colonia_aval}'
       ,MUNICIPIO_AVAL = '${municipio_aval}'
       ,ESTADO_AVAL = '${estado_aval.value}'
@@ -333,6 +333,7 @@ export const registerUpdateLoanRequest = async (
     }
 
     const updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = ${id_loan_request};`;
+    console.log(updateQueryString);
     const updateResult = await procTransaction
       .request()
       .query(updateQueryString);
