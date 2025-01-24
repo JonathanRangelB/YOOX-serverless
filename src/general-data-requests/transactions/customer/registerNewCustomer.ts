@@ -82,12 +82,6 @@ export const registerNewCustomer = async (
     tableCustomerBD.columns.add('NOMBRE', VarChar, { nullable: false });
     tableCustomerBD.columns.add('TELEFONO_FIJO', VarChar, { nullable: true });
     tableCustomerBD.columns.add('TELEFONO_MOVIL', VarChar, { nullable: true });
-    tableCustomerBD.columns.add('NUMERO_EXTERIOR', VarChar, {
-      nullable: true,
-    });
-    tableCustomerBD.columns.add('NUMERO_INTERIOR', VarChar, {
-      nullable: true,
-    });
     tableCustomerBD.columns.add('CORREO_ELECTRONICO', VarChar, {
       nullable: true,
     });
@@ -106,8 +100,6 @@ export const registerNewCustomer = async (
       apellido_materno_cliente,
       telefono_fijo_cliente,
       telefono_movil_cliente,
-      numero_exterior_cliente,
-      numero_interior_cliente,
       correo_electronico_cliente,
       cliente_activo,
       id_agente,
