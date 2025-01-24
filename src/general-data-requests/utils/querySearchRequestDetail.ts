@@ -14,6 +14,7 @@ export function requestDetailSearchQuery(request_number: string): string {
       ,[correo_electronico_cliente]
       ,[ocupacion_cliente]
       ,[curp_cliente]
+      ,[id_domicilio_cliente]
       ,[tipo_calle_cliente]
       ,[nombre_calle_cliente]
       ,[numero_exterior_cliente]
@@ -31,6 +32,7 @@ export function requestDetailSearchQuery(request_number: string): string {
       ,[telefono_movil_aval]
       ,[correo_electronico_aval]
       ,[curp_aval]
+      ,[id_domicilio_aval]
       ,[tipo_calle_aval]
       ,[nombre_calle_aval]
       ,[numero_exterior_aval]
@@ -46,7 +48,7 @@ export function requestDetailSearchQuery(request_number: string): string {
       ,[fecha_inicial]
       ,[fecha_final_estimada]
       ,[cantidad_pagar]
-      ,[tasa_interes]
+      ,[tasa_de_interes]
       ,[observaciones]
       ,[created_by]
       ,[created_date]
@@ -55,7 +57,8 @@ export function requestDetailSearchQuery(request_number: string): string {
       ,[closed_by]
       ,[closed_date]
       ,[status_code]
-  
+      ,[id_loan]  
+
   FROM [LOAN_REQUEST]
 
   WHERE REQUEST_NUMBER = '${request_number}'                                                     

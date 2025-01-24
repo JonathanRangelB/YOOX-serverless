@@ -24,10 +24,10 @@ export const propertiesForLoanRequest = {
     ],
   },
   observaciones: {
-    "anyOf": [
+    anyOf: [
       { type: 'string' },
-      { type: 'string', enum: ['', null], nullable: true }
-    ]
+      { type: 'string', enum: ['', null], nullable: true },
+    ],
   },
 
   plazo: {
@@ -43,10 +43,10 @@ export const propertiesForLoanRequest = {
     type: 'object',
     properties: {
       id_cliente: {
-        "anyOf": [
+        anyOf: [
           { type: 'integer' },
-          { type: 'integer', enum: ['', null], nullable: true }
-        ]
+          { type: 'integer', enum: ['', null], nullable: true },
+        ],
       },
       nombre_cliente: { type: 'string' },
       apellido_paterno_cliente: { type: 'string' },
@@ -79,10 +79,10 @@ export const propertiesForLoanRequest = {
         ],
       },
       ocupacion_cliente: {
-        "anyOf": [
+        anyOf: [
           { type: 'string' },
-          { type: 'string', enum: ['', null], nullable: true }
-        ]
+          { type: 'string', enum: ['', null], nullable: true },
+        ],
       },
       curp_cliente: {
         type: 'string',
@@ -156,16 +156,16 @@ export const propertiesForLoanRequest = {
       },
       cp_cliente: { type: 'string', pattern: '^\\d{5}$' },
       referencias_dom_cliente: {
-        "anyOf": [
+        anyOf: [
           { type: 'string' },
-          { type: 'string', enum: ['', null], nullable: true }
-        ]
+          { type: 'string', enum: ['', null], nullable: true },
+        ],
       },
       id_domicilio_cliente: {
-        "anyOf": [
+        anyOf: [
           { type: 'integer' },
-          { type: 'integer', enum: ['', null], nullable: true }
-        ]
+          { type: 'integer', enum: ['', null], nullable: true },
+        ],
       },
     },
     required: [
@@ -189,10 +189,10 @@ export const propertiesForLoanRequest = {
     type: 'object',
     properties: {
       id_aval: {
-        "anyOf": [
+        anyOf: [
           { type: 'integer' },
-          { type: 'integer', enum: ['', null], nullable: true }
-        ]
+          { type: 'integer', enum: ['', null], nullable: true },
+        ],
       },
       nombre_aval: { type: 'string' },
       apellido_materno_aval: { type: 'string' },
@@ -297,16 +297,16 @@ export const propertiesForLoanRequest = {
       },
       cp_aval: { type: 'string', pattern: '^\\d{5}$' },
       referencias_dom_aval: {
-        "anyOf": [
+        anyOf: [
           { type: 'string' },
-          { type: 'string', enum: ['', null], nullable: true }
-        ]
+          { type: 'string', enum: ['', null], nullable: true },
+        ],
       },
       id_domicilio_aval: {
-        "anyOf": [
+        anyOf: [
           { type: 'integer' },
-          { type: 'integer', enum: ['', null], nullable: true }
-        ]
+          { type: 'integer', enum: ['', null], nullable: true },
+        ],
       },
       additionalProperties: false,
     },
