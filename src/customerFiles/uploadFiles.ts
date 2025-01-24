@@ -11,7 +11,14 @@ import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { StatusCodes } from '../helpers/statusCodes';
 import { FileNamesSchema } from './schemas/filenames.schema';
 
-const client = new S3Client();
+const client = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+});
+
 const ajv = new Ajv({ allErrors: true });
 
 module.exports.handler = async (event: APIGatewayEvent) => {
