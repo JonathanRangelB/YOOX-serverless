@@ -368,7 +368,7 @@ function preValidatedData(
     throw new Error('CURP de cliente ya existe para otro cliente');
 
   if (validateCurpAval)
-    throw new Error('CURP de cliente ya existe para otro aval');
+    throw new Error('CURP de aval ya existe para otro aval');
 
   if (validatePhoneCustomer)
     throw new Error('El número de teléfono ya existe para otro cliente');
