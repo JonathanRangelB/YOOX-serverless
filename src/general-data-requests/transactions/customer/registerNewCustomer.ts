@@ -9,6 +9,7 @@ export const registerNewCustomer = async (
   formCliente: formCustomer,
   procTransaction: Transaction
 ): Promise<customerReqResponse> => {
+
   try {
     const {
       nombre_cliente,
@@ -82,10 +83,10 @@ export const registerNewCustomer = async (
     tableCustomerBD.columns.add('TELEFONO_FIJO', VarChar, { nullable: true });
     tableCustomerBD.columns.add('TELEFONO_MOVIL', VarChar, { nullable: true });
     tableCustomerBD.columns.add('NUMERO_EXTERIOR', VarChar, {
-      nullable: false,
+      nullable: true,
     });
     tableCustomerBD.columns.add('NUMERO_INTERIOR', VarChar, {
-      nullable: false,
+      nullable: true,
     });
     tableCustomerBD.columns.add('CORREO_ELECTRONICO', VarChar, {
       nullable: true,
@@ -99,10 +100,10 @@ export const registerNewCustomer = async (
     tableCustomerBD.rows.add(
       lastCustomerId,
       nombre_cliente +
-        ' ' +
-        apellido_paterno_cliente +
-        ' ' +
-        apellido_materno_cliente,
+      ' ' +
+      apellido_paterno_cliente +
+      ' ' +
+      apellido_materno_cliente,
       telefono_fijo_cliente,
       telefono_movil_cliente,
       numero_exterior_cliente,
