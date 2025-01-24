@@ -91,9 +91,7 @@ export function generateNewLoanRequestTable(
     nullable: false,
   });
   tableNewRequestLoan.columns.add('ID_AGENTE', Int, { nullable: true });
-  tableNewRequestLoan.columns.add('ID_GRUPO_ORIGINAL', Int, {
-    nullable: true,
-  });
+  tableNewRequestLoan.columns.add('ID_GRUPO_ORIGINAL', Int, { nullable: true });
   tableNewRequestLoan.columns.add('ID_CLIENTE', Int, { nullable: true });
   tableNewRequestLoan.columns.add('NOMBRE_CLIENTE', VarChar, {
     nullable: false,
@@ -117,7 +115,6 @@ export function generateNewLoanRequestTable(
     nullable: true,
   });
   tableNewRequestLoan.columns.add('CURP_CLIENTE', VarChar, { nullable: false });
-
   tableNewRequestLoan.columns.add('ID_DOMICILIO_CLIENTE', Int, {
     nullable: true,
   });
@@ -150,9 +147,7 @@ export function generateNewLoanRequestTable(
 
   //AVAL INICIO
   tableNewRequestLoan.columns.add('ID_AVAL', Int, { nullable: true });
-  tableNewRequestLoan.columns.add('NOMBRE_AVAL', VarChar, {
-    nullable: false,
-  });
+  tableNewRequestLoan.columns.add('NOMBRE_AVAL', VarChar, { nullable: false });
   tableNewRequestLoan.columns.add('APELLIDO_PATERNO_AVAL', VarChar, {
     nullable: false,
   });
@@ -198,7 +193,9 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add('ID_PLAZO', Int, { nullable: false });
 
   tableNewRequestLoan.columns.add('TASA_DE_INTERES', Int, { nullable: true });
-  tableNewRequestLoan.columns.add('SEMANAS_PLAZO', VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add('SEMANAS_PLAZO', VarChar, {
+    nullable: false,
+  });
 
   tableNewRequestLoan.columns.add('CANTIDAD_PRESTADA', Float, {
     nullable: false,
@@ -210,12 +207,8 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add('FECHA_FINAL_ESTIMADA', DateTime, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add('CANTIDAD_PAGAR', Float, {
-    nullable: true,
-  });
-  tableNewRequestLoan.columns.add('OBSERVACIONES', VarChar, {
-    nullable: true,
-  });
+  tableNewRequestLoan.columns.add('CANTIDAD_PAGAR', Float, { nullable: true });
+  tableNewRequestLoan.columns.add('OBSERVACIONES', VarChar, { nullable: true });
   tableNewRequestLoan.columns.add('CREATED_BY', Int, { nullable: false });
   tableNewRequestLoan.columns.add('CREATED_DATE', DateTime, {
     nullable: false,
