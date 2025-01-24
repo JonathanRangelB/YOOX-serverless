@@ -52,7 +52,6 @@ export async function validateData(
   const horaLocal = convertDateTimeZone(createdDate, 'America/Mexico_City');
   const [idAgente, idUsuario, idGrupo, tasaInteres, , , , , rolDeUsuario] =
     getGenericData.recordsets.map(([record]: any) => record?.value);
-
   const resultValidation = validateDataResult(
     fecha_inicial,
     fecha_final_estimada,
