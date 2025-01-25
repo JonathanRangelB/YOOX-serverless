@@ -148,7 +148,7 @@ export const registerUpdateLoanRequest = async (
       ,NOMBRE_CLIENTE = '${nombre_cliente}'
       ,APELLIDO_PATERNO_CLIENTE = '${apellido_paterno_cliente}'
       ,APELLIDO_MATERNO_CLIENTE = '${apellido_materno_cliente}'    
-      ,TELEFONO_FIJO_CLIENTE = '${telefono_fijo_cliente}'
+      ,TELEFONO_FIJO_CLIENTE = ${telefono_fijo_cliente ? `'${telefono_fijo_cliente}'` : `NULL`}
       ,TELEFONO_MOVIL_CLIENTE = '${telefono_movil_cliente}'
       ,CORREO_ELECTRONICO_CLIENTE = ${correo_electronico_cliente ? `'${correo_electronico_cliente}'` : `NULL`}
       ,OCUPACION_CLIENTE = ${ocupacion_cliente ? `'${ocupacion_cliente}'` : `NULL`}
@@ -167,7 +167,7 @@ export const registerUpdateLoanRequest = async (
       ,NOMBRE_AVAL = '${nombre_aval}'
       ,APELLIDO_PATERNO_AVAL = '${apellido_paterno_aval}'
       ,APELLIDO_MATERNO_AVAL = '${apellido_materno_aval}'
-      ,TELEFONO_FIJO_AVAL = '${telefono_fijo_aval}'
+      ,TELEFONO_FIJO_AVAL = ${telefono_fijo_aval ? `'${telefono_fijo_aval}'` : `NULL`}
       ,TELEFONO_MOVIL_AVAL = '${telefono_movil_aval}'
       ,CORREO_ELECTRONICO_AVAL = ${correo_electronico_aval ? `'${correo_electronico_aval}'` : `NULL`}
       ,CURP_AVAL = '${curp_aval}'
@@ -368,7 +368,7 @@ function preValidatedData(
     throw new Error('CURP de cliente ya existe para otro cliente');
 
   if (validateCurpAval)
-    throw new Error('CURP de cliente ya existe para otro aval');
+    throw new Error('CURP de aval ya existe para otro aval');
 
   if (validatePhoneCustomer)
     throw new Error('El número de teléfono ya existe para otro cliente');
