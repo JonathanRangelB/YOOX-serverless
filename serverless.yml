@@ -159,6 +159,13 @@ functions:
           authorizer:
             name: customAuthorizer
 
+  customerLoanStatus:
+    handler: ./src/customerLoanStatus/customerLoanStatus.handler
+    events:
+      - httpApi:
+          method: get
+          path: /v1/customer-loan-status
+
   customAuthorizer:
     handler: ./src/authorizer/auth.handler
 
