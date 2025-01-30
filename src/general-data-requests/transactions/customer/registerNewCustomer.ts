@@ -9,7 +9,6 @@ export const registerNewCustomer = async (
   formCliente: formCustomer,
   procTransaction: Transaction
 ): Promise<customerReqResponse> => {
-
   try {
     const {
       nombre_cliente,
@@ -94,10 +93,10 @@ export const registerNewCustomer = async (
     tableCustomerBD.rows.add(
       lastCustomerId,
       nombre_cliente +
-      ' ' +
-      apellido_paterno_cliente +
-      ' ' +
-      apellido_materno_cliente,
+        ' ' +
+        apellido_paterno_cliente +
+        ' ' +
+        apellido_materno_cliente,
       telefono_fijo_cliente,
       telefono_movil_cliente,
       correo_electronico_cliente,

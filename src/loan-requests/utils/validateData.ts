@@ -50,7 +50,7 @@ export async function validateData(
 
   const createdDate = nextId.recordset[0].CURRENT_DATE_SERVER;
   const horaLocal = convertDateTimeZone(createdDate, 'America/Mexico_City');
-  const [idAgente, idUsuario, idGrupo, tasaInteres, , , , , rolDeUsuario] =
+  const [idAgente, idUsuario, idGrupo, tasaInteres, , , , , idRolDeUsuario] =
     getGenericData.recordsets.map(([record]: any) => record?.value);
   const resultValidation = validateDataResult(
     fecha_inicial,
@@ -59,7 +59,7 @@ export async function validateData(
     idUsuario,
     idGrupo,
     tasaInteres,
-    rolDeUsuario
+    idRolDeUsuario
   );
 
   if (!resultValidation.result) {
@@ -100,6 +100,7 @@ export async function validateDataLoanRequestUpdate(
     formAval,
     modified_by,
     user_role,
+    loan_request_status,
   } = updateLoanRequest;
 
   const queryToValidateData = queryValidateData(
@@ -133,7 +134,7 @@ export async function validateDataLoanRequestUpdate(
     idAvalCurp,
     idClienteTelefono,
     idAvalTelefono,
-    rolDeUsuario,
+    idRolDeUsuario,
   ] = getGenericData.recordsets.map(([record]: any) => record?.value);
 
   const resultValidation = validateDataResult(
@@ -143,11 +144,21 @@ export async function validateDataLoanRequestUpdate(
     idUsuario,
     idGrupo,
     tasaInteres,
-    rolDeUsuario
+    idRolDeUsuario
   );
 
   if (!resultValidation.result) {
     throw new Error(resultValidation.message);
+  }
+
+  if (
+    loan_request_status === 'APROBADO' &&
+    id_agente === modified_by &&
+    ['Líder de grupo', 'Cobrador'].includes(user_role)
+  ) {
+    throw new Error(
+      'Un usuario con mayor jerarquía debe aprobar esta solicitud'
+    );
   }
 
   return {
@@ -172,7 +183,7 @@ function queryValidateData(
   telefono_movil_cliente: string,
   telefono_fijo_aval: string,
   telefono_movil_aval: string,
-  rol_de_usuario: number
+  rol_de_usuario: string
 ): string {
   const queryTelefonosCliente =
     'SELECT TOP 1 ID AS value FROM CLIENTES ' +
@@ -201,7 +212,7 @@ function validateDataResult(
   idUsuario: number,
   idGrupo: number,
   tasaInteres: number,
-  rolDeUsuario: number
+  idRolDeUsuario: number
 ): { result: boolean; message?: string } {
   if (fecha_inicial > fecha_final_estimada) {
     return {
@@ -237,7 +248,7 @@ function validateDataResult(
     return { result: false, message: 'El plazo seleccionado no existe' };
   }
 
-  if (!rolDeUsuario) {
+  if (!idRolDeUsuario) {
     return { result: false, message: 'El rol de usuario no existe' };
   }
 

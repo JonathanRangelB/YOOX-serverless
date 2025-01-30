@@ -124,9 +124,21 @@ export const registerUpdateLoanRequest = async (
     if (
       currentLoanRequestStatus === newLoanRequestStatus ||
       (currentLoanRequestStatus === 'ACTUALIZAR' &&
-        ['APROBADO', 'RECHAZADO'].includes(newLoanRequestStatus))
+        ['APROBADO'].includes(newLoanRequestStatus))
     ) {
       throw new Error('Cambio de status incorrecto');
+    }
+
+    if (
+      currentLoanRequestStatus === 'ACTUALIZAR' &&
+      newLoanRequestStatus === 'RECHAZADO'
+    ) {
+      updateQueryColumns += ` SET 
+                        LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
+                        ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
+                        ,CLOSED_BY = ${id_usuario} 
+                        ,CLOSED_DATE = '${current_local_date.toISOString()}'                                  
+        `;
     }
 
     if (
