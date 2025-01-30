@@ -100,7 +100,7 @@ export async function validateDataLoanRequestUpdate(
     formAval,
     modified_by,
     user_role,
-    loan_request_status
+    loan_request_status,
   } = updateLoanRequest;
 
   const queryToValidateData = queryValidateData(
@@ -151,8 +151,14 @@ export async function validateDataLoanRequestUpdate(
     throw new Error(resultValidation.message);
   }
 
-  if ((loan_request_status === 'APROBADO') && (id_agente === modified_by) && (['Líder de grupo', 'Cobrador'].includes(user_role))) {
-    throw new Error('Un usuario con mayor jerarquía debe aprobar esta solicitud')
+  if (
+    loan_request_status === 'APROBADO' &&
+    id_agente === modified_by &&
+    ['Líder de grupo', 'Cobrador'].includes(user_role)
+  ) {
+    throw new Error(
+      'Un usuario con mayor jerarquía debe aprobar esta solicitud'
+    );
   }
 
   return {

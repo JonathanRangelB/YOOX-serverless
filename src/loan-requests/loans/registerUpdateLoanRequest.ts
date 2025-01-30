@@ -129,8 +129,10 @@ export const registerUpdateLoanRequest = async (
       throw new Error('Cambio de status incorrecto');
     }
 
-    if (currentLoanRequestStatus === 'ACTUALIZAR' &&
-      newLoanRequestStatus === 'RECHAZADO') {
+    if (
+      currentLoanRequestStatus === 'ACTUALIZAR' &&
+      newLoanRequestStatus === 'RECHAZADO'
+    ) {
       updateQueryColumns += ` SET 
                         LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
                         ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
