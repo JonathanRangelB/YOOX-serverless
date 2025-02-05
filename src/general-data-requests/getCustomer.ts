@@ -4,7 +4,8 @@ import { ClienteDomicilio, DatosCliente } from './types/getCustomer.interface';
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { StatusCodes } from '../helpers/statusCodes';
 import { customerSearchQuery } from './utils/querySearchCustomer';
-import { isValidSearchCustomerParameters } from './validateSearchCustomerParameters';
+import { validatePayload } from '../helpers/utils';
+import { customerSearchParametersSchema } from './schemas/customer.schema';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
@@ -17,13 +18,18 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   const body = JSON.parse(event.body);
 
   const { id, curp, nombre, id_agente } = body as DatosCliente;
-  const validateSearchParameters = isValidSearchCustomerParameters(body);
+
+  const validateSearchParameters = validatePayload(
+    body,
+    customerSearchParametersSchema
+  );
 
   if (!validateSearchParameters.valid) {
     return generateJsonResponse(
       {
         message: 'Object provided invalid',
         error: validateSearchParameters.error,
+        additionalProperties: validateSearchParameters.additionalProperties,
       },
       StatusCodes.BAD_REQUEST
     );

@@ -7,7 +7,8 @@ import {
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { StatusCodes } from '../helpers/statusCodes';
 import { requestDetailSearchQuery } from './utils/querySearchRequestDetail';
-import { isValidSearchRequestDetailParameter } from './validateSearchRequestDetailParameters';
+import { requestDetailSearchParametersSchema } from './schemas/request.schema';
+import { validatePayload } from '../helpers/utils';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
@@ -20,13 +21,18 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   const body = JSON.parse(event.body);
 
   const { request_number } = body as DatosSolicitudDetalle;
-  const validateSearchParameters = isValidSearchRequestDetailParameter(body);
+
+  const validateSearchParameters = validatePayload(
+    body,
+    requestDetailSearchParametersSchema
+  );
 
   if (!validateSearchParameters.valid) {
     return generateJsonResponse(
       {
         message: 'Object provided invalid',
         error: validateSearchParameters.error,
+        additionalProperties: validateSearchParameters.additionalProperties,
       },
       StatusCodes.BAD_REQUEST
     );

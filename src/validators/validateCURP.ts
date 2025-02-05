@@ -6,8 +6,9 @@ import {
   DatosBusquedaCurp,
   ResultadoCurp,
 } from './types/DatosBusqueda.interface';
-import { isValidSearchCustomerParametersCurp } from './validateSearchParameters';
 import { searchCurpQuery } from './utils/querySearchData';
+import { validatePayload } from '../helpers/utils';
+import { customerSearchCURPSchema } from './schemas/personaCURP.schema';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
@@ -19,13 +20,17 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   const body = JSON.parse(event.body);
   const { curp, table } = body as DatosBusquedaCurp;
-  const validateSearchParameters = isValidSearchCustomerParametersCurp(body);
+  const validateSearchParameters = validatePayload(
+    body,
+    customerSearchCURPSchema
+  );
 
   if (!validateSearchParameters.valid) {
     return generateJsonResponse(
       {
         message: 'Object provided invalid',
         error: validateSearchParameters.error,
+        additionalProperties: validateSearchParameters.additionalProperties,
       },
       StatusCodes.BAD_REQUEST
     );

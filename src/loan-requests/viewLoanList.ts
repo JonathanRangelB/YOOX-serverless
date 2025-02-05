@@ -7,7 +7,8 @@ import {
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { StatusCodes } from '../helpers/statusCodes';
 import { loanRequestListSearchQuery } from './utils/querySearchLoanList';
-import { isValidSearchLoanRequestListParameter } from './validateSearchLoanListParameter';
+import { validatePayload } from '../helpers/utils';
+import { loanRequestListSearchParametersSchema } from './schemas/loanList.schema';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
@@ -19,13 +20,17 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   const body = JSON.parse(event.body) as DatosSolicitudPrestamoLista;
 
-  const validateSearchParameters = isValidSearchLoanRequestListParameter(body);
+  const validateSearchParameters = validatePayload(
+    body,
+    loanRequestListSearchParametersSchema
+  );
 
   if (!validateSearchParameters.valid) {
     return generateJsonResponse(
       {
         message: 'Object provided invalid',
         error: validateSearchParameters.error,
+        additionalProperties: validateSearchParameters.additionalProperties,
       },
       StatusCodes.BAD_REQUEST
     );

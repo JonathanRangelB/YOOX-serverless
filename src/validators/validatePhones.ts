@@ -6,8 +6,9 @@ import {
   DatosBusquedaTelefono,
   ResultadoTelefono,
 } from './types/DatosBusqueda.interface';
-import { isValidSearchCustomerParametersTelefono } from './validateSearchParameters';
 import { searchTelefonoQuery } from './utils/querySearchData';
+import { validatePayload } from '../helpers/utils';
+import { customerSearchTelefonoSchema } from './schemas/personaTelefono.schema';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
@@ -20,8 +21,10 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   const body = JSON.parse(event.body);
   const { telefono_fijo, telefono_movil, table } =
     body as DatosBusquedaTelefono;
-  const validateSearchParameters =
-    isValidSearchCustomerParametersTelefono(body);
+  const validateSearchParameters = validatePayload(
+    body,
+    customerSearchTelefonoSchema
+  );
 
   if (!validateSearchParameters.valid) {
     return generateJsonResponse(
