@@ -5,15 +5,14 @@ import {
   GetObjectRequest,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import Ajv from 'ajv';
 
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { StatusCodes } from '../helpers/statusCodes';
 import { FileDataSchema } from './schemas/file.schema';
 import { fileData } from './types/fileData';
+import { validatePayload } from '../helpers/utils';
 
 const client = new S3Client();
-const ajv = new Ajv({ allErrors: true });
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body)
@@ -23,11 +22,17 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     );
 
   const data: fileData = JSON.parse(event.body);
-  const validate = ajv.compile(FileDataSchema);
-  const valid = validate(data);
-  const error = ajv.errorsText(validate.errors, { separator: ' AND ' });
+  const validData = validatePayload(data, FileDataSchema);
 
-  if (!valid) return generateJsonResponse({ error }, StatusCodes.BAD_REQUEST);
+  if (!validData.valid)
+    return generateJsonResponse(
+      {
+        message: 'Object provided invalid',
+        error: validData.error,
+        additionalProperties: validData.additionalProperties,
+      },
+      StatusCodes.BAD_REQUEST
+    );
 
   const { filename, path } = data;
 

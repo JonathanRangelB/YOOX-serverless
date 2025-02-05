@@ -1,8 +1,9 @@
 import { APIGatewayEvent } from 'aws-lambda';
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { registerNewLoanRequest } from './loans/registerNewLoanRequest';
-import { isValidLoanData } from './loans/validateLoanData';
 import { StatusCodes } from '../helpers/statusCodes';
+import { validatePayload } from '../helpers/utils';
+import { loanSchema } from './schemas/loanNew.schema';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
@@ -21,7 +22,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     );
   }
 
-  const validatedData = isValidLoanData(body);
+  const validatedData = validatePayload(body, loanSchema);
 
   if (!validatedData.valid) {
     return generateJsonResponse(

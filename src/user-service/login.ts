@@ -1,23 +1,28 @@
 import jwt from 'jsonwebtoken';
-import Ajv from 'ajv';
 
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { credentials } from './types/user-service';
 import { validateCredentials } from './validateCredentials';
 import { userSchema } from './schemas/userSchema';
 import { StatusCodes } from '../helpers/statusCodes';
+import { validatePayload } from '../helpers/utils';
 
-const ajv = new Ajv({ allErrors: true });
 const LOGIN_FAILED = { message: 'Login failed, verify your credentials' };
 
 module.exports.handler = async (event: any) => {
   const data: credentials = JSON.parse(event.body);
-  const validate = ajv.compile(userSchema);
-  const valid = validate(data);
-  const errors = ajv.errorsText(validate.errors, { separator: ' AND ' });
 
-  if (!valid) {
-    return generateJsonResponse({ errors }, StatusCodes.BAD_REQUEST);
+  const validData = validatePayload(data, userSchema);
+
+  if (!validData.valid) {
+    return generateJsonResponse(
+      {
+        message: 'Object provided invalid',
+        error: validData.error,
+        additionalProperties: validData.additionalProperties,
+      },
+      StatusCodes.BAD_REQUEST
+    );
   }
 
   try {

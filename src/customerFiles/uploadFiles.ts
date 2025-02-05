@@ -5,11 +5,11 @@ import {
   PutObjectRequest,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import Ajv from 'ajv';
 
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { StatusCodes } from '../helpers/statusCodes';
 import { FileNamesSchema } from './schemas/filenames.schema';
+import { validatePayload } from '../helpers/utils';
 
 const client = new S3Client({
   region: process.env.AWS_REGION,
@@ -19,8 +19,6 @@ const client = new S3Client({
   },
 });
 
-const ajv = new Ajv({ allErrors: true });
-
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body)
     return generateJsonResponse(
@@ -29,11 +27,18 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     );
 
   const data = JSON.parse(event.body) as { filenames: string[] };
-  const validate = ajv.compile(FileNamesSchema);
-  const valid = validate(data);
-  const errors = ajv.errorsText(validate.errors, { separator: ' AND ' });
 
-  if (!valid) return generateJsonResponse({ errors }, StatusCodes.BAD_REQUEST);
+  const validData = validatePayload(data, FileNamesSchema);
+
+  if (!validData.valid)
+    return generateJsonResponse(
+      {
+        message: 'Object provided invalid',
+        error: validData.error,
+        additionalProperties: validData.additionalProperties,
+      },
+      StatusCodes.BAD_REQUEST
+    );
 
   const { filenames } = data;
 
