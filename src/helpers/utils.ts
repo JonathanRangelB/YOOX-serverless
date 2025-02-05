@@ -1,4 +1,10 @@
 import { toZonedTime } from 'date-fns-tz';
+import Ajv from 'ajv';
+import formats from 'ajv-formats';
+import {
+  AdditionalProperties,
+  validateLoanResponse,
+} from '../loan-requests/types/validateLoanResponse';
 
 export function convertToBase36(intValue: number) {
   return intValue.toString(36).padStart(6, '0').toUpperCase();
@@ -36,4 +42,32 @@ export function convertDateTimeZone(
       timeZone: timeZone,
     }).format(localDate);
   return localDate;
+}
+
+export function validatePayload(
+  payload: any,
+  schema: any
+): validateLoanResponse {
+  const ajv = new Ajv({ allErrors: true });
+  formats(ajv);
+  const validate = ajv.compile(schema);
+  const valid = validate(payload);
+  const error = ajv.errorsText(validate.errors, { separator: ' AND ' });
+  const additionalProperties: AdditionalProperties[] = [];
+  if (validate.errors) {
+    additionalProperties.push(
+      ...validate.errors
+        .filter((error) => error.keyword === 'additionalProperties')
+        .map((error) => ({
+          propiedad: error.params.additionalProperty as string,
+          path: error.instancePath || 'raíz del objeto',
+        }))
+    );
+  }
+
+  if (!valid) {
+    return { valid, error, additionalProperties };
+  }
+
+  return { valid };
 }
