@@ -18,6 +18,7 @@ export interface DatosSolicitudPrestamoLista {
   status?: string;
   nombreCliente?: string;
   folio?: string;
+  userIdFilter?: number;
 }
 
 export interface SolicitudPrestamoLista {

@@ -6,7 +6,10 @@ import {
 } from './types/loanRequest';
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { StatusCodes } from '../helpers/statusCodes';
-import { loanRequestListSearchQuery } from './utils/querySearchLoanList';
+import {
+  getGroupUsers,
+  loanRequestListSearchQuery,
+} from './utils/querySearchLoanList';
 import { validatePayload } from '../helpers/utils';
 import { loanRequestListSearchParametersSchema } from './schemas/loanList.schema';
 
@@ -39,16 +42,24 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   try {
     const pool = await DbConnector.getInstance().connection;
     const queryStatement = loanRequestListSearchQuery(body);
+    const groupUsers = getGroupUsers(body.id_usuario);
     const registrosEncontrados = await pool
       .request()
       .query<SolicitudPrestamoLista>(queryStatement);
+    const foundGroupUsers = await pool.request().query(groupUsers);
 
     if (!registrosEncontrados.rowsAffected[0])
       return generateJsonResponse(
         { message: 'Error 404', error: 'No se encontraron registros' },
         StatusCodes.NOT_FOUND
       );
-    return generateJsonResponse(registrosEncontrados.recordset, StatusCodes.OK);
+    return generateJsonResponse(
+      {
+        loanRequests: registrosEncontrados.recordset,
+        usersList: foundGroupUsers.recordset,
+      },
+      StatusCodes.OK
+    );
   } catch (error) {
     return generateJsonResponse({ error }, StatusCodes.BAD_REQUEST);
   }

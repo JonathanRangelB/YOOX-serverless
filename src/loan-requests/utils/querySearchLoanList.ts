@@ -12,6 +12,8 @@ export function loanRequestListSearchQuery(
     status,
     nombreCliente,
     folio,
+    // TODO: placeholder
+    // userIdFilter,
   } = datosSolicitudPrestamoLista;
   let whereCondition = ` `;
   let limitOneWeekData = ` `;
@@ -35,6 +37,8 @@ export function loanRequestListSearchQuery(
   if (nombreCliente)
     whereCondition += `AND CONCAT(NOMBRE_CLIENTE, ' ', APELLIDO_PATERNO_CLIENTE, ' ', APELLIDO_MATERNO_CLIENTE) LIKE '%${nombreCliente.replace(/ /g, '%')}%' `;
   if (folio) whereCondition += `AND REQUEST_NUMBER = '${folio}' `;
+  // TODO: esto obviamente no funciona, solo lo pus como placeholder
+  // if (userIdFilter) whereCondition += `AND TAB.ID_AGENTE = ${userIdFilter} `;
 
   cteQuery += `
             LOAN_REQUEST_LIST_TABLA AS (
@@ -96,4 +100,8 @@ export function loanRequestListSearchQuery(
     
     `;
   return cteQuery;
+}
+
+export function getGroupUsers(leaderId: number = 0) {
+  return `SELECT ID, NOMBRE FROM USUARIOS WHERE ACTIVO = 1 AND ID_GRUPO IN (SELECT ID_GRUPO FROM GRUPOS_AGENTES WHERE ACTIVO = 1 AND ID_LIDER_DE_GRUPO = ${leaderId})`;
 }
