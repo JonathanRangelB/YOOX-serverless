@@ -12,28 +12,33 @@ export function loanRequestListSearchQuery(
     status,
     nombreCliente,
     folio,
+    userIdFilter,
   } = datosSolicitudPrestamoLista;
-  let whereCondition = ` `;
-  let limitOneWeekData = ` `;
-  let cteQuery = ` WITH 
+  let whereCondition = '';
+  let limitOneWeekData = '';
+  let cteQuery = ` WITH
                     `;
 
   switch (rol_usuario) {
     case 'Líder de grupo': {
       const groupLeaderAccess = accessByUserRolTable(id_usuario, rol_usuario);
       cteQuery += groupLeaderAccess;
-      whereCondition = ` WHERE ID_AGENTE IN  (SELECT ID FROM LIDER_GRUPO_TABLA) `;
+      whereCondition = `WHERE ID_AGENTE IN  (SELECT ID FROM LIDER_GRUPO_TABLA) `;
+
+      if (userIdFilter) {
+        whereCondition += ` AND ID_AGENTE = ${userIdFilter} `;
+      }
       break;
     }
     case 'Cobrador':
-      whereCondition = ` WHERE ID_AGENTE = ${id_usuario} `;
+      whereCondition = `WHERE ID_AGENTE = ${id_usuario} `;
       limitOneWeekData = ` AND CONVERT(DATE, created_date) BETWEEN DATEADD(WEEK, -1, CONVERT(DATE, GETDATE())) AND CONVERT(DATE, GETDATE()) `;
       break;
   }
 
   if (status) whereCondition += `AND LOAN_REQUEST_STATUS = '${status}' `;
   if (nombreCliente)
-    whereCondition += `AND CONCAT(NOMBRE_CLIENTE, ' ', APELLIDO_PATERNO_CLIENTE, ' ', APELLIDO_MATERNO_CLIENTE) LIKE '%${nombreCliente.replace(/ /g, '%')}%' `;
+    whereCondition += ` AND CONCAT(NOMBRE_CLIENTE, ' ', APELLIDO_PATERNO_CLIENTE, ' ', APELLIDO_MATERNO_CLIENTE) LIKE '%${nombreCliente.replace(/ /g, '%')}%' `;
   if (folio) whereCondition += `AND REQUEST_NUMBER = '${folio}' `;
 
   cteQuery += `
@@ -70,7 +75,7 @@ export function loanRequestListSearchQuery(
                     SELECT
                     request_number,
                     nombre_cliente,
-                    apellido_materno_cliente,                
+                    apellido_materno_cliente,
                     apellido_paterno_cliente,
                     cantidad_prestada,
                     created_date,
@@ -79,21 +84,22 @@ export function loanRequestListSearchQuery(
                     FROM
                     LOAN_REQUEST
                     WHERE
-                    LOAN_REQUEST_STATUS IN ('APROBADO', 'RECHAZADO') 
+                    LOAN_REQUEST_STATUS IN ('APROBADO', 'RECHAZADO')
                     ${limitOneWeekData}
                 ) AS TAB
                 LEFT JOIN USUARIOS U ON TAB.ID_AGENTE = U.ID
 
                 ${whereCondition}
-           
         )
-    
         SELECT *, COUNT(*) OVER() AS CNT
-        FROM LOAN_REQUEST_LIST_TABLA 
+        FROM LOAN_REQUEST_LIST_TABLA
         ORDER BY LOAN_REQUEST_STATUS, request_number ASC
         OFFSET ${offSetRows} ROWS
         FETCH NEXT ${fetchRowsNumber} ROWS ONLY
-    
     `;
   return cteQuery;
+}
+
+export function getGroupUsers(leaderId: number = 0) {
+  return `SELECT ID, NOMBRE FROM USUARIOS WHERE ACTIVO = 1 AND ID_GRUPO IN (SELECT ID_GRUPO FROM GRUPOS_AGENTES WHERE ACTIVO = 1 AND ID_LIDER_DE_GRUPO = ${leaderId})`;
 }
