@@ -173,12 +173,8 @@ custom:
   stage: ${opt:stage, self:provider.stage}
   environment:
     NODE_ENV: ${self:custom.stage}
-  autoswagger:
-    apiKeyHeaders: ['authorization']
 
-# to run swagger locally with offline mode, run: sls offline start
 plugins:
   - serverless-dotenv-plugin
-  - serverless-auto-swagger
   - serverless-esbuild
   - serverless-offline

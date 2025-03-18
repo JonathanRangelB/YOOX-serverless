@@ -12,7 +12,13 @@ import { FileDataSchema } from './schemas/file.schema';
 import { fileData } from './types/fileData';
 import { validatePayload } from '../helpers/utils';
 
-const client = new S3Client();
+const client = new S3Client({
+  region: process.env.MY_AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY!,
+  },
+});
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body)
