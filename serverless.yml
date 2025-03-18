@@ -166,6 +166,13 @@ functions:
           method: get
           path: /v1/customer-loan-status
 
+  getAddress:
+    handler: ./src/general-data-requests/getAddress.handler
+    events:
+      - httpApi:
+          method: get
+          path: /v1/get-address         
+
   customAuthorizer:
     handler: ./src/authorizer/auth.handler
 
