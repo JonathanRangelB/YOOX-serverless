@@ -8,7 +8,6 @@ import { generateJsonResponse } from '../helpers/generateJsonResponse';
 module.exports.handler = async (event: APIGatewayEvent) => {
   try {
     const addressid = event.queryStringParameters?.addressid;
-    console.log('addressid: ', addressid);
     if (!addressid || isNaN(+addressid) || +addressid <= 0)
       throw new Error('Parametros incompletos');
     const pool = await DbConnector.getInstance().connection;

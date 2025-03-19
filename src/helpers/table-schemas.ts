@@ -72,3 +72,9 @@ export interface address_suite_number {
   id_aval: number;
   tipo: string;
 }
+
+export interface loan_refinance {
+  id_prestamo: number;
+  id_cliente: number;
+  cantidad_restante: number;
+}
