@@ -171,7 +171,14 @@ functions:
     events:
       - httpApi:
           method: get
-          path: /v1/get-address         
+          path: /v1/get-address
+
+  getLoansRefinance:
+    handler: ./src/general-data-requests/getLoansRefinance.handler
+    events:
+      - httpApi:
+          method: get
+          path: /v1/get-loans-refinance                   
 
   customAuthorizer:
     handler: ./src/authorizer/auth.handler
