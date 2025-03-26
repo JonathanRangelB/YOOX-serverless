@@ -31,7 +31,7 @@ export const registerNewEndorsement = async (
       referencias_dom_aval,
       aval_creado_por,
       fecha_creacion_aval,
-      id_domicilio_aval
+      id_domicilio_aval,
     } = formAval;
 
     const direccionAval: Direccion = {
@@ -82,7 +82,7 @@ export const registerNewEndorsement = async (
       telefono_movil_aval,
       correo_electronico_aval,
       observaciones_aval,
-      curp_aval,
+      curp_aval
     );
 
     const insertBulkData = await procTransaction
@@ -91,7 +91,7 @@ export const registerNewEndorsement = async (
 
     const updateIndexIdQuery = `UPDATE [INDICES] SET [INDICE] = ${lastEndorsmentId} + 1 WHERE OBJETO = 'ID_AVAL'`;
 
-    let addAddressResult
+    let addAddressResult;
 
     if (id_domicilio_aval) {
       addAddressResult = await updateAddress(
@@ -119,7 +119,9 @@ export const registerNewEndorsement = async (
                                     UPDATE AVALES SET ID_DOMICILIO = ${lastAddressId} WHERE ID_AVAL = ${lastEndorsmentId}`;
 
     const requestUpdate = procTransaction.request();
-    const updateResult = await requestUpdate.query(updateIndexIdQuery + updateAddressIdEndorsement);
+    const updateResult = await requestUpdate.query(
+      updateIndexIdQuery + updateAddressIdEndorsement
+    );
 
     if (!insertBulkData.rowsAffected || !updateResult.rowsAffected.length) {
       return { message: 'No se pudo registrar el aval', idEndorsment: 0 };

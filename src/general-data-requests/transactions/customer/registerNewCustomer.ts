@@ -78,17 +78,17 @@ export const registerNewCustomer = async (
     tableCustomerBD.rows.add(
       lastCustomerId,
       nombre_cliente +
-      ' ' +
-      apellido_paterno_cliente +
-      ' ' +
-      apellido_materno_cliente,
+        ' ' +
+        apellido_paterno_cliente +
+        ' ' +
+        apellido_materno_cliente,
       telefono_fijo_cliente,
       telefono_movil_cliente,
       correo_electronico_cliente,
       cliente_activo,
       id_agente,
       ocupacion_cliente ? ocupacion_cliente : undefined,
-      curp_cliente,
+      curp_cliente
     );
 
     let updateIndexIdQuery = '';
@@ -102,7 +102,6 @@ export const registerNewCustomer = async (
                           `;
 
     let addAddressResult;
-    let lastAddressId;
 
     if (id_domicilio_cliente) {
       addAddressResult = await updateAddress(
@@ -120,7 +119,7 @@ export const registerNewCustomer = async (
       );
     }
 
-    lastAddressId = addAddressResult.generatedId;
+    const lastAddressId = addAddressResult.generatedId;
 
     if (!lastAddressId) {
       return { message: 'Error al registrar domicilio', idCustomer: 0 };
@@ -137,7 +136,9 @@ export const registerNewCustomer = async (
 
     const requestUpdate = procTransaction.request();
     const updateResult = await requestUpdate.query(
-      updateIndexIdQuery + queryUpdateCustomerEndorsement + updateAddressIdCustomer
+      updateIndexIdQuery +
+        queryUpdateCustomerEndorsement +
+        updateAddressIdCustomer
     );
 
     if (!insertBulkData.rowsAffected || !updateResult.rowsAffected.length) {

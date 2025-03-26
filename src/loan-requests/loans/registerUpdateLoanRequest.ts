@@ -141,8 +141,8 @@ export const registerUpdateLoanRequest = async (
         `;
     }
     if (
-      (currentLoanRequestStatus === 'ACTUALIZAR' &&
-        newLoanRequestStatus === 'EN REVISION')
+      currentLoanRequestStatus === 'ACTUALIZAR' &&
+      newLoanRequestStatus === 'EN REVISION'
     ) {
       preValidatedData(
         validateCurpCustomer,
