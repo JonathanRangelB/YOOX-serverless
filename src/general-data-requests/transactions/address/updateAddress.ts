@@ -25,7 +25,6 @@ export const updateAddress = async (
   } = direccion;
 
   const { value: tipoCalle } = tipo_calle;
-
   const { value: estadoNombre } = estado;
 
   try {
@@ -52,8 +51,8 @@ export const updateAddress = async (
         ,MUNICIPIO = '${municipio}'
         ,ESTADO = '${estadoNombre}'
         ,CP = '${cp}'
-        ,REFERENCIAS = '${referencias_dom}'
-        ,MODIFIED_BY_USR = ${usuario}
+        ,REFERENCIAS = ${referencias_dom ? `'${referencias_dom}'` : `NULL`}
+        ,MODIFIED_BY_USR = '${usuario}'
         ,MODIFIED_DATE = '${fecha_operacion.toISOString()}'
 
         WHERE

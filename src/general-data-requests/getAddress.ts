@@ -42,7 +42,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     return generateGetJsonResponse(result.recordset[0], StatusCodes.OK);
   } catch (err) {
     if (err instanceof Error) {
-      return generateJsonResponse(err.message, StatusCodes.BAD_REQUEST);
+      return generateJsonResponse(err.message, StatusCodes.NOT_FOUND);
     }
   }
 };
