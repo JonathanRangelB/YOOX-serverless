@@ -4,6 +4,7 @@ import { customerReqResponse } from '../../types/customerRequest';
 import { formCustomer } from '../../../interfaces/customer-interface';
 import { Direccion } from '../../../interfaces/common-properties';
 import { registerNewAddress } from '../address/registerNewAddress';
+import { updateAddress } from '../address/updateAddress';
 
 export const registerNewCustomer = async (
   formCliente: formCustomer,
@@ -32,11 +33,12 @@ export const registerNewCustomer = async (
       cliente_creado_por,
       fecha_creacion_cliente,
       cliente_activo,
+      id_domicilio_cliente,
       id_aval,
     } = formCliente;
 
     const direccionCliente: Direccion = {
-      id: 0,
+      id: id_domicilio_cliente,
       tipo_calle: tipo_calle_cliente,
       nombre_calle: nombre_calle_cliente,
       numero_exterior: numero_exterior_cliente,
@@ -50,29 +52,13 @@ export const registerNewCustomer = async (
       fecha_operacion: fecha_creacion_cliente,
     };
 
-    let lastCustomerId = 0;
-
     const nextIdQuery = await procTransaction
       .request()
       .query<indexes_id>(
         `SELECT [objeto], [indice] FROM [INDICES] WHERE OBJETO IN ('ID_CLIENTE') ORDER BY OBJETO; `
       );
 
-    lastCustomerId = nextIdQuery.recordset[0].indice;
-
-    const addAddressResult = await registerNewAddress(
-      direccionCliente,
-      lastCustomerId,
-      'CLIENTE',
-      procTransaction
-    );
-
-    if (!addAddressResult.generatedId) {
-      return { message: 'Error al registrar domicilio', idCustomer: 0 };
-    }
-
-    const lastAddressId = addAddressResult.generatedId;
-
+    const lastCustomerId = nextIdQuery.recordset[0].indice;
     const tableCustomerBD = new Table('CLIENTES');
 
     tableCustomerBD.create = false;
@@ -88,15 +74,14 @@ export const registerNewCustomer = async (
     tableCustomerBD.columns.add('ID_AGENTE', Int, { nullable: true });
     tableCustomerBD.columns.add('OCUPACION', VarChar, { nullable: true });
     tableCustomerBD.columns.add('CURP', VarChar, { nullable: false });
-    tableCustomerBD.columns.add('ID_DOMICILIO', Int, { nullable: true });
 
     tableCustomerBD.rows.add(
       lastCustomerId,
       nombre_cliente +
-        ' ' +
-        apellido_paterno_cliente +
-        ' ' +
-        apellido_materno_cliente,
+      ' ' +
+      apellido_paterno_cliente +
+      ' ' +
+      apellido_materno_cliente,
       telefono_fijo_cliente,
       telefono_movil_cliente,
       correo_electronico_cliente,
@@ -104,7 +89,6 @@ export const registerNewCustomer = async (
       id_agente,
       ocupacion_cliente ? ocupacion_cliente : undefined,
       curp_cliente,
-      lastAddressId
     );
 
     let updateIndexIdQuery = '';
@@ -117,6 +101,34 @@ export const registerNewCustomer = async (
                            
                           `;
 
+    let addAddressResult;
+    let lastAddressId;
+
+    if (id_domicilio_cliente) {
+      addAddressResult = await updateAddress(
+        direccionCliente,
+        lastCustomerId,
+        'CLIENTE',
+        procTransaction
+      );
+    } else {
+      addAddressResult = await registerNewAddress(
+        direccionCliente,
+        lastCustomerId,
+        'CLIENTE',
+        procTransaction
+      );
+    }
+
+    lastAddressId = addAddressResult.generatedId;
+
+    if (!lastAddressId) {
+      return { message: 'Error al registrar domicilio', idCustomer: 0 };
+    }
+
+    const updateAddressIdCustomer = `
+                            UPDATE CLIENTES SET ID_DOMICILIO = ${lastAddressId} WHERE ID = ${lastCustomerId} `;
+
     let queryUpdateCustomerEndorsement = '';
 
     if (id_aval) {
@@ -125,7 +137,7 @@ export const registerNewCustomer = async (
 
     const requestUpdate = procTransaction.request();
     const updateResult = await requestUpdate.query(
-      updateIndexIdQuery + queryUpdateCustomerEndorsement
+      updateIndexIdQuery + queryUpdateCustomerEndorsement + updateAddressIdCustomer
     );
 
     if (!insertBulkData.rowsAffected || !updateResult.rowsAffected.length) {

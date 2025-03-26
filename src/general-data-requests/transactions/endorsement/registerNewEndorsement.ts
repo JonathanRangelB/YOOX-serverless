@@ -4,6 +4,7 @@ import { endorsementReqResponse } from '../../types/endorsmentRequest';
 import { formEndorsement } from '../../../interfaces/endorsement-interface';
 import { Direccion } from '../../../interfaces/common-properties';
 import { registerNewAddress } from '../address/registerNewAddress';
+import { updateAddress } from '../address/updateAddress';
 
 export const registerNewEndorsement = async (
   formAval: formEndorsement,
@@ -30,10 +31,11 @@ export const registerNewEndorsement = async (
       referencias_dom_aval,
       aval_creado_por,
       fecha_creacion_aval,
+      id_domicilio_aval
     } = formAval;
 
     const direccionAval: Direccion = {
-      id: 0,
+      id: id_domicilio_aval,
       tipo_calle: tipo_calle_aval,
       nombre_calle: nombre_calle_aval,
       numero_exterior: numero_exterior_aval,
@@ -57,19 +59,6 @@ export const registerNewEndorsement = async (
 
     lastEndorsmentId = nextIdQuery.recordset[0].indice;
 
-    const addAddressResult = await registerNewAddress(
-      direccionAval,
-      lastEndorsmentId,
-      'AVAL',
-      procTransaction
-    );
-
-    if (!addAddressResult.generatedId) {
-      return { message: 'Error al registrar domicilio', idEndorsment: 0 };
-    }
-
-    const lastAddressId = addAddressResult.generatedId;
-
     const tableEndorsmentBD = new Table('AVALES');
 
     tableEndorsmentBD.create = false;
@@ -85,7 +74,6 @@ export const registerNewEndorsement = async (
     });
     tableEndorsmentBD.columns.add('OBSERVACIONES', VarChar, { nullable: true });
     tableEndorsmentBD.columns.add('CURP', VarChar, { nullable: false });
-    tableEndorsmentBD.columns.add('ID_DOMICILIO', Int, { nullable: true });
 
     tableEndorsmentBD.rows.add(
       lastEndorsmentId,
@@ -95,19 +83,43 @@ export const registerNewEndorsement = async (
       correo_electronico_aval,
       observaciones_aval,
       curp_aval,
-      lastAddressId
     );
-
-    let updateIndexIdQuery = '';
 
     const insertBulkData = await procTransaction
       .request()
       .bulk(tableEndorsmentBD);
 
-    updateIndexIdQuery += `UPDATE [INDICES] SET [INDICE] = ${lastEndorsmentId} + 1 WHERE OBJETO = 'ID_AVAL'`;
+    const updateIndexIdQuery = `UPDATE [INDICES] SET [INDICE] = ${lastEndorsmentId} + 1 WHERE OBJETO = 'ID_AVAL'`;
+
+    let addAddressResult
+
+    if (id_domicilio_aval) {
+      addAddressResult = await updateAddress(
+        direccionAval,
+        lastEndorsmentId,
+        'AVAL',
+        procTransaction
+      );
+    } else {
+      addAddressResult = await registerNewAddress(
+        direccionAval,
+        lastEndorsmentId,
+        'AVAL',
+        procTransaction
+      );
+    }
+
+    const lastAddressId = addAddressResult.generatedId;
+
+    if (!lastAddressId) {
+      return { message: 'Error al registrar domicilio', idEndorsment: 0 };
+    }
+
+    const updateAddressIdEndorsement = `
+                                    UPDATE AVALES SET ID_DOMICILIO = ${lastAddressId} WHERE ID_AVAL = ${lastEndorsmentId}`;
 
     const requestUpdate = procTransaction.request();
-    const updateResult = await requestUpdate.query(updateIndexIdQuery);
+    const updateResult = await requestUpdate.query(updateIndexIdQuery + updateAddressIdEndorsement);
 
     if (!insertBulkData.rowsAffected || !updateResult.rowsAffected.length) {
       return { message: 'No se pudo registrar el aval', idEndorsment: 0 };

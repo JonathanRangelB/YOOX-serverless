@@ -140,10 +140,9 @@ export const registerUpdateLoanRequest = async (
                         ,CLOSED_DATE = '${current_local_date.toISOString()}'                                  
         `;
     }
-
     if (
-      currentLoanRequestStatus === 'ACTUALIZAR' &&
-      newLoanRequestStatus === 'EN REVISION'
+      (currentLoanRequestStatus === 'ACTUALIZAR' &&
+        newLoanRequestStatus === 'EN REVISION')
     ) {
       preValidatedData(
         validateCurpCustomer,
@@ -232,6 +231,13 @@ export const registerUpdateLoanRequest = async (
           break;
 
         case 'APROBADO':
+          preValidatedData(
+            validateCurpCustomer,
+            validateCurpAval,
+            validatePhoneCustomer,
+            validateEndorsementPhone
+          );
+
           datosCliente.id_agente = id_agente;
           datosCliente.cliente_activo = 1;
 
@@ -280,7 +286,6 @@ export const registerUpdateLoanRequest = async (
               datosCliente,
               procTransaction
             );
-
             if (!procNewCustomer.idCustomer) {
               throw new Error(procNewCustomer.message);
             } else idClienteGenerado = procNewCustomer.idCustomer;
