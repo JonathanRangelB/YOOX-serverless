@@ -17,6 +17,7 @@ export interface InsertNewLoanRequest {
   created_by: number;
   status_code: number;
   user_role: string;
+  id_loan_to_refinance?: number;
 }
 
 export interface UpdateLoanRequest {
@@ -37,4 +38,5 @@ export interface UpdateLoanRequest {
   modified_by: number;
   status_code: number;
   user_role: string;
+  id_loan_to_refinance: number;
 }

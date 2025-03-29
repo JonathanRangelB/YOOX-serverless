@@ -11,6 +11,9 @@ import { updateEndorsement } from '../../general-data-requests/transactions/endo
 import { validateDataLoanRequestUpdate } from '../utils/validateData';
 import { loanHeader } from '../../interfaces/loan-interface';
 import { registerNewLoan } from '../../general-data-requests/transactions/loan/registerNewLoan';
+import { refinance } from '../../helpers/table-schemas';
+import { registerNewRefinancing } from '../../general-data-requests/transactions/refinancing/registerNewRefinancing';
+import { genericBDRequest } from '../../general-data-requests/types/genericBDRequest';
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest
@@ -71,6 +74,7 @@ export const registerUpdateLoanRequest = async (
       formCliente: datosCliente,
       formAval: datosAval,
       modified_by: id_usuario,
+      id_loan_to_refinance
     } = updateLoanRequest;
 
     const {
@@ -214,7 +218,7 @@ export const registerUpdateLoanRequest = async (
       let idClienteGenerado;
       let idPrestamoGenerado;
       let encabezadoPrestamo: loanHeader;
-      let procInsertLoan;
+      let procInsertLoan: genericBDRequest;
 
       switch (newLoanRequestStatus) {
         case 'ACTUALIZAR':
@@ -328,16 +332,29 @@ export const registerUpdateLoanRequest = async (
             semanas_plazo: Number(semanas_plazo),
           };
 
-          procInsertLoan = await registerNewLoan(
-            encabezadoPrestamo,
-            procTransaction
-          );
+
+          if (id_loan_to_refinance) {
+            const encabezadoRefinanciamiento: refinance = {
+              id_usuario: id_usuario,
+              id_cliente: idClienteGenerado,
+              id_prestamo_actual: id_loan_to_refinance,
+            }
+
+            procInsertLoan = await registerNewRefinancing(encabezadoPrestamo, encabezadoRefinanciamiento, procTransaction)
+
+          } else {
+            procInsertLoan = await registerNewLoan(
+              encabezadoPrestamo,
+              procTransaction
+            );
+          }
 
           if (!procInsertLoan.generatedId) {
             throw new Error(procInsertLoan.message);
           } else idPrestamoGenerado = procInsertLoan.generatedId;
 
           updateQueryColumns += `,ID_LOAN = ${idPrestamoGenerado}
+                                 ,ID_LOAN_TO_REFINANCE = ${id_loan_to_refinance ? `${id_loan_to_refinance}` : `NULL`}
                                  ,ID_DOMICILIO_CLIENTE = (SELECT ID_DOMICILIO FROM CLIENTES WHERE ID = ${idClienteGenerado})
                                  ,ID_DOMICILIO_AVAL = (SELECT ID_DOMICILIO FROM AVALES WHERE ID_AVAL = ${datosCliente.id_aval})
           `;

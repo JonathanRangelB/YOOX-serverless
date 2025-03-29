@@ -331,6 +331,12 @@ export const propertiesForLoanRequest = {
   modified_by: { type: 'integer' },
   user_role: { type: 'string' },
   status_code: { type: 'integer' },
+  id_loan_to_refinance: {
+    anyOf: [
+      { type: 'integer' },
+      { type: 'integer', enum: ['', null], nullable: true },
+    ],
+  }
 };
 
 export const requiredFielsForUpdateLoanRequest = [
