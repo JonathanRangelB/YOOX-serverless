@@ -1,9 +1,7 @@
-export function querySearchLoanToRefinance(): String {
-    return `
+export function querySearchLoanToRefinance(selectStatement: string): string {
+  return `
     select
-                t0.id as id_prestamo,
-                t0.id_cliente,
-                t0.cantidad_restante
+                ${selectStatement}
 
                 from
                 prestamos t0
@@ -24,5 +22,5 @@ export function querySearchLoanToRefinance(): String {
                 where
                 t0.status = 'EMITIDO'
                 and t1.num_de_pagos = 10
-                `
+                `;
 }

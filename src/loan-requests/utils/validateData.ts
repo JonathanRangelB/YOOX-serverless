@@ -5,6 +5,7 @@ import { InsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
 import { generateNewLoanRequestTable } from './generateNewLoanRequestTable';
 import { searchTelefonoQuery } from '../../validators/utils/querySearchData';
 import { UpdateLoanRequest } from '../types/SPInsertNewLoanRequest';
+import { querySearchLoanToRefinance } from '../../general-data-requests/utils/querySearchLoanToRefinance';
 
 export async function validateData(
   newLoanRequest: InsertNewLoanRequest,
@@ -20,6 +21,8 @@ export async function validateData(
     formCliente,
     formAval,
     user_role,
+    id_loan_to_refinance,
+    cantidad_prestada,
   } = newLoanRequest;
   const { id: id_plazo } = plazo;
 
@@ -36,7 +39,8 @@ export async function validateData(
     formCliente.telefono_movil_cliente,
     formAval.telefono_fijo_aval,
     formAval.telefono_movil_aval,
-    user_role
+    user_role,
+    id_loan_to_refinance as number
   );
 
   const getGenericData = await procTransaction
@@ -50,8 +54,18 @@ export async function validateData(
 
   const createdDate = nextId.recordset[0].CURRENT_DATE_SERVER;
   const horaLocal = convertDateTimeZone(createdDate, 'America/Mexico_City');
-  const [idAgente, idUsuario, idGrupo, tasaInteres, , , , , idRolDeUsuario] =
-    getGenericData.recordsets.map(([record]: any) => record?.value);
+  const [
+    idAgente,
+    idUsuario,
+    idGrupo,
+    tasaInteres,
+    ,
+    ,
+    ,
+    ,
+    idRolDeUsuario,
+    amountToRefinance,
+  ] = getGenericData.recordsets.map(([record]: any) => record?.value);
   const resultValidation = validateDataResult(
     fecha_inicial,
     fecha_final_estimada,
@@ -59,7 +73,10 @@ export async function validateData(
     idUsuario,
     idGrupo,
     tasaInteres,
-    idRolDeUsuario
+    idRolDeUsuario,
+    id_loan_to_refinance as number,
+    amountToRefinance,
+    cantidad_prestada
   );
 
   if (!resultValidation.result) {
@@ -101,6 +118,8 @@ export async function validateDataLoanRequestUpdate(
     modified_by,
     user_role,
     loan_request_status,
+    id_loan_to_refinance,
+    cantidad_prestada,
   } = updateLoanRequest;
 
   const queryToValidateData = queryValidateData(
@@ -116,7 +135,8 @@ export async function validateDataLoanRequestUpdate(
     formCliente.telefono_movil_cliente,
     formAval.telefono_fijo_aval,
     formAval.telefono_movil_aval,
-    user_role
+    user_role,
+    id_loan_to_refinance
   );
 
   const [getGenericData] = await Promise.all([
@@ -135,6 +155,7 @@ export async function validateDataLoanRequestUpdate(
     idClienteTelefono,
     idAvalTelefono,
     idRolDeUsuario,
+    amountToRefinance,
   ] = getGenericData.recordsets.map(([record]: any) => record?.value);
 
   const resultValidation = validateDataResult(
@@ -144,7 +165,10 @@ export async function validateDataLoanRequestUpdate(
     idUsuario,
     idGrupo,
     tasaInteres,
-    idRolDeUsuario
+    idRolDeUsuario,
+    id_loan_to_refinance as number,
+    amountToRefinance,
+    cantidad_prestada
   );
 
   if (!resultValidation.result) {
@@ -183,7 +207,8 @@ function queryValidateData(
   telefono_movil_cliente: string,
   telefono_fijo_aval: string,
   telefono_movil_aval: string,
-  rol_de_usuario: string
+  rol_de_usuario: string,
+  id_loan_to_refinance: number
 ): string {
   const queryTelefonosCliente =
     'SELECT TOP 1 ID AS value FROM CLIENTES ' +
@@ -193,6 +218,7 @@ function queryValidateData(
     'SELECT TOP 1 ID_AVAL AS value FROM AVALES ' +
     searchTelefonoQuery(telefono_fijo_aval, telefono_movil_aval, '') +
     ` ${id_aval ? ` AND ID_AVAL <> ${id_aval}` : ``}`;
+  const queryLoanToRefinance = `${querySearchLoanToRefinance('t0.cantidad_restante as value')} and t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance}`;
 
   return `SELECT ID AS value FROM USUARIOS WHERE ACTIVO = 1 AND ID = ${id_agente}
               SELECT ID AS value FROM USUARIOS WHERE ACTIVO = 1 AND ID = ${user_id}
@@ -202,7 +228,9 @@ function queryValidateData(
               SELECT TOP 1 ID_AVAL AS value FROM AVALES WHERE CURP = '${curp_aval}' ${id_aval ? ` AND ID_AVAL <> ${id_aval}` : ``}
               ${queryTelefonosCliente}
               ${queryTelefonosAval}
-              SELECT ID_ROL AS value FROM SEC_ROLES WHERE DESCRIPCION = '${rol_de_usuario}'`;
+              SELECT ID_ROL AS value FROM SEC_ROLES WHERE DESCRIPCION = '${rol_de_usuario}'
+              ${queryLoanToRefinance}
+              `;
 }
 
 function validateDataResult(
@@ -212,7 +240,10 @@ function validateDataResult(
   idUsuario: number,
   idGrupo: number,
   tasaInteres: number,
-  idRolDeUsuario: number
+  idRolDeUsuario: number,
+  id_current_loan: number,
+  amountToRefinance: number,
+  cantidad_prestada: number
 ): { result: boolean; message?: string } {
   if (fecha_inicial > fecha_final_estimada) {
     return {
@@ -250,6 +281,20 @@ function validateDataResult(
 
   if (!idRolDeUsuario) {
     return { result: false, message: 'El rol de usuario no existe' };
+  }
+
+  if (id_current_loan && !amountToRefinance) {
+    return {
+      result: false,
+      message: 'El préstamo no es válido para refinanciamiento',
+    };
+  }
+
+  if (id_current_loan && cantidad_prestada < amountToRefinance) {
+    return {
+      result: false,
+      message: 'La cantidad prestada no puede ser menor al monto a refinanciar',
+    };
   }
 
   return { result: true };

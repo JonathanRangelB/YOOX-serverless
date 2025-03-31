@@ -13,7 +13,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     if (!customerid || isNaN(+customerid) || +customerid <= 0)
       throw new Error('Parametros incompletos');
     const pool = await DbConnector.getInstance().connection;
-    const query = `${querySearchLoanToRefinance()}  and t0.id_cliente = ${customerid} `;
+    const query = `${querySearchLoanToRefinance('t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante')}  and t0.id_cliente = ${customerid} `;
 
     const result = await pool.query<loan_refinance>(query);
 

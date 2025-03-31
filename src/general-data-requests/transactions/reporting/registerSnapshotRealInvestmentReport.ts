@@ -3,12 +3,12 @@ import { genericBDRequest } from '../../types/genericBDRequest';
 import { StatusCodes } from '../../../helpers/statusCodes';
 
 export const registerSnapshotRealInvestmentReport = async (
-    id_customer: number,
-    id_loan: number,
-    procTransaction: Transaction
+  id_customer: number,
+  id_loan: number,
+  procTransaction: Transaction
 ): Promise<genericBDRequest> => {
-    try {
-        const queryStatement = `
+  try {
+    const queryStatement = `
                 INSERT INTO REPORTE_INVERSION_REAL_SNAPSHOT
                 (
                     FECHA_RENOVACION	
@@ -102,31 +102,30 @@ export const registerSnapshotRealInvestmentReport = async (
 
                 ) AS TAB WHERE TAB.CODIGO_CLIENTE = ${id_customer} 
                  AND TAB.FOLIO_PRESTAMO_NUEVO = ${id_loan}
-    `
+    `;
 
-        const executeInsertResult = await procTransaction
-            .request()
-            .query(queryStatement);
+    const executeInsertResult = await procTransaction
+      .request()
+      .query(queryStatement);
 
-        if (!executeInsertResult.rowsAffected[0]) {
-            return {
-                message: 'Error durante la transacción',
-                generatedId: 0,
-                error: StatusCodes.BAD_REQUEST,
-            };
-        }
-
-        return {
-            message: 'Snapshot de inversion real registrado correctamente',
-            generatedId: 1,
-            error: StatusCodes.OK,
-        };
-
-    } catch (exception) {
-        return {
-            message: (exception as Error).message,
-            generatedId: 0,
-            error: StatusCodes.BAD_REQUEST,
-        };
+    if (!executeInsertResult.rowsAffected[0]) {
+      return {
+        message: 'Error durante la transacción',
+        generatedId: 0,
+        error: StatusCodes.BAD_REQUEST,
+      };
     }
+
+    return {
+      message: 'Snapshot de inversion real registrado correctamente',
+      generatedId: 1,
+      error: StatusCodes.OK,
+    };
+  } catch (exception) {
+    return {
+      message: (exception as Error).message,
+      generatedId: 0,
+      error: StatusCodes.BAD_REQUEST,
+    };
+  }
 };

@@ -134,7 +134,11 @@ export const registerNewLoan = async (
         `UPDATE [INDICES] SET [INDICE] = ${lastLoanId} + 1 WHERE OBJETO = 'ID_PRESTAMOS'`
       );
 
-    const takeSnapshotResult = await registerSnapshotRealInvestmentReport(id_cliente, lastLoanId, procTransaction);
+    const takeSnapshotResult = await registerSnapshotRealInvestmentReport(
+      id_cliente,
+      lastLoanId,
+      procTransaction
+    );
 
     if (
       !bulkTableHeaderResult.rowsAffected ||

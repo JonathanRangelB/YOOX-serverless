@@ -74,7 +74,7 @@ export const registerUpdateLoanRequest = async (
       formCliente: datosCliente,
       formAval: datosAval,
       modified_by: id_usuario,
-      id_loan_to_refinance
+      id_loan_to_refinance,
     } = updateLoanRequest;
 
     const {
@@ -207,6 +207,7 @@ export const registerUpdateLoanRequest = async (
       ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
       ,MODIFIED_BY = ${id_usuario}
       ,MODIFIED_DATE = '${current_local_date.toISOString()}'
+      ,ID_LOAN_TO_REFINANCE = ${id_loan_to_refinance ? id_loan_to_refinance : `NULL`}
 
       `;
     } else if (currentLoanRequestStatus === `EN REVISION`) {
@@ -332,16 +333,19 @@ export const registerUpdateLoanRequest = async (
             semanas_plazo: Number(semanas_plazo),
           };
 
-
           if (id_loan_to_refinance) {
             const encabezadoRefinanciamiento: refinance = {
+              fecha: current_local_date,
               id_usuario: id_usuario,
               id_cliente: idClienteGenerado,
               id_prestamo_actual: id_loan_to_refinance,
-            }
+            };
 
-            procInsertLoan = await registerNewRefinancing(encabezadoPrestamo, encabezadoRefinanciamiento, procTransaction)
-
+            procInsertLoan = await registerNewRefinancing(
+              encabezadoPrestamo,
+              encabezadoRefinanciamiento,
+              procTransaction
+            );
           } else {
             procInsertLoan = await registerNewLoan(
               encabezadoPrestamo,

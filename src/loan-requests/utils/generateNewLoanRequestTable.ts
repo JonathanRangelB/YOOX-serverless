@@ -24,6 +24,7 @@ export function generateNewLoanRequestTable(
     fecha_inicial,
     formCliente,
     formAval,
+    id_loan_to_refinance,
   } = newLoanRequest;
 
   const { id: id_plazo, semanas_plazo, tasa_de_interes } = plazo;
@@ -213,6 +214,9 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add('CREATED_DATE', DateTime, {
     nullable: false,
   });
+  tableNewRequestLoan.columns.add('ID_LOAN_TO_REFINANCE', Int, {
+    nullable: true,
+  });
 
   tableNewRequestLoan.rows.add(
     id,
@@ -224,39 +228,39 @@ export function generateNewLoanRequestTable(
     nombre_cliente,
     apellido_paterno_cliente,
     apellido_materno_cliente,
-    telefono_fijo_cliente ? telefono_fijo_cliente : undefined,
+    telefono_fijo_cliente || undefined,
     telefono_movil_cliente,
-    correo_electronico_cliente ? correo_electronico_cliente : undefined,
+    correo_electronico_cliente || undefined,
     ocupacion_cliente,
     curp_cliente,
     id_domicilio_cliente,
     tipoCalleCliente,
     nombre_calle_cliente,
     numero_exterior_cliente,
-    numero_interior_cliente ? numero_interior_cliente : undefined,
+    numero_interior_cliente || undefined,
     colonia_cliente,
     municipio_cliente,
     estadoCliente,
     cp_cliente,
-    referencias_dom_cliente ? referencias_dom_cliente : undefined,
+    referencias_dom_cliente || undefined,
     id_aval,
     nombre_aval,
     apellido_paterno_aval,
     apellido_materno_aval,
-    telefono_fijo_aval ? telefono_fijo_aval : undefined,
+    telefono_fijo_aval || undefined,
     telefono_movil_aval,
-    correo_electronico_aval ? correo_electronico_aval : undefined,
+    correo_electronico_aval || undefined,
     curp_aval,
     id_domicilio_aval,
     tipoCalleAval,
     nombre_calle_aval,
     numero_exterior_aval,
-    numero_interior_aval ? numero_interior_aval : undefined,
+    numero_interior_aval || undefined,
     colonia_aval,
     municipio_aval,
     estadoAval,
     cp_aval,
-    referencias_dom_aval ? referencias_dom_aval : undefined,
+    referencias_dom_aval || undefined,
     id_plazo,
     tasa_de_interes,
     semanas_plazo,
@@ -265,9 +269,10 @@ export function generateNewLoanRequestTable(
     fecha_inicial,
     fecha_final_estimada,
     cantidad_pagar,
-    observaciones ? observaciones : undefined,
+    observaciones || undefined,
     created_by,
-    created_date.toISOString()
+    created_date.toISOString(),
+    id_loan_to_refinance || undefined
   );
 
   return tableNewRequestLoan;

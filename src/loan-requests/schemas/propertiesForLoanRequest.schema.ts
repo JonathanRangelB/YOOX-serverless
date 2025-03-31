@@ -336,7 +336,7 @@ export const propertiesForLoanRequest = {
       { type: 'integer' },
       { type: 'integer', enum: ['', null], nullable: true },
     ],
-  }
+  },
 };
 
 export const requiredFielsForUpdateLoanRequest = [
