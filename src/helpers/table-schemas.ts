@@ -78,3 +78,13 @@ export interface loan_refinance {
   id_cliente: number;
   cantidad_restante: number;
 }
+
+export interface refinance {
+  id_refinanciamiento?: number;
+  fecha: Date;
+  id_usuario?: number;
+  id_cliente?: number;
+  id_prestamo_actual?: number;
+  id_prestamo_nuevo?: number;
+  cantidad_refinanciada?: number;
+}

@@ -99,7 +99,7 @@ export const updateCustomer = async (
                   WHERE ID = ${id_cliente}
                   
                   `;
-    const queryLimpiaAvalCliente = ` DELETE FROM AVALES_CLIENTES WHERE ID_CLIENTE = ${id_cliente} 
+    const queryLimpiaAvalCliente = ` DELETE FROM CLIENTES_AVALES WHERE ID_CLIENTE = ${id_cliente} 
 
                   `;
     let queryActualizaAvalCliente = '';

@@ -3,6 +3,7 @@ import { loanHeader } from '../../../interfaces/loan-interface';
 import { genericBDRequest } from '../../types/genericBDRequest';
 import { indexes_id } from '../../../helpers/table-schemas';
 import { StatusCodes } from '../../../helpers/statusCodes';
+import { registerSnapshotRealInvestmentReport } from '../reporting/registerSnapshotRealInvestmentReport';
 
 export const registerNewLoan = async (
   loan_header: loanHeader,
@@ -133,10 +134,17 @@ export const registerNewLoan = async (
         `UPDATE [INDICES] SET [INDICE] = ${lastLoanId} + 1 WHERE OBJETO = 'ID_PRESTAMOS'`
       );
 
+    const takeSnapshotResult = await registerSnapshotRealInvestmentReport(
+      id_cliente,
+      lastLoanId,
+      procTransaction
+    );
+
     if (
       !bulkTableHeaderResult.rowsAffected ||
       !bulkTableDetailResult.rowsAffected ||
-      !updateIndexResult.rowsAffected[0]
+      !updateIndexResult.rowsAffected[0] ||
+      !takeSnapshotResult
     )
       return {
         message: 'Error durante la transacción de generación de préstamo',
