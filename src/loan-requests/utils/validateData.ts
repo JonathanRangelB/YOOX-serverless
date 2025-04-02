@@ -214,11 +214,24 @@ function queryValidateData(
     'SELECT TOP 1 ID AS value FROM CLIENTES ' +
     searchTelefonoQuery(telefono_fijo_cliente, telefono_movil_cliente, '') +
     ` ${id_cliente ? ` AND ID <> ${id_cliente}` : ``}`;
+
   const queryTelefonosAval =
     'SELECT TOP 1 ID_AVAL AS value FROM AVALES ' +
     searchTelefonoQuery(telefono_fijo_aval, telefono_movil_aval, '') +
     ` ${id_aval ? ` AND ID_AVAL <> ${id_aval}` : ``}`;
-  const queryLoanToRefinance = `${querySearchLoanToRefinance('t0.cantidad_restante as value')} and t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance}`;
+
+  let queryLoanToRefinance = '';
+
+  if (
+    id_cliente !== null &&
+    id_cliente !== undefined &&
+    id_cliente > 0 &&
+    id_loan_to_refinance !== null &&
+    id_loan_to_refinance !== undefined &&
+    id_loan_to_refinance > 0
+  ) {
+    queryLoanToRefinance = `${querySearchLoanToRefinance('t0.cantidad_restante as value')} and t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance}`;
+  }
 
   return `SELECT ID AS value FROM USUARIOS WHERE ACTIVO = 1 AND ID = ${id_agente}
               SELECT ID AS value FROM USUARIOS WHERE ACTIVO = 1 AND ID = ${user_id}

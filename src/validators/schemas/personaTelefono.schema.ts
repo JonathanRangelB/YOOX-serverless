@@ -13,6 +13,8 @@ export const customerSearchTelefonoSchema = {
     },
 
     table: { type: 'string', enum: ['CLIENTES', 'AVALES'] },
+
+    id_persona: { type: 'integer' },
   },
 
   required: ['table'],

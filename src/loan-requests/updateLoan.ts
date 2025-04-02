@@ -21,7 +21,6 @@ module.exports.handler = async (event: APIGatewayEvent) => {
       StatusCodes.BAD_REQUEST
     );
   }
-
   const validatedData = validatePayload(body, loanSchema);
 
   if (!validatedData.valid) {

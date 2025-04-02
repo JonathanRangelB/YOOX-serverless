@@ -19,7 +19,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   }
 
   const body = JSON.parse(event.body);
-  const { telefono_fijo, telefono_movil, table } =
+  const { telefono_fijo, telefono_movil, table, id_persona } =
     body as DatosBusquedaTelefono;
   const validateSearchParameters = validatePayload(
     body,
@@ -39,11 +39,20 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   try {
     const pool = await DbConnector.getInstance().connection;
 
-    const queryStatement = searchTelefonoQuery(
+    const whereFilterMap: Record<string, string> = {
+      CLIENTES: ` AND ID <> ${id_persona} `,
+      AVALES: ` AND ID_AVAL <> ${id_persona} `,
+    };
+
+    const whereFilter = (id_persona && whereFilterMap[table]) || '';
+
+    let queryStatement = searchTelefonoQuery(
       telefono_fijo,
       telefono_movil,
       table
     );
+
+    queryStatement += whereFilter;
 
     const registrosEncontrados = await pool
       .request()
