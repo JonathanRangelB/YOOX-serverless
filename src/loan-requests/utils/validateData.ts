@@ -22,27 +22,45 @@ export async function validateData(
     formAval,
     user_role,
     id_loan_to_refinance,
-    cantidad_prestada,
+    cantidad_prestada
   } = newLoanRequest;
   const { id: id_plazo } = plazo;
+
+  const {
+    id_cliente,
+    curp_cliente,
+    telefono_fijo_cliente,
+    telefono_movil_cliente,
+    id_domicilio_cliente
+  } = formCliente
+
+  const {
+    id_aval,
+    curp_aval,
+    telefono_fijo_aval,
+    telefono_movil_aval,
+    id_domicilio_aval
+  } = formAval
 
   const queryToValidateData = queryValidateData(
     id_agente,
     created_by,
     id_grupo_original,
     id_plazo,
-    formCliente.id_cliente,
-    formAval.id_aval,
-    formCliente.curp_cliente,
-    formAval.curp_aval,
-    formCliente.telefono_fijo_cliente,
-    formCliente.telefono_movil_cliente,
-    formAval.telefono_fijo_aval,
-    formAval.telefono_movil_aval,
+    id_cliente,
+    id_aval,
+    curp_cliente,
+    curp_aval,
+    telefono_fijo_cliente,
+    telefono_movil_cliente,
+    telefono_fijo_aval,
+    telefono_movil_aval,
     user_role,
-    id_loan_to_refinance as number
+    id_loan_to_refinance as number,
+    id_domicilio_aval,
+    id_domicilio_cliente
   );
-
+  console.log('queryToValidateData: ' + queryToValidateData)
   const getGenericData = await procTransaction
     .request()
     .query<{ value: number | undefined }>(`${queryToValidateData}`);
@@ -65,6 +83,8 @@ export async function validateData(
     ,
     idRolDeUsuario,
     amountToRefinance,
+    idDomicilioCliente,
+    idDomicilioAval
   ] = getGenericData.recordsets.map(([record]: any) => record?.value);
   const resultValidation = validateDataResult(
     fecha_inicial,
@@ -76,8 +96,14 @@ export async function validateData(
     idRolDeUsuario,
     id_loan_to_refinance as number,
     amountToRefinance,
-    cantidad_prestada
+    cantidad_prestada,
+    id_domicilio_cliente,
+    idDomicilioCliente,
+    id_domicilio_aval,
+    idDomicilioAval
   );
+
+
 
   if (!resultValidation.result) {
     throw new Error(resultValidation.message);
@@ -122,23 +148,41 @@ export async function validateDataLoanRequestUpdate(
     cantidad_prestada,
   } = updateLoanRequest;
 
+  const {
+    id_cliente,
+    curp_cliente,
+    telefono_fijo_cliente,
+    telefono_movil_cliente,
+    id_domicilio_cliente
+  } = formCliente
+
+  const {
+    id_aval,
+    curp_aval,
+    telefono_fijo_aval,
+    telefono_movil_aval,
+    id_domicilio_aval
+  } = formAval
+
   const queryToValidateData = queryValidateData(
     id_agente,
     modified_by,
     id_grupo_original,
     plazo.id,
-    formCliente.id_cliente,
-    formAval.id_aval,
-    formCliente.curp_cliente,
-    formAval.curp_aval,
-    formCliente.telefono_fijo_cliente,
-    formCliente.telefono_movil_cliente,
-    formAval.telefono_fijo_aval,
-    formAval.telefono_movil_aval,
+    id_cliente,
+    id_aval,
+    curp_cliente,
+    curp_aval,
+    telefono_fijo_cliente,
+    telefono_movil_cliente,
+    telefono_fijo_aval,
+    telefono_movil_aval,
     user_role,
-    id_loan_to_refinance
+    id_loan_to_refinance,
+    id_domicilio_aval,
+    id_domicilio_cliente
   );
-
+  console.log('queryToValidateData: ' + queryToValidateData)
   const [getGenericData] = await Promise.all([
     procTransaction
       .request()
@@ -156,6 +200,8 @@ export async function validateDataLoanRequestUpdate(
     idAvalTelefono,
     idRolDeUsuario,
     amountToRefinance,
+    idDomicilioCliente,
+    idDomicilioAval,
   ] = getGenericData.recordsets.map(([record]: any) => record?.value);
 
   const resultValidation = validateDataResult(
@@ -168,7 +214,11 @@ export async function validateDataLoanRequestUpdate(
     idRolDeUsuario,
     id_loan_to_refinance as number,
     amountToRefinance,
-    cantidad_prestada
+    cantidad_prestada,
+    id_domicilio_cliente,
+    idDomicilioCliente,
+    id_domicilio_aval,
+    idDomicilioAval
   );
 
   if (!resultValidation.result) {
@@ -208,7 +258,9 @@ function queryValidateData(
   telefono_fijo_aval: string,
   telefono_movil_aval: string,
   rol_de_usuario: string,
-  id_loan_to_refinance: number
+  id_loan_to_refinance: number,
+  id_domicilio_aval: number,
+  id_domicilio_cliente: number,
 ): string {
   const queryTelefonosCliente =
     'SELECT TOP 1 ID AS value FROM CLIENTES ' +
@@ -220,7 +272,15 @@ function queryValidateData(
     searchTelefonoQuery(telefono_fijo_aval, telefono_movil_aval, '') +
     ` ${id_aval ? ` AND ID_AVAL <> ${id_aval}` : ``}`;
 
-  let queryLoanToRefinance = '';
+  //let queryLoanToRefinance = '';
+  const queryAddress = 'SELECT ID AS value FROM DOMICILIOS WHERE ID = '
+  const queryAddressCustomer = `${queryAddress} ${id_domicilio_cliente || '0'}`
+  const queryAddressEndorsement = `${queryAddress} ${id_domicilio_aval || '0'}`
+  let queryLoanToRefinance = ''
+  //let whereStatement = ''
+
+  console.log('queryAddressCustomer: ' + queryAddressCustomer)
+  console.log('queryAddressEndorsement: ' + queryAddressEndorsement)
 
   if (
     id_cliente !== null &&
@@ -230,20 +290,30 @@ function queryValidateData(
     id_loan_to_refinance !== undefined &&
     id_loan_to_refinance > 0
   ) {
-    queryLoanToRefinance = `${querySearchLoanToRefinance('t0.cantidad_restante as value')} and t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance}`;
+    const selectStatement = querySearchLoanToRefinance(' t0.cantidad_restante as value ')
+    const whereStatement = ` and t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance} `
+    queryLoanToRefinance = selectStatement + whereStatement
+  }
+  else {
+    queryLoanToRefinance = 'SELECT 0'
   }
 
+  //queryLoanToRefinance = selectStatement + whereStatement;
+  console.log('queryLoanToRefinance: ' + queryLoanToRefinance)
+
   return `SELECT ID AS value FROM USUARIOS WHERE ACTIVO = 1 AND ID = ${id_agente}
-              SELECT ID AS value FROM USUARIOS WHERE ACTIVO = 1 AND ID = ${user_id}
-              SELECT ID_GRUPO AS value FROM GRUPOS_AGENTES WHERE ACTIVO = 1 AND ID_GRUPO = ${id_grupo_original}
-              SELECT TASA_DE_INTERES AS value FROM PLAZO WHERE ID = ${id_plazo}
-              SELECT TOP 1 ID AS value FROM CLIENTES WHERE CURP = '${curp_cliente}' ${id_cliente ? ` AND ID <> ${id_cliente}` : ``}
-              SELECT TOP 1 ID_AVAL AS value FROM AVALES WHERE CURP = '${curp_aval}' ${id_aval ? ` AND ID_AVAL <> ${id_aval}` : ``}
-              ${queryTelefonosCliente}
-              ${queryTelefonosAval}
-              SELECT ID_ROL AS value FROM SEC_ROLES WHERE DESCRIPCION = '${rol_de_usuario}'
-              ${queryLoanToRefinance}
-              `;
+          SELECT ID AS value FROM USUARIOS WHERE ACTIVO = 1 AND ID = ${user_id}
+          SELECT ID_GRUPO AS value FROM GRUPOS_AGENTES WHERE ACTIVO = 1 AND ID_GRUPO = ${id_grupo_original}
+          SELECT TASA_DE_INTERES AS value FROM PLAZO WHERE ID = ${id_plazo}
+          SELECT TOP 1 ID AS value FROM CLIENTES WHERE CURP = '${curp_cliente}' ${id_cliente ? ` AND ID <> ${id_cliente}` : ``}
+          SELECT TOP 1 ID_AVAL AS value FROM AVALES WHERE CURP = '${curp_aval}' ${id_aval ? ` AND ID_AVAL <> ${id_aval}` : ``}
+          ${queryTelefonosCliente}
+          ${queryTelefonosAval}
+          SELECT ID_ROL AS value FROM SEC_ROLES WHERE DESCRIPCION = '${rol_de_usuario}'
+          ${queryLoanToRefinance}
+          ${queryAddressCustomer}
+          ${queryAddressEndorsement}
+          `;
 }
 
 function validateDataResult(
@@ -256,7 +326,11 @@ function validateDataResult(
   idRolDeUsuario: number,
   id_current_loan: number,
   amountToRefinance: number,
-  cantidad_prestada: number
+  cantidad_prestada: number,
+  id_domicilio_cliente: number,
+  idDomicilioCliente: number,
+  id_domicilio_aval: number,
+  idDomicilioAval: number,
 ): { result: boolean; message?: string } {
   if (fecha_inicial > fecha_final_estimada) {
     return {
@@ -307,6 +381,20 @@ function validateDataResult(
     return {
       result: false,
       message: 'La cantidad prestada no puede ser menor al monto a refinanciar',
+    };
+  }
+
+  if (id_domicilio_cliente && !idDomicilioCliente) {
+    return {
+      result: false,
+      message: 'El domicilio del cliente no existe o no es válido',
+    };
+  }
+
+  if (id_domicilio_aval && !idDomicilioAval) {
+    return {
+      result: false,
+      message: 'El domicilio del aval no existe o no es válido',
     };
   }
 
