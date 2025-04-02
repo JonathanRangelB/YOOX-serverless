@@ -1,20 +1,7 @@
 export function searchCurpQuery(curp: string, table: string): string {
-  let selectStatement = ``;
   const whereCondition = ` where CURP = '${curp}' `;
 
-  switch (table) {
-    case 'CLIENTES':
-      selectStatement = `select 
-                          id 
-                          from `;
-      break;
-
-    case 'AVALES':
-      selectStatement = `select 
-                          id_aval as [id]
-                          from `;
-      break;
-  }
+  let selectStatement = (table && mapTableName(table)) || '';
 
   selectStatement += `
                     ${table}
@@ -29,21 +16,7 @@ export function searchTelefonoQuery(
   telefono_movil: string,
   table: string
 ): string {
-  let selectStatement = ``;
-
-  switch (table) {
-    case 'CLIENTES':
-      selectStatement = `select 
-                          id 
-                          from `;
-      break;
-
-    case 'AVALES':
-      selectStatement = `select 
-                          id_aval as [id]
-                          from `;
-      break;
-  }
+  let selectStatement = (table && mapTableName(table)) || '';
 
   let listInCondition = '';
 
@@ -61,4 +34,17 @@ export function searchTelefonoQuery(
                                 or telefono_movil in (${listInCondition})  `;
 
   return selectStatement;
+}
+
+function mapTableName(table: string): string {
+  const selectStatementMap: Record<string, string> = {
+    CLIENTES: `select 
+                          id 
+                          from `,
+    AVALES: `select 
+                          id_aval as [id]
+                          from `,
+  };
+
+  return selectStatementMap[table];
 }

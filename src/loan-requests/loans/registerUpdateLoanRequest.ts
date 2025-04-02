@@ -371,6 +371,7 @@ export const registerUpdateLoanRequest = async (
     }
 
     const updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = ${id_loan_request};`;
+
     const updateResult = await procTransaction
       .request()
       .query(updateQueryString);

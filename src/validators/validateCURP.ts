@@ -19,7 +19,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   }
 
   const body = JSON.parse(event.body);
-  const { curp, table } = body as DatosBusquedaCurp;
+  const { curp, table, id_persona } = body as DatosBusquedaCurp;
   const validateSearchParameters = validatePayload(
     body,
     customerSearchCURPSchema
@@ -39,7 +39,16 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   try {
     const pool = await DbConnector.getInstance().connection;
 
-    const queryStatement = searchCurpQuery(curp, table);
+    const whereFilterMap: Record<string, string> = {
+      CLIENTES: ` AND ID <> ${id_persona} `,
+      AVALES: ` AND ID_AVAL <> ${id_persona} `,
+    };
+
+    const whereFilter = (id_persona && whereFilterMap[table]) || '';
+
+    let queryStatement = searchCurpQuery(curp, table);
+
+    queryStatement += whereFilter;
 
     // Asegúrate de que cualquier elemento esté correctamente codificado en la cadena de conexión URL
     const registrosEncontrados = await pool
