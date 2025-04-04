@@ -1,4 +1,4 @@
-import { Int, Date, Float } from 'mssql';
+import { Int, Date as SQlDate, Float } from 'mssql';
 import { SPAltaPago } from './types/SPAltaPago';
 import { statusResponse } from './types/pagos';
 import { DbConnector } from '../helpers/dbConnector';
@@ -17,7 +17,7 @@ export const registerPayment = async (
       .input('ID_CLIENTE', Int, spaAltaPago.ID_CLIENTE)
       .input('ID_USUARIO', Int, spaAltaPago.ID_USUARIO)
       .input('CANTIDAD_PAGADA', Float, spaAltaPago.CANTIDAD_PAGADA)
-      .input('FECHA_ACTUAL', Date, spaAltaPago.FECHA_ACTUAL)
+      .input('FECHA_ACTUAL', SQlDate, spaAltaPago.FECHA_ACTUAL)
       .input('ID_COBRADOR', Int, spaAltaPago.ID_COBRADOR)
       .execute('SP_ALTA_PAGO');
 
