@@ -22,7 +22,7 @@ export async function validateData(
     formAval,
     user_role,
     id_loan_to_refinance,
-    cantidad_prestada
+    cantidad_prestada,
   } = newLoanRequest;
   const { id: id_plazo } = plazo;
 
@@ -31,16 +31,16 @@ export async function validateData(
     curp_cliente,
     telefono_fijo_cliente,
     telefono_movil_cliente,
-    id_domicilio_cliente
-  } = formCliente
+    id_domicilio_cliente,
+  } = formCliente;
 
   const {
     id_aval,
     curp_aval,
     telefono_fijo_aval,
     telefono_movil_aval,
-    id_domicilio_aval
-  } = formAval
+    id_domicilio_aval,
+  } = formAval;
 
   const queryToValidateData = queryValidateData(
     id_agente,
@@ -107,10 +107,8 @@ export async function validateData(
     idClienteTelefono,
     idAvalTelefono,
     id_cliente,
-    id_aval,
+    id_aval
   );
-
-
 
   if (!resultValidation.result) {
     throw new Error(resultValidation.message);
@@ -160,16 +158,16 @@ export async function validateDataLoanRequestUpdate(
     curp_cliente,
     telefono_fijo_cliente,
     telefono_movil_cliente,
-    id_domicilio_cliente
-  } = formCliente
+    id_domicilio_cliente,
+  } = formCliente;
 
   const {
     id_aval,
     curp_aval,
     telefono_fijo_aval,
     telefono_movil_aval,
-    id_domicilio_aval
-  } = formAval
+    id_domicilio_aval,
+  } = formAval;
 
   const queryToValidateData = queryValidateData(
     id_agente,
@@ -231,7 +229,7 @@ export async function validateDataLoanRequestUpdate(
     idClienteTelefono,
     idAvalTelefono,
     id_cliente,
-    id_aval,
+    id_aval
   );
 
   if (!resultValidation.result) {
@@ -273,7 +271,7 @@ function queryValidateData(
   rol_de_usuario: string,
   id_loan_to_refinance: number,
   id_domicilio_aval: number,
-  id_domicilio_cliente: number,
+  id_domicilio_cliente: number
 ): string {
   const queryTelefonosCliente =
     'SELECT TOP 1 ID AS value FROM CLIENTES ' +
@@ -285,10 +283,10 @@ function queryValidateData(
     searchTelefonoQuery(telefono_fijo_aval, telefono_movil_aval, '') +
     ` ${id_aval ? ` AND ID_AVAL <> ${id_aval}` : ``}`;
 
-  const queryAddress = 'SELECT ID AS value FROM DOMICILIOS WHERE ID = '
-  const queryAddressCustomer = `${queryAddress} ${id_domicilio_cliente || '0'}`
-  const queryAddressEndorsement = `${queryAddress} ${id_domicilio_aval || '0'}`
-  let queryLoanToRefinance = ''
+  const queryAddress = 'SELECT ID AS value FROM DOMICILIOS WHERE ID = ';
+  const queryAddressCustomer = `${queryAddress} ${id_domicilio_cliente || '0'}`;
+  const queryAddressEndorsement = `${queryAddress} ${id_domicilio_aval || '0'}`;
+  let queryLoanToRefinance = '';
 
   if (
     id_cliente !== null &&
@@ -298,12 +296,13 @@ function queryValidateData(
     id_loan_to_refinance !== undefined &&
     id_loan_to_refinance > 0
   ) {
-    const selectStatement = querySearchLoanToRefinance(' t0.cantidad_restante as value ')
-    const whereStatement = ` and t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance} `
-    queryLoanToRefinance = selectStatement + whereStatement
-  }
-  else {
-    queryLoanToRefinance = 'SELECT 0'
+    const selectStatement = querySearchLoanToRefinance(
+      ' t0.cantidad_restante as value '
+    );
+    const whereStatement = ` and t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance} `;
+    queryLoanToRefinance = selectStatement + whereStatement;
+  } else {
+    queryLoanToRefinance = 'SELECT 0';
   }
 
   return `SELECT ID AS value FROM USUARIOS WHERE ACTIVO = 1 AND ID = ${id_agente}
@@ -341,7 +340,7 @@ function validateDataResult(
   idClienteTelefono: number,
   idAvalTelefono: number,
   id_cliente: number,
-  id_aval: number,
+  id_aval: number
 ): { result: boolean; message?: string } {
   if (fecha_inicial > fecha_final_estimada) {
     return {
@@ -409,7 +408,7 @@ function validateDataResult(
     };
   }
 
-  if (idClienteCurp && (idClienteCurp != id_cliente)) {
+  if (idClienteCurp && idClienteCurp != id_cliente) {
     return {
       result: false,
       message: 'La CURP ya existe para otro cliente',
@@ -423,7 +422,7 @@ function validateDataResult(
     };
   }
 
-  if (idAvalCurp && (idAvalCurp != id_aval)) {
+  if (idAvalCurp && idAvalCurp != id_aval) {
     return {
       result: false,
       message: 'La CURP ya existe para otro aval',
