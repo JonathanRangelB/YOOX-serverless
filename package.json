@@ -12,8 +12,8 @@
     "getenv:stg": "infisical export --env=staging > .env.staging",
     "getenv:prod": "infisical export --env=prod > .env.prod",
     "delete": "sls remove",
-    "format": "prettier --write 'src/**/*.ts'",
-    "lint": "biome lint --fix",
+    "format": "biome format --write ./src/**/*.ts",
+    "lint": "biome lint --write",
     "prepare": "husky",
     "commitlint": "commitlint --edit"
   },

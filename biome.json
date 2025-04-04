@@ -86,11 +86,7 @@
         "useValidTypeof": "error"
       }
     },
-    "ignore": [
-      "swagger/*",
-      ".esbuild/*",
-      "eslint.config.mjs"
-    ]
+    "ignore": ["swagger/*", ".esbuild/*", "eslint.config.mjs"]
   },
   "javascript": {
     "formatter": {
@@ -104,15 +100,11 @@
       "attributePosition": "auto",
       "bracketSpacing": true
     },
-    "globals": [
-      "exports"
-    ]
+    "globals": ["exports"]
   },
   "overrides": [
     {
-      "include": [
-        "src/**/*.{ts}"
-      ]
+      "include": ["src/**/*.{ts}"]
     }
   ]
 }
