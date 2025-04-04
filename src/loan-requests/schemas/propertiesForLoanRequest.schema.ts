@@ -163,7 +163,7 @@ export const propertiesForLoanRequest = {
       },
       id_domicilio_cliente: {
         anyOf: [
-          { type: 'integer' },
+          { type: 'integer', minimum: 1, maximum: 2147483647 },
           { type: 'integer', enum: ['', null], nullable: true },
         ],
       },
@@ -304,7 +304,7 @@ export const propertiesForLoanRequest = {
       },
       id_domicilio_aval: {
         anyOf: [
-          { type: 'integer' },
+          { type: 'integer', minimum: 1, maximum: 2147483647 },
           { type: 'integer', enum: ['', null], nullable: true },
         ],
       },
