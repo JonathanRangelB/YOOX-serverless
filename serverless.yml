@@ -70,7 +70,7 @@ functions:
             name: customAuthorizer
 
   viewLoanRequest:
-    handler: ./src/general-data-requests/getRequestDetail.handler
+    handler: ./src/loan-requests/viewLoan.handler
     events:
       - httpApi:
           method: post

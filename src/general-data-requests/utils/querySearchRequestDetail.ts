@@ -62,12 +62,16 @@ export function requestDetailSearchQuery(request_number: string): string {
       ,u3.[nombre] as closed_by_name
       ,l.[status_code]
       ,l.[id_loan]  
-
+      ,l.[id_loan_to_refinance]
+	    ,u4.[cantidad_restante]
+      
   FROM [LOAN_REQUEST] l
 
   LEFT JOIN [USUARIOS] u1 on u1.id = [id_agente]
   LEFT JOIN [USUARIOS] u2 on u2.id = [modified_by]
   LEFT JOIN [USUARIOS] u3 on u3.id = [closed_by]
+  LEFT JOIN [PRESTAMOS] u4 on l.[id_loan_to_refinance] = u4.ID 
+
 
   WHERE REQUEST_NUMBER = '${request_number}';`;
 }
