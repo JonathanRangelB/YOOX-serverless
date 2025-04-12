@@ -30,8 +30,8 @@ export function searchTelefonoQuery(
 
   selectStatement += `
                           ${table}
-                          where telefono_fijo in (${listInCondition})
-                                or telefono_movil in (${listInCondition})  `;
+                          where (telefono_fijo in (${listInCondition})
+                                or telefono_movil in (${listInCondition}))  `;
 
   return selectStatement;
 }
