@@ -22,7 +22,7 @@ export const registerNewRefinancing = async (
 
     const { cantidad_prestada } = new_loan_header;
 
-    const queryCheckIfValid = `${querySearchLoanToRefinance('t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante')} and t0.id_cliente = ${id_cliente} and t0.id = ${id_prestamo_actual} `;
+    const queryCheckIfValid = `${querySearchLoanToRefinance('t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante')} where t0.id_cliente = ${id_cliente} and t0.id = ${id_prestamo_actual} `;
 
     const checkIfValid = await procTransaction
       .request()

@@ -1,26 +1,42 @@
 export function querySearchLoanToRefinance(selectStatement: string): string {
   return `
-    select
-                ${selectStatement}
+  select
+    ${selectStatement}
+  from (
+          select
+          pd.id_prestamo as [id],
+          p.id_cliente,
+          p.id_cobrador,
+          p.cantidad_restante,
+          u.id as idUsuario,
+          u.login,          
+          pz.semanas_refinancia,
+          count(*) as [num_de_pagos]
+          
+          from prestamos_detalle pd 
+          left join prestamos p on pd.id_prestamo = p.id
+          left join plazo pz on p.id_plazo = pz.id                    
+          left join clientes c ON p.id_cliente = c.id
+          left join usuarios u on c.id_agente = u.id
+          
+          where
+          numero_semana between 1 and pz.semanas_refinancia
+          and 
+          pd.status = 'PAGADO'
+          and
+          p.status = 'EMITIDO' 
+          
+          group by 
+          pd.id_prestamo,
+          p.id_cliente,
+          p.id_cobrador,
+          p.cantidad_restante,
+          u.id,
+          u.login,                    
+          pz.semanas_refinancia
+          
+          having count(*) >= pz.semanas_refinancia                      
 
-                from
-                prestamos t0
-                left join (
-                    select
-                    id_prestamo,
-                    count(*) as num_de_pagos
-                    
-                    from prestamos_detalle pd 
-                    
-                    where
-                    numero_semana between 1 and 10
-                    and pd.status = 'PAGADO'
-                    
-                    group by id_prestamo
-                ) t1 on t0.id = t1.id_prestamo
-
-                where
-                t0.status = 'EMITIDO'
-                and t1.num_de_pagos = 10
-                `;
+  ) as t0  
+  `
 }
