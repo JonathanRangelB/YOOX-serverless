@@ -299,7 +299,7 @@ function queryValidateData(
     const selectStatement = querySearchLoanToRefinance(
       ' t0.cantidad_restante as value '
     );
-    const whereStatement = ` and t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance} `;
+    const whereStatement = ` where t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance} `;
     queryLoanToRefinance = selectStatement + whereStatement;
   } else {
     queryLoanToRefinance = 'SELECT 0';
