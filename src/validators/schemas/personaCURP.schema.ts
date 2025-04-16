@@ -9,7 +9,12 @@ export const customerSearchCURPSchema = {
     },
     table: { type: 'string', enum: ['CLIENTES', 'AVALES'] },
 
-    id_persona: { type: 'integer' },
+    id_persona: {
+      anyOf: [
+        { type: 'integer' },
+        { type: 'integer', enum: ['', null], nullable: true },
+      ],
+    },
   },
 
   required: ['curp', 'table'],
