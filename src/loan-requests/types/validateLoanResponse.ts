@@ -1,4 +1,4 @@
-export interface validateLoanResponse {
+export interface ValidateLoanResponse {
   valid: boolean;
   error?: string;
   additionalProperties?: AdditionalProperties[];

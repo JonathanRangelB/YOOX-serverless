@@ -43,7 +43,7 @@ export interface ClienteDomicilio {
   referencias_dom_aval: string;
 }
 
-export interface validateSearchCustomerParametersResponse {
+export interface ValidateSearchCustomerParametersResponse {
   valid: boolean;
   error?: string;
 }

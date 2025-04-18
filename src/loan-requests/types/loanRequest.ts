@@ -1,6 +1,6 @@
 export type Status = 'EN_REVISION' | 'APROBADO' | 'RECHAZADO';
 
-export interface statusResponse {
+export interface StatusResponse {
   customerFolderName: string | undefined;
   error?: string;
 }

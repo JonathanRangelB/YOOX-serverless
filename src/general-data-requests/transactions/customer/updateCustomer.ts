@@ -1,15 +1,15 @@
 import { Transaction } from 'mssql';
-import { formCustomer } from '../../../interfaces/customer-interface';
+import { FormCustomer } from '../../../interfaces/customer-interface';
 import { Direccion } from '../../../interfaces/common-properties';
 import { StatusCodes } from '../../../helpers/statusCodes';
-import { genericBDRequest } from '../../types/genericBDRequest';
+import { GenericBDRequest } from '../../types/genericBDRequest';
 import { registerNewAddress } from '../address/registerNewAddress';
 import { updateAddress } from '../address/updateAddress';
 
 export const updateCustomer = async (
-  formCliente: formCustomer,
+  formCliente: FormCustomer,
   procTransaction: Transaction
-): Promise<genericBDRequest> => {
+): Promise<GenericBDRequest> => {
   try {
     const {
       id_cliente,

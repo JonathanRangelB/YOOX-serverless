@@ -1,5 +1,5 @@
 import { Transaction } from 'mssql';
-import { genericBDRequest } from '../../types/genericBDRequest';
+import { GenericBDRequest } from '../../types/genericBDRequest';
 import { Direccion } from '../../../interfaces/common-properties';
 import { StatusCodes } from '../../../helpers/statusCodes';
 
@@ -8,7 +8,7 @@ export const updateAddress = async (
   id_persona: number,
   tipo: string,
   procTransaction: Transaction
-): Promise<genericBDRequest> => {
+): Promise<GenericBDRequest> => {
   const {
     id,
     tipo_calle,

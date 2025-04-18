@@ -1,4 +1,4 @@
-export interface loanHeader {
+export interface LoanHeader {
   id: number;
   id_cliente: number;
   id_plazo: number;
@@ -22,7 +22,7 @@ export interface loanHeader {
   semanas_plazo: number;
 }
 
-export interface loanDetail {
+export interface LoanDetail {
   id_prestamo: number;
   numero_semana: number;
   id_usuario: number;

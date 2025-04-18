@@ -1,12 +1,12 @@
 import { Transaction } from 'mssql';
-import { genericBDRequest } from '../../types/genericBDRequest';
+import { GenericBDRequest } from '../../types/genericBDRequest';
 import { StatusCodes } from '../../../helpers/statusCodes';
 
 export const registerSnapshotRealInvestmentReport = async (
   id_customer: number,
   id_loan: number,
   procTransaction: Transaction
-): Promise<genericBDRequest> => {
+): Promise<GenericBDRequest> => {
   try {
     const queryStatement = `
                 INSERT INTO REPORTE_INVERSION_REAL_SNAPSHOT

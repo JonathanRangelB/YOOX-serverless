@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import formats from 'ajv-formats';
 import {
   AdditionalProperties,
-  validateLoanResponse,
+  ValidateLoanResponse,
 } from '../loan-requests/types/validateLoanResponse';
 
 export function convertToBase36(intValue: number) {
@@ -47,7 +47,7 @@ export function convertDateTimeZone(
 export function validatePayload(
   payload: any,
   schema: any
-): validateLoanResponse {
+): ValidateLoanResponse {
   const ajv = new Ajv({ allErrors: true });
   formats(ajv);
   const validate = ajv.compile(schema);

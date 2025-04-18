@@ -1,4 +1,4 @@
-export interface endorsementReqResponse {
+export interface EndorsementReqResponse {
   message: string;
   idEndorsment: number;
   error?: string;

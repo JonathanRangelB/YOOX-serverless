@@ -24,7 +24,7 @@ export enum StatusDePago {
   VENCIDO = 'VENCIDO',
 }
 
-export interface statusResponse {
+export interface StatusResponse {
   message: string;
   err?: Error;
 }
