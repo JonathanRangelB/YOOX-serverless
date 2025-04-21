@@ -1,5 +1,5 @@
 import { Int, Table, VarChar, Transaction, DateTime } from 'mssql';
-import { Indexes_id } from '../../../helpers/table-schemas';
+import { IndexesId } from '../../../helpers/table-schemas';
 import { GenericBDRequest } from '../../types/genericBDRequest';
 import { StatusCodes } from '../../../helpers/statusCodes';
 import { Direccion } from '../../../interfaces/common-properties';
@@ -31,7 +31,7 @@ export const registerNewAddress = async (
   try {
     const nextIdQuery = await procTransaction
       .request()
-      .query<Indexes_id>(
+      .query<IndexesId>(
         `SELECT [objeto], [indice] FROM [INDICES] WHERE OBJETO IN ('ID_DOMICILIO') ORDER BY OBJETO; `
       );
 

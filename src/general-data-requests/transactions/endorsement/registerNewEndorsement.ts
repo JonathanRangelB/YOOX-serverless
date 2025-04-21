@@ -1,5 +1,5 @@
 import { Int, Table, VarChar, Transaction } from 'mssql';
-import { Indexes_id } from '../../../helpers/table-schemas';
+import { IndexesId } from '../../../helpers/table-schemas';
 import { EndorsementReqResponse } from '../../types/endorsmentRequest';
 import { FormEndorsement } from '../../../interfaces/endorsement-interface';
 import { Direccion } from '../../../interfaces/common-properties';
@@ -53,7 +53,7 @@ export const registerNewEndorsement = async (
 
     const nextIdQuery = await procTransaction
       .request()
-      .query<Indexes_id>(
+      .query<IndexesId>(
         `SELECT [objeto], [indice] FROM [INDICES] WHERE OBJETO IN ('ID_AVAL') ORDER BY OBJETO;`
       );
 

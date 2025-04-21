@@ -1,16 +1,16 @@
-export interface Pagos_reglas_dias {
+export interface PagosReglasDias {
   id: number;
   id_cliente: number;
   numero_dias: number;
 }
 
-export interface Customer_loan_request {
+export interface CustomerLoanRequest {
   ID_LOAN_REQUEST: number;
   ID_CLIENT_REQUEST: number;
   ID_CLIENT: number;
 }
 
-export interface Customer_request {
+export interface CustomerRequest {
   id: number;
   nombre: string;
   telefono_fijo: string;
@@ -25,25 +25,25 @@ export interface Customer_request {
   id_domicilio: number;
 }
 
-export interface Error_code {
+export interface ErrorCode {
   ID: number;
   STATUS_CODE: number;
   MESSAGE: string;
 }
 
-export interface Last_loan_id {
+export interface LastLoanId {
   LAST_LOAN_ID: number;
   CURRENT_DATE_SERVER: Date;
 }
 
-export interface Loan_update_date {
+export interface LoanUpdateDate {
   loan_id: number;
   request_number: string;
   loan_request_status: string;
   current_date_server: Date;
 }
 
-export interface Indexes_id {
+export interface IndexesId {
   objeto: string;
   indice: number;
 }
@@ -65,7 +65,7 @@ export interface Address {
   modified_date: Date;
 }
 
-export interface Address_suite_number {
+export interface AddressSuiteNumber {
   id_domicilio: number;
   numero_interior: string;
   id_cliente: number;
@@ -73,7 +73,7 @@ export interface Address_suite_number {
   tipo: string;
 }
 
-export interface Loan_refinance {
+export interface LoanRefinance {
   id_prestamo: number;
   id_cliente: number;
   cantidad_restante: number;

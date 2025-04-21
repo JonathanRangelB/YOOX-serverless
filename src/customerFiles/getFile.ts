@@ -9,7 +9,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { StatusCodes } from '../helpers/statusCodes';
 import { FileDataSchema } from './schemas/file.schema';
-import { fileData } from './types/fileData';
+import { FileData } from './types/fileData';
 import { validatePayload } from '../helpers/utils';
 
 const client = new S3Client({
@@ -27,7 +27,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
       StatusCodes.BAD_REQUEST
     );
 
-  const data: fileData = JSON.parse(event.body);
+  const data: FileData = JSON.parse(event.body);
   const validData = validatePayload(data, FileDataSchema);
 
   if (!validData.valid)

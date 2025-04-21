@@ -5,7 +5,7 @@ export interface StatusResponse {
   error?: string;
 }
 
-export interface updateStatusResponse {
+export interface UpdateStatusResponse {
   message?: string;
   error?: string;
 }
@@ -29,7 +29,7 @@ export interface SolicitudPrestamoLista {
   loan_request_status: string;
 }
 
-export interface validateSearchLoanRequestListResponse {
+export interface ValidateSearchLoanRequestListResponse {
   valid: boolean;
   error?: string;
 }

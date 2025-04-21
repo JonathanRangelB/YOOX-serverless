@@ -1,7 +1,7 @@
 import { Int, Table, VarChar, Transaction, Float, DateTime } from 'mssql';
 import { LoanHeader } from '../../../interfaces/loan-interface';
 import { GenericBDRequest } from '../../types/genericBDRequest';
-import { Indexes_id } from '../../../helpers/table-schemas';
+import { IndexesId } from '../../../helpers/table-schemas';
 import { StatusCodes } from '../../../helpers/statusCodes';
 import { registerSnapshotRealInvestmentReport } from '../reporting/registerSnapshotRealInvestmentReport';
 
@@ -28,7 +28,7 @@ export const registerNewLoan = async (
 
     const nextIdQuery = await procTransaction
       .request()
-      .query<Indexes_id>(
+      .query<IndexesId>(
         `SELECT [indice] FROM [INDICES] WHERE OBJETO IN ('ID_PRESTAMOS') ORDER BY OBJETO; `
       );
 

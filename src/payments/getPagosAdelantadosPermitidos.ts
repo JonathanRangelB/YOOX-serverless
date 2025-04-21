@@ -1,11 +1,11 @@
 import { DbConnector } from '../helpers/dbConnector';
-import { Pagos_reglas_dias } from '../helpers/table-schemas';
+import { PagosReglasDias } from '../helpers/table-schemas';
 
 export const getPagosAdelantadosPermitidos = async (idCliente: number) => {
   try {
     // Asegúrate de que cualquier elemento esté correctamente codificado en la cadena de conexión URL
     const pool = await DbConnector.getInstance().connection;
-    const res = await pool.query<Pagos_reglas_dias[]>(
+    const res = await pool.query<PagosReglasDias[]>(
       `
       SELECT * from PAGOS_REGLAS_DIAS prd WHERE id = 0
       SELECT * from PAGOS_REGLAS_DIAS prd WHERE id_cliente = ${idCliente}

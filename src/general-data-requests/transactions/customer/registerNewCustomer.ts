@@ -1,5 +1,5 @@
 import { Int, Table, VarChar, Transaction, Bit } from 'mssql';
-import { Indexes_id } from '../../../helpers/table-schemas';
+import { IndexesId } from '../../../helpers/table-schemas';
 import { CustomerReqResponse } from '../../types/customerRequest';
 import { FormCustomer } from '../../../interfaces/customer-interface';
 import { Direccion } from '../../../interfaces/common-properties';
@@ -54,7 +54,7 @@ export const registerNewCustomer = async (
 
     const nextIdQuery = await procTransaction
       .request()
-      .query<Indexes_id>(
+      .query<IndexesId>(
         `SELECT [objeto], [indice] FROM [INDICES] WHERE OBJETO IN ('ID_CLIENTE') ORDER BY OBJETO; `
       );
 

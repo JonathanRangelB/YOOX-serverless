@@ -1,8 +1,8 @@
 import { Int } from 'mssql';
 import { DbConnector } from '../../helpers/dbConnector';
-import { Loan_update_date } from '../../helpers/table-schemas';
+import { LoanUpdateDate } from '../../helpers/table-schemas';
 import { UpdateLoanRequest } from '../types/SPInsertNewLoanRequest';
-import { updateStatusResponse } from '../types/loanRequest';
+import { UpdateStatusResponse } from '../types/loanRequest';
 import { registerNewCustomer } from '../../general-data-requests/transactions/customer/registerNewCustomer';
 import { convertDateTimeZone } from '../../helpers/utils';
 import { updateCustomer } from '../../general-data-requests/transactions/customer/updateCustomer';
@@ -17,7 +17,7 @@ import { GenericBDRequest } from '../../general-data-requests/types/genericBDReq
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest
-): Promise<updateStatusResponse> => {
+): Promise<UpdateStatusResponse> => {
   const pool = await DbConnector.getInstance().connection;
   const procTransaction = pool.transaction();
 
@@ -34,7 +34,7 @@ export const registerUpdateLoanRequest = async (
     const queryResult = await procTransaction
       .request()
       .input('ID_LOAN_REQUEST', Int, updateLoanRequest.id)
-      .query<Loan_update_date>(
+      .query<LoanUpdateDate>(
         'SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;'
       );
 

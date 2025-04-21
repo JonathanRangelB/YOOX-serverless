@@ -1,8 +1,8 @@
 import md5 from 'md5';
-import { credentials } from './types/user-service';
+import { Credentials } from './types/user-service';
 import { DbConnector } from '../helpers/dbConnector';
 
-export const validateCredentials = async (data: credentials) => {
+export const validateCredentials = async (data: Credentials) => {
   const { userId, password } = data;
   const md5Password = md5(password);
   const pool = await DbConnector.getInstance().connection;
