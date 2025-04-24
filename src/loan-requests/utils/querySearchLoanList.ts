@@ -138,6 +138,7 @@ export function getGroupUsers(
                         )
         SELECT *
         FROM LOAN_REQUEST_LIST_TABLA
+        ORDER BY NOMBRE ASC
     `;
 
   return cteQuery;
