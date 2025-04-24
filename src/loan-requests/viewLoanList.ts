@@ -42,7 +42,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   try {
     const pool = await DbConnector.getInstance().connection;
     const queryStatement = loanRequestListSearchQuery(body);
-    const groupUsers = getGroupUsers(body.id_usuario);
+    const groupUsers = getGroupUsers(body.id_usuario, body.rol_usuario);
     const registrosEncontrados = await pool
       .request()
       .query<SolicitudPrestamoLista>(queryStatement);
