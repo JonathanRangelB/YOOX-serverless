@@ -1,17 +1,17 @@
-import { refinance } from '../../../helpers/table-schemas';
+import { Refinance } from '../../../helpers/table-schemas';
 import { Int, Table, Transaction, Float, DateTime } from 'mssql';
-import { loanHeader } from '../../../interfaces/loan-interface';
-import { genericBDRequest } from '../../types/genericBDRequest';
+import { LoanHeader } from '../../../interfaces/loan-interface';
+import { GenericBDRequest } from '../../types/genericBDRequest';
 import { StatusCodes } from '../../../helpers/statusCodes';
 import { querySearchLoanToRefinance } from '../../utils/querySearchLoanToRefinance';
 import { registerNewLoan } from '../loan/registerNewLoan';
 import { registerSnapshotRealInvestmentReport } from '../reporting/registerSnapshotRealInvestmentReport';
 
 export const registerNewRefinancing = async (
-  new_loan_header: loanHeader,
-  refinance: refinance,
+  new_loan_header: LoanHeader,
+  refinance: Refinance,
   procTransaction: Transaction
-): Promise<genericBDRequest> => {
+): Promise<GenericBDRequest> => {
   try {
     const {
       fecha: local_date,

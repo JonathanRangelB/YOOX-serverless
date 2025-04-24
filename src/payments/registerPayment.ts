@@ -1,11 +1,11 @@
 import { Int, Date as SQlDate, Float } from 'mssql';
 import { SPAltaPago } from './types/SPAltaPago';
-import { statusResponse } from './types/pagos';
+import { StatusResponse } from './types/pagos';
 import { DbConnector } from '../helpers/dbConnector';
 
 export const registerPayment = async (
   spaAltaPago: SPAltaPago
-): Promise<statusResponse> => {
+): Promise<StatusResponse> => {
   let message = '';
   try {
     const pool = await DbConnector.getInstance().connection;

@@ -1,5 +1,5 @@
 import { Table, Transaction } from 'mssql';
-import { last_loan_id } from '../../helpers/table-schemas';
+import { LastLoanId } from '../../helpers/table-schemas';
 import { convertDateTimeZone, convertToBase36 } from '../../helpers/utils';
 import { InsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
 import { generateNewLoanRequestTable } from './generateNewLoanRequestTable';
@@ -66,7 +66,7 @@ export async function validateData(
     .query<{ value: number | undefined }>(`${queryToValidateData}`);
   const nextId = await procTransaction
     .request()
-    .query<last_loan_id>(
+    .query<LastLoanId>(
       'SELECT ISNULL(MAX(ID), 0) AS LAST_LOAN_ID, GETUTCDATE() AS CURRENT_DATE_SERVER FROM LOAN_REQUEST;'
     );
 

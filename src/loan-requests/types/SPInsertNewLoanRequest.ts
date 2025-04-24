@@ -1,6 +1,6 @@
 import { Plazo } from '../../installments/types/installments.type';
-import { formCustomer } from '../../interfaces/customer-interface';
-import { formEndorsement } from '../../interfaces/endorsement-interface';
+import { FormCustomer } from '../../interfaces/customer-interface';
+import { FormEndorsement } from '../../interfaces/endorsement-interface';
 
 export interface InsertNewLoanRequest {
   cantidad_prestada: number;
@@ -12,8 +12,8 @@ export interface InsertNewLoanRequest {
   dia_semana: string;
   observaciones: string;
   plazo: Plazo;
-  formCliente: formCustomer;
-  formAval: formEndorsement;
+  formCliente: FormCustomer;
+  formAval: FormEndorsement;
   created_by: number;
   status_code: number;
   user_role: string;
@@ -33,8 +33,8 @@ export interface UpdateLoanRequest {
   dia_semana: string;
   observaciones: string;
   plazo: Plazo;
-  formCliente: formCustomer;
-  formAval: formEndorsement;
+  formCliente: FormCustomer;
+  formAval: FormEndorsement;
   modified_by: number;
   status_code: number;
   user_role: string;

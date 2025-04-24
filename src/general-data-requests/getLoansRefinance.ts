@@ -2,7 +2,7 @@ import { APIGatewayEvent } from 'aws-lambda';
 import { DbConnector } from '../helpers/dbConnector';
 import { StatusCodes } from '../helpers/statusCodes';
 import { generateGetJsonResponse } from '../helpers/generateGetJsonResponse';
-import { loan_refinance } from '../helpers/table-schemas';
+import { LoanRefinance } from '../helpers/table-schemas';
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { querySearchLoanToRefinance } from './utils/querySearchLoanToRefinance';
 
@@ -15,7 +15,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     const pool = await DbConnector.getInstance().connection;
     const query = `${querySearchLoanToRefinance('t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante')}  where t0.id_cliente = ${customerid} `;
 
-    const result = await pool.query<loan_refinance>(query);
+    const result = await pool.query<LoanRefinance>(query);
 
     if (result.recordset.length == 0)
       throw new Error('No se encontraron registros');

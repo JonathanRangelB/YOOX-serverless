@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
-import { credentials } from './types/user-service';
+import { Credentials } from './types/user-service';
 import { validateCredentials } from './validateCredentials';
 import { userSchema } from './schemas/userSchema';
 import { StatusCodes } from '../helpers/statusCodes';
@@ -10,7 +10,7 @@ import { validatePayload } from '../helpers/utils';
 const LOGIN_FAILED = { message: 'Login failed, verify your credentials' };
 
 module.exports.handler = async (event: any) => {
-  const data: credentials = JSON.parse(event.body);
+  const data: Credentials = JSON.parse(event.body);
 
   const validData = validatePayload(data, userSchema);
 

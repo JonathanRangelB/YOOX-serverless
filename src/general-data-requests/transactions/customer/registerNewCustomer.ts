@@ -1,15 +1,15 @@
 import { Int, Table, VarChar, Transaction, Bit } from 'mssql';
-import { indexes_id } from '../../../helpers/table-schemas';
-import { customerReqResponse } from '../../types/customerRequest';
-import { formCustomer } from '../../../interfaces/customer-interface';
+import { IndexesId } from '../../../helpers/table-schemas';
+import { CustomerReqResponse } from '../../types/customerRequest';
+import { FormCustomer } from '../../../interfaces/customer-interface';
 import { Direccion } from '../../../interfaces/common-properties';
 import { registerNewAddress } from '../address/registerNewAddress';
 import { updateAddress } from '../address/updateAddress';
 
 export const registerNewCustomer = async (
-  formCliente: formCustomer,
+  formCliente: FormCustomer,
   procTransaction: Transaction
-): Promise<customerReqResponse> => {
+): Promise<CustomerReqResponse> => {
   try {
     const {
       nombre_cliente,
@@ -54,7 +54,7 @@ export const registerNewCustomer = async (
 
     const nextIdQuery = await procTransaction
       .request()
-      .query<indexes_id>(
+      .query<IndexesId>(
         `SELECT [objeto], [indice] FROM [INDICES] WHERE OBJETO IN ('ID_CLIENTE') ORDER BY OBJETO; `
       );
 
@@ -78,10 +78,10 @@ export const registerNewCustomer = async (
     tableCustomerBD.rows.add(
       lastCustomerId,
       nombre_cliente +
-        ' ' +
-        apellido_paterno_cliente +
-        ' ' +
-        apellido_materno_cliente,
+      ' ' +
+      apellido_paterno_cliente +
+      ' ' +
+      apellido_materno_cliente,
       telefono_fijo_cliente,
       telefono_movil_cliente,
       correo_electronico_cliente,
@@ -137,8 +137,8 @@ export const registerNewCustomer = async (
     const requestUpdate = procTransaction.request();
     const updateResult = await requestUpdate.query(
       updateIndexIdQuery +
-        queryUpdateCustomerEndorsement +
-        updateAddressIdCustomer
+      queryUpdateCustomerEndorsement +
+      updateAddressIdCustomer
     );
 
     if (!insertBulkData.rowsAffected || !updateResult.rowsAffected.length) {

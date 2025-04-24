@@ -1,23 +1,23 @@
 import { Int } from 'mssql';
 import { DbConnector } from '../../helpers/dbConnector';
-import { loan_update_date } from '../../helpers/table-schemas';
+import { LoanUpdateDate } from '../../helpers/table-schemas';
 import { UpdateLoanRequest } from '../types/SPInsertNewLoanRequest';
-import { updateStatusResponse } from '../types/loanRequest';
+import { UpdateStatusResponse } from '../types/loanRequest';
 import { registerNewCustomer } from '../../general-data-requests/transactions/customer/registerNewCustomer';
 import { convertDateTimeZone } from '../../helpers/utils';
 import { updateCustomer } from '../../general-data-requests/transactions/customer/updateCustomer';
 import { registerNewEndorsement } from '../../general-data-requests/transactions/endorsement/registerNewEndorsement';
 import { updateEndorsement } from '../../general-data-requests/transactions/endorsement/updateEndorsement';
 import { validateDataLoanRequestUpdate } from '../utils/validateData';
-import { loanHeader } from '../../interfaces/loan-interface';
+import { LoanHeader } from '../../interfaces/loan-interface';
 import { registerNewLoan } from '../../general-data-requests/transactions/loan/registerNewLoan';
-import { refinance } from '../../helpers/table-schemas';
+import { Refinance } from '../../helpers/table-schemas';
 import { registerNewRefinancing } from '../../general-data-requests/transactions/refinancing/registerNewRefinancing';
-import { genericBDRequest } from '../../general-data-requests/types/genericBDRequest';
+import { GenericBDRequest } from '../../general-data-requests/types/genericBDRequest';
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest
-): Promise<updateStatusResponse> => {
+): Promise<UpdateStatusResponse> => {
   const pool = await DbConnector.getInstance().connection;
   const procTransaction = pool.transaction();
 
@@ -34,7 +34,7 @@ export const registerUpdateLoanRequest = async (
     const queryResult = await procTransaction
       .request()
       .input('ID_LOAN_REQUEST', Int, updateLoanRequest.id)
-      .query<loan_update_date>(
+      .query<LoanUpdateDate>(
         'SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;'
       );
 
@@ -218,8 +218,8 @@ export const registerUpdateLoanRequest = async (
 
       let idClienteGenerado;
       let idPrestamoGenerado;
-      let encabezadoPrestamo: loanHeader;
-      let procInsertLoan: genericBDRequest;
+      let encabezadoPrestamo: LoanHeader;
+      let procInsertLoan: GenericBDRequest;
 
       switch (newLoanRequestStatus) {
         case 'ACTUALIZAR':
@@ -334,7 +334,7 @@ export const registerUpdateLoanRequest = async (
           };
 
           if (id_loan_to_refinance) {
-            const encabezadoRefinanciamiento: refinance = {
+            const encabezadoRefinanciamiento: Refinance = {
               fecha: current_local_date,
               id_usuario: id_usuario,
               id_cliente: idClienteGenerado,

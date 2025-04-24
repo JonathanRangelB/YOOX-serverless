@@ -1,7 +1,7 @@
 import { TipoCalle } from './common-properties';
 import { EntidadFederativa } from './common-properties';
 
-export interface formCustomer {
+export interface FormCustomer {
   id_cliente: number;
   nombre_cliente: string;
   apellido_paterno_cliente: string;

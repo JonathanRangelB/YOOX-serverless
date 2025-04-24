@@ -2,7 +2,7 @@ import { APIGatewayEvent } from 'aws-lambda';
 import { DbConnector } from '../helpers/dbConnector';
 import { StatusCodes } from '../helpers/statusCodes';
 import { generateGetJsonResponse } from '../helpers/generateGetJsonResponse';
-import { address } from '../helpers/table-schemas';
+import { Address } from '../helpers/table-schemas';
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
@@ -34,7 +34,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
             where
             t0.id = '${addressid}'`;
 
-    const result = await pool.query<address>(query);
+    const result = await pool.query<Address>(query);
 
     if (result.recordset.length == 0)
       throw new Error('No se encontraron registros');

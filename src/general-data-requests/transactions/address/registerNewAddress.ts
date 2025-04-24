@@ -1,6 +1,6 @@
 import { Int, Table, VarChar, Transaction, DateTime } from 'mssql';
-import { indexes_id } from '../../../helpers/table-schemas';
-import { genericBDRequest } from '../../types/genericBDRequest';
+import { IndexesId } from '../../../helpers/table-schemas';
+import { GenericBDRequest } from '../../types/genericBDRequest';
 import { StatusCodes } from '../../../helpers/statusCodes';
 import { Direccion } from '../../../interfaces/common-properties';
 
@@ -9,7 +9,7 @@ export const registerNewAddress = async (
   id_persona: number,
   tipo: string,
   procTransaction: Transaction
-): Promise<genericBDRequest> => {
+): Promise<GenericBDRequest> => {
   const {
     tipo_calle,
     nombre_calle,
@@ -31,7 +31,7 @@ export const registerNewAddress = async (
   try {
     const nextIdQuery = await procTransaction
       .request()
-      .query<indexes_id>(
+      .query<IndexesId>(
         `SELECT [objeto], [indice] FROM [INDICES] WHERE OBJETO IN ('ID_DOMICILIO') ORDER BY OBJETO; `
       );
 

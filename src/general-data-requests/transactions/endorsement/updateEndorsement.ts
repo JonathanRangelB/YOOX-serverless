@@ -1,15 +1,15 @@
 import { Transaction } from 'mssql';
-import { formEndorsement } from '../../../interfaces/endorsement-interface';
+import { FormEndorsement } from '../../../interfaces/endorsement-interface';
 import { Direccion } from '../../../interfaces/common-properties';
 import { StatusCodes } from '../../../helpers/statusCodes';
-import { genericBDRequest } from '../../types/genericBDRequest';
+import { GenericBDRequest } from '../../types/genericBDRequest';
 import { registerNewAddress } from '../address/registerNewAddress';
 import { updateAddress } from '../address/updateAddress';
 
 export const updateEndorsement = async (
-  formAval: formEndorsement,
+  formAval: FormEndorsement,
   procTransaction: Transaction
-): Promise<genericBDRequest> => {
+): Promise<GenericBDRequest> => {
   try {
     const {
       id_aval,

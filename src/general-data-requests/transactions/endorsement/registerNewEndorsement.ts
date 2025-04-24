@@ -1,15 +1,15 @@
 import { Int, Table, VarChar, Transaction } from 'mssql';
-import { indexes_id } from '../../../helpers/table-schemas';
-import { endorsementReqResponse } from '../../types/endorsmentRequest';
-import { formEndorsement } from '../../../interfaces/endorsement-interface';
+import { IndexesId } from '../../../helpers/table-schemas';
+import { EndorsementReqResponse } from '../../types/endorsmentRequest';
+import { FormEndorsement } from '../../../interfaces/endorsement-interface';
 import { Direccion } from '../../../interfaces/common-properties';
 import { registerNewAddress } from '../address/registerNewAddress';
 import { updateAddress } from '../address/updateAddress';
 
 export const registerNewEndorsement = async (
-  formAval: formEndorsement,
+  formAval: FormEndorsement,
   procTransaction: Transaction
-): Promise<endorsementReqResponse> => {
+): Promise<EndorsementReqResponse> => {
   try {
     const {
       nombre_aval,
@@ -53,7 +53,7 @@ export const registerNewEndorsement = async (
 
     const nextIdQuery = await procTransaction
       .request()
-      .query<indexes_id>(
+      .query<IndexesId>(
         `SELECT [objeto], [indice] FROM [INDICES] WHERE OBJETO IN ('ID_AVAL') ORDER BY OBJETO;`
       );
 

@@ -2,12 +2,12 @@ import { Transaction } from 'mssql';
 
 import { DbConnector } from '../../helpers/dbConnector';
 import { InsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
-import { statusResponse } from '../types/loanRequest';
+import { StatusResponse } from '../types/loanRequest';
 import { validateData } from '../utils/validateData';
 
 export const registerNewLoanRequest = async (
   newLoanRequest: InsertNewLoanRequest
-): Promise<statusResponse> => {
+): Promise<StatusResponse> => {
   const pool = await DbConnector.getInstance().connection;
   const procTransaction = new Transaction(pool);
   const { formCliente } = newLoanRequest;

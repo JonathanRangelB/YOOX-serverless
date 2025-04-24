@@ -1,4 +1,4 @@
-export interface genericBDRequest {
+export interface GenericBDRequest {
   message: string;
   generatedId: number;
   error?: number;
