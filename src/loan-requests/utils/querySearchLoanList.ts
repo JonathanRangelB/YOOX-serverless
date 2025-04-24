@@ -24,10 +24,6 @@ export function loanRequestListSearchQuery(
       const groupLeaderAccess = accessByUserRolTable(id_usuario, rol_usuario);
       cteQuery += groupLeaderAccess;
       whereCondition = `WHERE ID_AGENTE IN  (SELECT ID FROM LIDER_GRUPO_TABLA) `;
-
-      if (userIdFilter) {
-        whereCondition += ` AND ID_AGENTE = ${userIdFilter} `;
-      }
       break;
     }
     case 'Cobrador':
@@ -36,10 +32,13 @@ export function loanRequestListSearchQuery(
       break;
   }
 
-  if (status) whereCondition += `AND LOAN_REQUEST_STATUS = '${status}' `;
+  if (status) whereCondition += ` ${whereCondition ? ' AND ' : ' WHERE '}  LOAN_REQUEST_STATUS = '${status}' `;
   if (nombreCliente)
-    whereCondition += ` AND CONCAT(NOMBRE_CLIENTE, ' ', APELLIDO_PATERNO_CLIENTE, ' ', APELLIDO_MATERNO_CLIENTE) LIKE '%${nombreCliente.replace(/ /g, '%')}%' `;
-  if (folio) whereCondition += `AND REQUEST_NUMBER = '${folio}' `;
+    whereCondition += ` ${whereCondition ? ' AND ' : ' WHERE '}  CONCAT(NOMBRE_CLIENTE, ' ', APELLIDO_PATERNO_CLIENTE, ' ', APELLIDO_MATERNO_CLIENTE) LIKE '%${nombreCliente.replace(/ /g, '%')}%' `;
+  if (folio) whereCondition += ` ${whereCondition ? ' AND ' : ' WHERE '}  REQUEST_NUMBER = '${folio}' `;
+  if (userIdFilter) {
+    whereCondition += ` ${whereCondition ? ' AND ' : ' WHERE '} ID_AGENTE = ${userIdFilter} `;
+  }
 
   cteQuery += `
             LOAN_REQUEST_LIST_TABLA AS (
@@ -97,9 +96,50 @@ export function loanRequestListSearchQuery(
         OFFSET ${offSetRows} ROWS
         FETCH NEXT ${fetchRowsNumber} ROWS ONLY
     `;
+
   return cteQuery;
 }
 
-export function getGroupUsers(leaderId: number = 0) {
-  return `SELECT ID, NOMBRE FROM USUARIOS WHERE ACTIVO = 1 AND ID_GRUPO IN (SELECT ID_GRUPO FROM GRUPOS_AGENTES WHERE ACTIVO = 1 AND ID_LIDER_DE_GRUPO = ${leaderId})`;
+export function getGroupUsers(
+  id_usuario: number,
+  rol_usuario: string
+): string {
+
+  let whereCondition = '';
+  let cteQuery = ` WITH
+                    `;
+
+  switch (rol_usuario) {
+    case 'Líder de grupo': {
+      const groupLeaderAccess = accessByUserRolTable(id_usuario, rol_usuario);
+      cteQuery += groupLeaderAccess;
+      whereCondition = ` WHERE U.ID IN (SELECT ID FROM LIDER_GRUPO_TABLA) `;
+      break;
+    }
+    case 'Cobrador':
+      whereCondition = ` WHERE U.ID = ${id_usuario} `;
+      break;
+
+    default: {
+      whereCondition = ` WHERE U.ROL IN ('Líder de grupo', 'Cobrador') `
+    }
+  }
+
+  cteQuery += `
+    LOAN_REQUEST_LIST_TABLA AS (
+                SELECT
+                U.ID,
+                U.NOMBRE
+ 				
+                FROM
+                USUARIOS U 
+                
+                ${whereCondition}
+                        )
+        SELECT *
+        FROM LOAN_REQUEST_LIST_TABLA
+        ORDER BY NOMBRE ASC
+    `;
+
+  return cteQuery;
 }
