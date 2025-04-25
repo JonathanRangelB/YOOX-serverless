@@ -184,6 +184,15 @@ functions:
           authorizer:
             name: customAuthorizer
 
+  getGuarantor:
+    handler: ./src/general-data-requests/getGuarantor.handler
+    events:
+      - httpApi:
+          method: post
+          path: /v1/get-guarantor
+          authorizer:
+            name: customAuthorizer
+
   customAuthorizer:
     handler: ./src/authorizer/auth.handler
 
