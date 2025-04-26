@@ -13,7 +13,7 @@ export function guarantorSearchQuery(
     whereCondition += ` and t1.nombre like '%${nombre_aval.replace(/ /g, '%')}%' `;
   }
 
-  return `select top 20
+  return `select
                 t1.id_aval
                 ,t1.nombre
                 ,t1.telefono_fijo
