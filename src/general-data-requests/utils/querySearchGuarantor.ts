@@ -1,19 +1,19 @@
 export function guarantorSearchQuery(
-    id_aval: number,
-    curp_aval: string,
-    nombre_aval: string
+  id_aval?: number,
+  curp_aval?: string,
+  nombre_aval?: string
 ): string {
-    let whereCondition = ` where t1.id_cliente is null `;
+  let whereCondition = ` where t1.id_cliente is null `;
 
-    if (id_aval) {
-        whereCondition += ` and t1.id_aval = ${id_aval} `;
-    } else if (curp_aval) {
-        whereCondition += ` and t1.curp = '${curp_aval}' `;
-    } else if (nombre_aval) {
-        whereCondition += ` and t1.nombre like '%${nombre_aval.replace(/ /g, '%')}%' `;
-    }
+  if (id_aval) {
+    whereCondition += ` and t1.id_aval = ${id_aval} `;
+  } else if (curp_aval) {
+    whereCondition += ` and t1.curp = '${curp_aval}' `;
+  } else if (nombre_aval) {
+    whereCondition += ` and t1.nombre like '%${nombre_aval.replace(/ /g, '%')}%' `;
+  }
 
-    return `select top 20
+  return `select top 20
                 t1.id_aval
                 ,t1.nombre
                 ,t1.telefono_fijo
@@ -60,5 +60,5 @@ export function guarantorSearchQuery(
             ${whereCondition}
 
             order by t1.id_aval
-    `
+    `;
 }
