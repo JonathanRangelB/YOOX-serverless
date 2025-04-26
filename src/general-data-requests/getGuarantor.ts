@@ -10,7 +10,7 @@ import { AvalDomicilio, DatosAval } from './types/getGuarantor.interface';
 import { guarantorSearchQuery } from './utils/querySearchGuarantor';
 
 module.exports.handler = async (event: APIGatewayEvent) => {
-  const params = event.queryStringParameters;
+  const params = event.queryStringParameters as DatosAval;
 
   if (!params)
     return generateJsonResponse(
@@ -34,9 +34,9 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     );
   }
 
-  const id = params?.id ? +params.id : undefined;
-  const curp = params?.curp;
-  const nombre = params?.nombre;
+  const id = params.id ? +params.id : undefined;
+  const curp = params.curp;
+  const nombre = params.nombre;
 
   try {
     const pool = await DbConnector.getInstance().connection;
