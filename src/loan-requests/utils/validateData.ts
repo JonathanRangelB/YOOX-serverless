@@ -6,6 +6,7 @@ import { generateNewLoanRequestTable } from './generateNewLoanRequestTable';
 import { searchTelefonoQuery } from '../../validators/utils/querySearchData';
 import { UpdateLoanRequest } from '../types/SPInsertNewLoanRequest';
 import { querySearchLoanToRefinance } from '../../general-data-requests/utils/querySearchLoanToRefinance';
+import { Status, RolesDeUsuario } from '../../helpers/utils';
 
 export async function validateData(
   newLoanRequest: InsertNewLoanRequest,
@@ -116,7 +117,7 @@ export async function validateData(
 
   const id = nextId.recordset[0].LAST_LOAN_ID + 1;
   const request_number = convertToBase36(id);
-  const loan_request_status = 'EN REVISION';
+  const loan_request_status = Status.EN_REVISION;
 
   const tableNewRequestLoan = generateNewLoanRequestTable(newLoanRequest, {
     id,
@@ -239,7 +240,7 @@ export async function validateDataLoanRequestUpdate(
   if (
     loan_request_status === 'APROBADO' &&
     id_agente === modified_by &&
-    ['Líder de grupo', 'Cobrador'].includes(user_role)
+    [RolesDeUsuario.LIDER_DE_GRUPO as string, RolesDeUsuario.COBRADOR as string].includes(user_role)
   ) {
     throw new Error(
       'Un usuario con mayor jerarquía debe aprobar esta solicitud'

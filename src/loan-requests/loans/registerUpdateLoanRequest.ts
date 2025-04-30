@@ -14,6 +14,7 @@ import { registerNewLoan } from '../../general-data-requests/transactions/loan/r
 import { Refinance } from '../../helpers/table-schemas';
 import { registerNewRefinancing } from '../../general-data-requests/transactions/refinancing/registerNewRefinancing';
 import { GenericBDRequest } from '../../general-data-requests/types/genericBDRequest';
+import { Status } from '../../helpers/utils';
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest
@@ -23,13 +24,7 @@ export const registerUpdateLoanRequest = async (
 
   try {
     await procTransaction.begin();
-
-    const {
-      idClienteCurp: validateCurpCustomer,
-      idAvalCurp: validateCurpAval,
-      idClienteTelefono: validatePhoneCustomer,
-      idAvalTelefono: validateEndorsementPhone,
-    } = await validateDataLoanRequestUpdate(updateLoanRequest, procTransaction);
+    await validateDataLoanRequestUpdate(updateLoanRequest, procTransaction);
 
     const queryResult = await procTransaction
       .request()
@@ -42,10 +37,12 @@ export const registerUpdateLoanRequest = async (
       throw new Error('La solicitud de préstamo no existe');
     }
 
+    // Manejo de concurrencia
+
     const currentLoanRequestStatus =
       queryResult.recordset[0].loan_request_status;
 
-    if (['APROBADO', 'RECHAZADO'].includes(currentLoanRequestStatus)) {
+    if ([Status.APROBADO as string, Status.RECHAZADO as string].includes(currentLoanRequestStatus)) {
       throw new Error(
         `La solicitud ya ha sido cerrada con el estatus ${currentLoanRequestStatus}`
       );
@@ -55,8 +52,6 @@ export const registerUpdateLoanRequest = async (
       queryResult.recordset[0].current_date_server,
       'America/Mexico_City'
     ) as Date;
-
-    // Manejo de concurrencia
 
     const {
       id: id_loan_request,
@@ -127,15 +122,13 @@ export const registerUpdateLoanRequest = async (
 
     if (
       currentLoanRequestStatus === newLoanRequestStatus ||
-      (currentLoanRequestStatus === 'ACTUALIZAR' &&
-        ['APROBADO'].includes(newLoanRequestStatus))
+      (currentLoanRequestStatus === Status.ACTUALIZAR && [Status.APROBADO as string].includes(newLoanRequestStatus))
     ) {
       throw new Error('Cambio de status incorrecto');
     }
 
     if (
-      currentLoanRequestStatus === 'ACTUALIZAR' &&
-      newLoanRequestStatus === 'RECHAZADO'
+      currentLoanRequestStatus === Status.ACTUALIZAR && newLoanRequestStatus === Status.RECHAZADO
     ) {
       updateQueryColumns += ` SET 
                         LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
@@ -145,15 +138,8 @@ export const registerUpdateLoanRequest = async (
         `;
     }
     if (
-      currentLoanRequestStatus === 'ACTUALIZAR' &&
-      newLoanRequestStatus === 'EN REVISION'
+      currentLoanRequestStatus === Status.ACTUALIZAR && newLoanRequestStatus === Status.EN_REVISION
     ) {
-      preValidatedData(
-        validateCurpCustomer,
-        validateCurpAval,
-        validatePhoneCustomer,
-        validateEndorsementPhone
-      );
 
       updateQueryColumns = `SET 
       LOAN_REQUEST_STATUS = '${newLoanRequestStatus}'
@@ -210,7 +196,7 @@ export const registerUpdateLoanRequest = async (
       ,ID_LOAN_TO_REFINANCE = ${id_loan_to_refinance ? id_loan_to_refinance : `NULL`}
 
       `;
-    } else if (currentLoanRequestStatus === `EN REVISION`) {
+    } else if (currentLoanRequestStatus === Status.EN_REVISION) {
       updateQueryColumns = `SET 
                         LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
                         ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
@@ -222,27 +208,20 @@ export const registerUpdateLoanRequest = async (
       let procInsertLoan: GenericBDRequest;
 
       switch (newLoanRequestStatus) {
-        case 'ACTUALIZAR':
+        case Status.ACTUALIZAR:
           updateQueryColumns += ` ,MODIFIED_BY = ${id_usuario}
                                   ,MODIFIED_DATE = '${current_local_date.toISOString()}'                                 
           `;
           break;
 
-        case 'RECHAZADO':
+        case Status.RECHAZADO:
           updateQueryColumns += ` ,CLOSED_BY = ${id_usuario} 
                                   ,CLOSED_DATE = '${current_local_date.toISOString()}'                                  
                                   `;
 
           break;
 
-        case 'APROBADO':
-          preValidatedData(
-            validateCurpCustomer,
-            validateCurpAval,
-            validatePhoneCustomer,
-            validateEndorsementPhone
-          );
-
+        case Status.APROBADO:
           datosCliente.id_agente = id_agente;
           datosCliente.cliente_activo = 1;
 
@@ -308,7 +287,6 @@ export const registerUpdateLoanRequest = async (
             } else idClienteGenerado = procUpdateCustomer.generatedId;
           }
 
-          //Genera encabezado de nuevo préstamo
           encabezadoPrestamo = {
             id: 0,
             id_cliente: idClienteGenerado,
@@ -397,21 +375,3 @@ export const registerUpdateLoanRequest = async (
   }
 };
 
-function preValidatedData(
-  validateCurpCustomer: number,
-  validateCurpAval: number,
-  validatePhoneCustomer: number,
-  validateEndorsementPhone: number
-) {
-  if (validateCurpCustomer)
-    throw new Error('CURP de cliente ya existe para otro cliente');
-
-  if (validateCurpAval)
-    throw new Error('CURP de aval ya existe para otro aval');
-
-  if (validatePhoneCustomer)
-    throw new Error('El número de teléfono ya existe para otro cliente');
-
-  if (validateEndorsementPhone)
-    throw new Error('El número de teléfono ya existe para otro aval');
-}

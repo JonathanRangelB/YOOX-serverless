@@ -1,5 +1,6 @@
 import { accessByUserRolTable } from '../../secure-data-access/getAccessByUserRol';
 import { DatosSolicitudPrestamoLista } from '../types/loanRequest';
+import { RolesDeUsuario } from '../../helpers/utils';
 
 export function loanRequestListSearchQuery(
   datosSolicitudPrestamoLista: DatosSolicitudPrestamoLista
@@ -20,13 +21,13 @@ export function loanRequestListSearchQuery(
                     `;
 
   switch (rol_usuario) {
-    case 'Líder de grupo': {
+    case RolesDeUsuario.LIDER_DE_GRUPO: {
       const groupLeaderAccess = accessByUserRolTable(id_usuario, rol_usuario);
       cteQuery += groupLeaderAccess;
       whereCondition = `WHERE ID_AGENTE IN  (SELECT ID FROM LIDER_GRUPO_TABLA) `;
       break;
     }
-    case 'Cobrador':
+    case RolesDeUsuario.COBRADOR:
       whereCondition = `WHERE ID_AGENTE = ${id_usuario} `;
       limitOneWeekData = ` AND CONVERT(DATE, created_date) BETWEEN DATEADD(WEEK, -1, CONVERT(DATE, GETDATE())) AND CONVERT(DATE, GETDATE()) `;
       break;
@@ -110,13 +111,13 @@ export function getGroupUsers(
                     `;
 
   switch (rol_usuario) {
-    case 'Líder de grupo': {
+    case RolesDeUsuario.LIDER_DE_GRUPO: {
       const groupLeaderAccess = accessByUserRolTable(id_usuario, rol_usuario);
       cteQuery += groupLeaderAccess;
       whereCondition = ` WHERE U.ID IN (SELECT ID FROM LIDER_GRUPO_TABLA) `;
       break;
     }
-    case 'Cobrador':
+    case RolesDeUsuario.COBRADOR:
       whereCondition = ` WHERE U.ID = ${id_usuario} `;
       break;
 
