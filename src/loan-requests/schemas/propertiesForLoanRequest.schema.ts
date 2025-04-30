@@ -1,9 +1,12 @@
+import { REGEX_PHONE, REGEX_CURP, REGEX_EMAIL, REGEX_ZIP_CODE, Status, DiasDeSemana, States, TipoCalles } from "../../helpers/utils";
+
+
 export const propertiesForLoanRequest = {
   id: { type: 'integer' },
   request_number: { type: 'string' },
   loan_request_status: {
     type: 'string',
-    enum: ['EN REVISION', 'ACTUALIZAR', 'APROBADO', 'RECHAZADO'],
+    enum: Object.values(Status),
   },
   cantidad_prestada: { type: 'number', minimum: 1000 },
   cantidad_pagar: { type: 'number' },
@@ -13,15 +16,7 @@ export const propertiesForLoanRequest = {
   fecha_final_estimada: { type: 'string', format: 'date-time' },
   dia_semana: {
     type: 'string',
-    enum: [
-      'DOMINGO',
-      'LUNES',
-      'MARTES',
-      'MIERCOLES',
-      'JUEVES',
-      'VIERNES',
-      'SABADO',
-    ],
+    enum: Object.values(DiasDeSemana),
   },
   observaciones: {
     anyOf: [
@@ -55,7 +50,7 @@ export const propertiesForLoanRequest = {
         anyOf: [
           {
             type: 'string',
-            pattern: '^\\d{10}$',
+            pattern: REGEX_PHONE,
           },
           { type: 'string', enum: ['', null], nullable: true },
         ],
@@ -64,7 +59,7 @@ export const propertiesForLoanRequest = {
         anyOf: [
           {
             type: 'string',
-            pattern: '^\\d{10}$',
+            pattern: REGEX_PHONE,
           },
           { type: 'string', enum: ['', null], nullable: true },
         ],
@@ -73,7 +68,7 @@ export const propertiesForLoanRequest = {
         anyOf: [
           {
             type: 'string',
-            pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+            pattern: REGEX_EMAIL,
           },
           { type: 'string', enum: ['', null], nullable: true },
         ],
@@ -86,8 +81,7 @@ export const propertiesForLoanRequest = {
       },
       curp_cliente: {
         type: 'string',
-        pattern:
-          '^([A-Z][AEIOUX][A-Z]{2}\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\\d])(\\d)$',
+        pattern: REGEX_CURP,
       },
       tipo_calle_cliente: {
         type: 'object',
@@ -95,14 +89,7 @@ export const propertiesForLoanRequest = {
           name: { type: 'string' },
           value: {
             type: 'string',
-            enum: [
-              'CALLE',
-              'AVENIDA',
-              'PROLONGACION',
-              'CARRETERA',
-              'PRIVADA',
-              'BOULEVARD',
-            ],
+            enum: Object.values(TipoCalles),
           },
         },
       },
@@ -117,44 +104,11 @@ export const propertiesForLoanRequest = {
           name: { type: 'string' },
           value: {
             type: 'string',
-            enum: [
-              'JALISCO',
-              'AGUASCALIENTES',
-              'BAJA CALIFORNIA',
-              'BAJA CALIFORNIA SUR',
-              'CAMPECHE',
-              'COAHUILA',
-              'COLIMA',
-              'CHIAPAS',
-              'CHIHUAHUA',
-              'DURANGO',
-              'CDMX',
-              'GUANAJUATO',
-              'GUERRERO',
-              'HIDALGO',
-              'ESTADO DE MEXICO',
-              'MICHOACAN',
-              'MORELOS',
-              'NAYARIT',
-              'NUEVO LEON',
-              'OAXACA',
-              'PUEBLA',
-              'QUERETARO',
-              'QUINTANA ROO',
-              'SAN LUIS POTOSI',
-              'SINALOA',
-              'SONORA',
-              'TABASCO',
-              'TAMAULIPAS',
-              'TLAXCALA',
-              'VERACRUZ',
-              'YUCATAN',
-              'ZACATECAS',
-            ],
+            enum: Object.values(States)
           },
         },
       },
-      cp_cliente: { type: 'string', pattern: '^\\d{5}$' },
+      cp_cliente: { type: 'string', pattern: REGEX_ZIP_CODE },
       referencias_dom_cliente: {
         anyOf: [
           { type: 'string' },
@@ -201,7 +155,7 @@ export const propertiesForLoanRequest = {
         anyOf: [
           {
             type: 'string',
-            pattern: '^\\d{10}$',
+            pattern: REGEX_PHONE,
           },
           { type: 'string', enum: ['', null], nullable: true },
         ],
@@ -210,7 +164,7 @@ export const propertiesForLoanRequest = {
         anyOf: [
           {
             type: 'string',
-            pattern: '^\\d{10}$',
+            pattern: REGEX_PHONE,
           },
           { type: 'string', enum: ['', null], nullable: true },
         ],
@@ -219,15 +173,14 @@ export const propertiesForLoanRequest = {
         anyOf: [
           {
             type: 'string',
-            pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+            pattern: REGEX_EMAIL,
           },
           { type: 'string', enum: ['', null], nullable: true },
         ],
       },
       curp_aval: {
         type: 'string',
-        pattern:
-          '^([A-Z][AEIOUX][A-Z]{2}\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\\d])(\\d)$',
+        pattern: REGEX_CURP
       },
 
       tipo_calle_aval: {
@@ -236,14 +189,7 @@ export const propertiesForLoanRequest = {
           name: { type: 'string' },
           value: {
             type: 'string',
-            enum: [
-              'CALLE',
-              'AVENIDA',
-              'PROLONGACION',
-              'CARRETERA',
-              'PRIVADA',
-              'BOULEVARD',
-            ],
+            enum: Object.values(TipoCalles),
           },
         },
       },
@@ -258,44 +204,11 @@ export const propertiesForLoanRequest = {
           name: { type: 'string' },
           value: {
             type: 'string',
-            enum: [
-              'JALISCO',
-              'AGUASCALIENTES',
-              'BAJA CALIFORNIA',
-              'BAJA CALIFORNIA SUR',
-              'CAMPECHE',
-              'COAHUILA',
-              'COLIMA',
-              'CHIAPAS',
-              'CHIHUAHUA',
-              'DURANGO',
-              'CDMX',
-              'GUANAJUATO',
-              'GUERRERO',
-              'HIDALGO',
-              'ESTADO DE MEXICO',
-              'MICHOACAN',
-              'MORELOS',
-              'NAYARIT',
-              'NUEVO LEON',
-              'OAXACA',
-              'PUEBLA',
-              'QUERETARO',
-              'QUINTANA ROO',
-              'SAN LUIS POTOSI',
-              'SINALOA',
-              'SONORA',
-              'TABASCO',
-              'TAMAULIPAS',
-              'TLAXCALA',
-              'VERACRUZ',
-              'YUCATAN',
-              'ZACATECAS',
-            ],
+            enum: Object.values(States),
           },
         },
       },
-      cp_aval: { type: 'string', pattern: '^\\d{5}$' },
+      cp_aval: { type: 'string', pattern: REGEX_ZIP_CODE },
       referencias_dom_aval: {
         anyOf: [
           { type: 'string' },

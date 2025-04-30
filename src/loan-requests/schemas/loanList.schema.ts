@@ -1,3 +1,5 @@
+import { RolesDeUsuario } from "../../helpers/utils";
+
 export const loanRequestListSearchParametersSchema = {
   type: 'object',
 
@@ -5,7 +7,7 @@ export const loanRequestListSearchParametersSchema = {
     id_usuario: { type: 'number' },
     rol_usuario: {
       type: 'string',
-      enum: ['Administrador', 'Cobrador', 'Líder de grupo', 'Usuario normal'],
+      enum: [RolesDeUsuario.ADMINISTRADOR, RolesDeUsuario.COBRADOR, RolesDeUsuario.LIDER_DE_GRUPO, RolesDeUsuario.USUARIO_NORMAL]
     },
     offSetRows: { type: 'number' },
     fetchRowsNumber: { type: 'number' },
