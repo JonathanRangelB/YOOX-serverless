@@ -72,17 +72,22 @@ export function validatePayload(
   return { valid };
 }
 
-export const REGEX_CURP: string = '^([A-Z][AEIOUX][A-Z]{2}\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\\d])(\\d)$';
-export const REGEX_EMAIL: string = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'
-export const REGEX_ZIP_CODE: string = '^\\d{5}$'
-export const REGEX_PHONE: string = '^\\d{10}$'
+export const REGEX_CURP: string =
+  '^([A-Z][AEIOUX][A-Z]{2}\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\\d])(\\d)$';
+export const REGEX_EMAIL: string =
+  '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
+export const REGEX_ZIP_CODE: string = '^\\d{5}$';
+export const REGEX_PHONE: string = '^\\d{10}$';
 
 export const Status = {
   EN_REVISION: 'EN REVISION',
   ACTUALIZAR: 'ACTUALIZAR',
   APROBADO: 'APROBADO',
-  RECHAZADO: 'RECHAZADO'
-} as const
+  RECHAZADO: 'RECHAZADO',
+} as const;
+
+// NOTE: esta es una forma de definir un tipo que es igual a las claves del objeto Status
+export type Status = keyof typeof Status;
 
 export const States = {
   JALISCO: 'JALISCO',
@@ -117,7 +122,7 @@ export const States = {
   VERACRUZ: 'VERACRUZ',
   YUCATAN: 'YUCATAN',
   ZACATECAS: 'ZACATECAS',
-} as const
+} as const;
 
 export const DiasDeSemana = {
   DOMINGO: 'DOMINGO',
@@ -127,14 +132,14 @@ export const DiasDeSemana = {
   JUEVES: 'JUEVES',
   VIERNES: 'VIERNES',
   SABADO: 'SABADO',
-} as const
+} as const;
 
 export const RolesDeUsuario = {
   ADMINISTRADOR: 'Administrador',
   COBRADOR: 'Cobrador',
   LIDER_DE_GRUPO: 'Líder de grupo',
   USUARIO_NORMAL: 'Usuario normal',
-} as const
+} as const;
 
 export const TipoCalles = {
   CALLE: 'CALLE',
@@ -143,4 +148,4 @@ export const TipoCalles = {
   CARRETERA: 'CARRETERA',
   PRIVADA: 'PRIVADA',
   BOULEVARD: 'BOULEVARD',
-} as const
+} as const;
