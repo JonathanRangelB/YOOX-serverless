@@ -22,8 +22,3 @@ export interface AvalDomicilio {
   cp: string;
   referencias_dom: string;
 }
-
-export interface ValidateSearchGuarantorParametersResponse {
-  valid: boolean;
-  error?: string;
-}

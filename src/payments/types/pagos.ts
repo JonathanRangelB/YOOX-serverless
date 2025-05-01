@@ -17,13 +17,6 @@ export type PrestamosDetalle = {
   DATETIME_STAMP_SERVER: Date;
 };
 
-export enum StatusDePago {
-  PAGADO = 'PAGADO',
-  NO_PAGADO = 'NO PAGADO',
-  CANCELADO = 'CANCELADO',
-  VENCIDO = 'VENCIDO',
-}
-
 export interface StatusResponse {
   message: string;
   err?: Error;

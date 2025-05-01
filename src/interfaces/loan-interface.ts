@@ -22,16 +22,3 @@ export interface LoanHeader {
   semanas_plazo: number;
 }
 
-export interface LoanDetail {
-  id_prestamo: number;
-  numero_semana: number;
-  id_usuario: number;
-  fecha_vencimiento: Date;
-  status: string;
-  cantidad: number;
-  id_cobrador: number;
-  saldo_pendiente: number;
-  promesa_pago: Date;
-  modo_insercion: string;
-  insertado_por: number;
-}
