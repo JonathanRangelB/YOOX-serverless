@@ -60,7 +60,3 @@ export interface SolicitudDetalle {
   status_code: number;
 }
 
-export interface ValidateSearchRequestDetailResponse {
-  valid: boolean;
-  error?: string;
-}

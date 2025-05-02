@@ -1,5 +1,3 @@
-export type Status = 'EN_REVISION' | 'APROBADO' | 'RECHAZADO';
-
 export interface StatusResponse {
   customerFolderName: string | undefined;
   error?: string;
@@ -29,7 +27,3 @@ export interface SolicitudPrestamoLista {
   loan_request_status: string;
 }
 
-export interface ValidateSearchLoanRequestListResponse {
-  valid: boolean;
-  error?: string;
-}

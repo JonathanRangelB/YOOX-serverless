@@ -10,10 +10,6 @@ export function convertToBase36(intValue: number) {
   return intValue.toString(36).padStart(6, '0').toUpperCase();
 }
 
-export function convertFromBase36ToNumber(base36Value: string) {
-  return parseInt(base36Value, 36);
-}
-
 /**
  * Convierte una fecha de tipo UTC a hora local de la zona horaria especificada.
  * @param {Date} dateUTC - Fecha UTC a convertir a hora local

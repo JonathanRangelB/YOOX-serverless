@@ -42,8 +42,3 @@ export interface ClienteDomicilio {
   cp_aval: string;
   referencias_dom_aval: string;
 }
-
-export interface ValidateSearchCustomerParametersResponse {
-  valid: boolean;
-  error?: string;
-}
