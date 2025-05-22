@@ -1,4 +1,4 @@
-import { RolesDeUsuario } from "../helpers/utils";
+import { RolesDeUsuario } from '../helpers/utils';
 
 export function accessByUserRolTable(
   idUsuario: number,
