@@ -21,4 +21,3 @@ export interface LoanHeader {
   id_grupo_original: number;
   semanas_plazo: number;
 }
-
