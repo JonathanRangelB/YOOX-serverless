@@ -3,7 +3,7 @@ export function guarantorSearchQuery(
   curp_aval?: string,
   nombre_aval?: string
 ): string {
-  let whereCondition = ` where t1.id_cliente is null `;
+  let whereCondition = ` where t1.id_aval not in (select distinct id_aval from clientes_avales) `;
 
   if (id_aval) {
     whereCondition += ` and t1.id_aval = ${id_aval} `;
