@@ -1,13 +1,11 @@
-import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayEvent } from 'aws-lambda';
 import * as jwt from 'jsonwebtoken';
 import { StatusCodes } from '../helpers/statusCodes';
 import { DbConnector } from '../helpers/dbConnector';
 import { RefreshRequestBody, TokenPayload } from './auth.interface';
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 
-export const handler = async (
-  event: APIGatewayEvent
-): Promise<APIGatewayProxyResult> => {
+export const handler = async (event: APIGatewayEvent) => {
   try {
     // Manejar preflight CORS
     if (event.httpMethod === 'OPTIONS') {
