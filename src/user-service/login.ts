@@ -39,8 +39,7 @@ module.exports.handler = async (event: any) => {
 
     return generateJsonResponse(
       {
-        user: recordset[0],
-        Autorization: `Bearer ${token}`,
+        token: `Bearer ${token}`,
       },
       StatusCodes.OK
     );
