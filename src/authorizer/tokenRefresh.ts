@@ -50,7 +50,8 @@ export const handler = async (
     }
 
     // Decodificar el token SIN verificar expiración
-    const decodedToken = jwt.decode(body.token) as TokenPayload;
+    const tokenWithoutBearer = body.token.split(' ')[1];
+    const decodedToken = jwt.decode(tokenWithoutBearer) as TokenPayload;
 
     if (!decodedToken) {
       return {
@@ -77,7 +78,7 @@ export const handler = async (
 
     // Verificar la firma del token original
     try {
-      jwt.verify(body.token, TOKEN_JWT, { ignoreExpiration: true });
+      jwt.verify(tokenWithoutBearer, TOKEN_JWT, { ignoreExpiration: true });
     } catch (error) {
       console.error('Token verification failed:', error);
       return {
@@ -116,7 +117,7 @@ export const handler = async (
       statusCode: StatusCodes.OK,
       headers,
       body: JSON.stringify({
-        token: newToken,
+        token: `Bearer ${newToken}`,
         expiresInSeconds: 30 * 60, // segundos hasta expiración
       }),
     };
