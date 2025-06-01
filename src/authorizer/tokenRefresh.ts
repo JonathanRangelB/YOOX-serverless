@@ -3,44 +3,31 @@ import * as jwt from 'jsonwebtoken';
 import { StatusCodes } from '../helpers/statusCodes';
 import { DbConnector } from '../helpers/dbConnector';
 import { RefreshRequestBody, TokenPayload } from './auth.interface';
+import { generateJsonResponse } from '../helpers/generateJsonResponse';
 
 export const handler = async (
   event: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> => {
-  // Headers CORS
-  const headers = {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-    'Access-Control-Allow-Methods': 'POST,OPTIONS',
-  };
-
   try {
     // Manejar preflight CORS
     if (event.httpMethod === 'OPTIONS') {
-      return {
-        statusCode: StatusCodes.OK,
-        headers,
-        body: '',
-      };
+      return generateJsonResponse('', StatusCodes.OK);
     }
 
     if (!event.body) {
-      return {
-        statusCode: StatusCodes.BAD_REQUEST,
-        headers,
-        body: JSON.stringify({ error: 'Request body is required' }),
-      };
+      return generateJsonResponse(
+        { error: 'Request body is required' },
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     const body: RefreshRequestBody = JSON.parse(event.body);
 
     if (!body.token) {
-      return {
-        statusCode: StatusCodes.BAD_REQUEST,
-        headers,
-        body: JSON.stringify({ error: 'Token is required' }),
-      };
+      return generateJsonResponse(
+        { error: 'Token is required' },
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     // Obtener el JWT secret del environment
@@ -54,11 +41,10 @@ export const handler = async (
     const decodedToken = jwt.decode(tokenWithoutBearer) as TokenPayload;
 
     if (!decodedToken) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        headers,
-        body: JSON.stringify({ error: 'Invalid token format' }),
-      };
+      return generateJsonResponse(
+        { error: 'Invalid token format' },
+        StatusCodes.UNAUTHORIZED
+      );
     }
 
     // Verificar que el token no sea demasiado viejo
@@ -67,13 +53,10 @@ export const handler = async (
     const maxRefreshWindow = 30 * 60; // 30 minutos en segundos
 
     if (now - decodedToken.exp > maxRefreshWindow) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        headers,
-        body: JSON.stringify({
-          error: 'Token expired beyond refresh window',
-        }),
-      };
+      return generateJsonResponse(
+        { error: 'Token expired beyond refresh window' },
+        StatusCodes.UNAUTHORIZED
+      );
     }
 
     // Verificar la firma del token original
@@ -81,22 +64,18 @@ export const handler = async (
       jwt.verify(tokenWithoutBearer, TOKEN_JWT, { ignoreExpiration: true });
     } catch (error) {
       console.error('Token verification failed:', error);
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        headers,
-        body: JSON.stringify({ error: 'Invalid token signature' }),
-      };
+      return generateJsonResponse(
+        { error: 'Invalid token signature' },
+        StatusCodes.UNAUTHORIZED
+      );
     }
 
     // Verificar que el usuario no ha sido deshabilitado
     if (!(await userIsActive(decodedToken.ID))) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        headers,
-        body: JSON.stringify({
-          error: 'User no longer active, contact support',
-        }),
-      };
+      return generateJsonResponse(
+        { error: 'User no longer active, contact support' },
+        StatusCodes.UNAUTHORIZED
+      );
     }
 
     // Generar nuevo token con nueva expiración (30 minutos)
@@ -113,24 +92,20 @@ export const handler = async (
 
     const newToken = jwt.sign(newTokenPayload, TOKEN_JWT);
 
-    return {
-      statusCode: StatusCodes.OK,
-      headers,
-      body: JSON.stringify({
+    return generateJsonResponse(
+      {
         token: `Bearer ${newToken}`,
         expiresInSeconds: 30 * 60, // segundos hasta expiración
-      }),
-    };
+      },
+      StatusCodes.OK
+    );
   } catch (error) {
     console.error('Error in refresh token:', { error });
 
-    return {
-      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-      headers,
-      body: JSON.stringify({
-        error: 'Internal server error',
-      }),
-    };
+    return generateJsonResponse(
+      { error: 'Internal server error' },
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 };
 
