@@ -1,6 +1,6 @@
 export interface TokenPayload {
   ID: number;
-  NOMBRE: 'JOSE HERIBERTO SANCHEZ LARIOS';
+  NOMBRE: string;
   ROL: string;
   ACTIVO: boolean;
   ID_GRUPO: number;
