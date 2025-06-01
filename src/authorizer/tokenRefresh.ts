@@ -2,21 +2,7 @@ import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as jwt from 'jsonwebtoken';
 import { StatusCodes } from '../helpers/statusCodes';
 import { DbConnector } from '../helpers/dbConnector';
-
-interface TokenPayload {
-  ID: number;
-  NOMBRE: 'JOSE HERIBERTO SANCHEZ LARIOS';
-  ROL: string;
-  ACTIVO: boolean;
-  ID_GRUPO: number;
-  ID_ROL: number;
-  iat: number;
-  exp: number;
-}
-
-interface RefreshRequestBody {
-  token: string;
-}
+import { RefreshRequestBody, TokenPayload } from './auth.interface';
 
 export const handler = async (
   event: APIGatewayEvent
@@ -58,8 +44,8 @@ export const handler = async (
     }
 
     // Obtener el JWT secret del environment
-    const JWT_SECRET = process.env.TOKEN_JWT;
-    if (!JWT_SECRET) {
+    const TOKEN_JWT = process.env.TOKEN_JWT;
+    if (!TOKEN_JWT) {
       throw new Error('JWT_SECRET not configured');
     }
 
@@ -74,10 +60,10 @@ export const handler = async (
       };
     }
 
-    // Verificar que el token no sea demasiado viejo (opcional)
+    // Verificar que el token no sea demasiado viejo
     // Por ejemplo, no permitir renovar tokens de más de 1 hora de expirados
     const now = Math.floor(Date.now() / 1000);
-    const maxRefreshWindow = 60 * 60; // 1 hora en segundos
+    const maxRefreshWindow = 30 * 60; // 30 minutos en segundos
 
     if (now - decodedToken.exp > maxRefreshWindow) {
       return {
@@ -91,11 +77,11 @@ export const handler = async (
 
     // Verificar la firma del token original
     try {
-      jwt.verify(body.token, JWT_SECRET, { ignoreExpiration: true });
+      jwt.verify(body.token, TOKEN_JWT, { ignoreExpiration: true });
     } catch (error) {
       console.error('Token verification failed:', error);
       return {
-        statusCode: 401,
+        statusCode: StatusCodes.UNAUTHORIZED,
         headers,
         body: JSON.stringify({ error: 'Invalid token signature' }),
       };
@@ -124,14 +110,14 @@ export const handler = async (
       exp: now + 30 * 60, // 30 minutos desde ahora
     };
 
-    const newToken = jwt.sign(newTokenPayload, JWT_SECRET);
+    const newToken = jwt.sign(newTokenPayload, TOKEN_JWT);
 
     return {
       statusCode: StatusCodes.OK,
       headers,
       body: JSON.stringify({
         token: newToken,
-        expiresIn: 30 * 60, // segundos hasta expiración
+        expiresInSeconds: 30 * 60, // segundos hasta expiración
       }),
     };
   } catch (error) {
