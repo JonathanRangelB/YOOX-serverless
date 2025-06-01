@@ -6,6 +6,7 @@ import { validateCredentials } from './validateCredentials';
 import { userSchema } from './schemas/userSchema';
 import { StatusCodes } from '../helpers/statusCodes';
 import { validatePayload } from '../helpers/utils';
+import { TokenPayload } from '../authorizer/auth.interface';
 
 const LOGIN_FAILED = { message: 'Login failed, verify your credentials' };
 
@@ -39,8 +40,7 @@ module.exports.handler = async (event: any) => {
 
     return generateJsonResponse(
       {
-        user: recordset[0],
-        Autorization: `Bearer ${token}`,
+        token: `Bearer ${token}`,
       },
       StatusCodes.OK
     );

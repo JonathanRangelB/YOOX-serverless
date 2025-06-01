@@ -42,6 +42,13 @@ functions:
           path: /v1/tokenValidation
           method: get
 
+  tokenRefresh:
+    handler: ./src/authorizer/tokenRefresh.handler
+    events:
+      - httpApi:
+          path: /v1/tokenRefresh
+          method: post
+
   payment:
     handler: ./src/payments/payment.handler
     events:
