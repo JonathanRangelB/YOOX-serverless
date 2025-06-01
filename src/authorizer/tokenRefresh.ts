@@ -1,6 +1,7 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as jwt from 'jsonwebtoken';
 import { StatusCodes } from '../helpers/statusCodes';
+import { DbConnector } from '../helpers/dbConnector';
 
 interface TokenPayload {
   ID: number;
@@ -38,7 +39,6 @@ export const handler = async (
       };
     }
 
-    // Validar que hay body
     if (!event.body) {
       return {
         statusCode: StatusCodes.BAD_REQUEST,
@@ -47,7 +47,6 @@ export const handler = async (
       };
     }
 
-    // Parsear body
     const body: RefreshRequestBody = JSON.parse(event.body);
 
     if (!body.token) {
@@ -65,7 +64,6 @@ export const handler = async (
     }
 
     // Decodificar el token SIN verificar expiración
-    // Esto permite renovar tokens que están cerca de expirar o recién expirados
     const decodedToken = jwt.decode(body.token) as TokenPayload;
 
     if (!decodedToken) {
@@ -91,7 +89,7 @@ export const handler = async (
       };
     }
 
-    // Verificar la firma del token original (importante para seguridad)
+    // Verificar la firma del token original
     try {
       jwt.verify(body.token, JWT_SECRET, { ignoreExpiration: true });
     } catch (error) {
@@ -103,7 +101,16 @@ export const handler = async (
       };
     }
 
-    // TODO: Verificar que el usuario no ha sido deshabilitado
+    // Verificar que el usuario no ha sido deshabilitado
+    if (!(await userIsActive(decodedToken.ID))) {
+      return {
+        statusCode: StatusCodes.UNAUTHORIZED,
+        headers,
+        body: JSON.stringify({
+          error: 'User no longer active, contact support',
+        }),
+      };
+    }
 
     // Generar nuevo token con nueva expiración (30 minutos)
     const newTokenPayload: TokenPayload = {
@@ -139,3 +146,14 @@ export const handler = async (
     };
   }
 };
+
+async function userIsActive(ID: number) {
+  const con = await DbConnector.getInstance().connection;
+  const res = await con.query(
+    `SELECT ID FROM USUARIOS WHERE ACTIVO = 1 AND ID = ${ID}`
+  );
+  if (res.recordset.length === 0) {
+    return false;
+  }
+  return true;
+}
