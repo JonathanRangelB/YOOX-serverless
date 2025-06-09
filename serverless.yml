@@ -200,6 +200,15 @@ functions:
           authorizer:
             name: customAuthorizer
 
+  getLatestDesktopVersion:
+    handler: ./src/general-data-requests/getLatestDesktopVersion.handler
+    events:
+      - httpApi:
+          method: get
+          path: /v1/desktop-version
+          authorizer:
+            name: customAuthorizer
+
   customAuthorizer:
     handler: ./src/authorizer/auth.handler
 
