@@ -88,12 +88,11 @@ export const handler = async (event: APIGatewayEvent) => {
       exp: now + maxRefreshWindow, // 60 minutos desde ahora
     };
 
-    const newToken = jwt.sign(newTokenPayload, TOKEN_JWT, { expiresIn: '60m' });
+    const newToken = jwt.sign(newTokenPayload, TOKEN_JWT);
 
     return generateJsonResponse(
       {
         token: `Bearer ${newToken}`,
-        expiresInSeconds: maxRefreshWindow,
       },
       StatusCodes.OK
     );
