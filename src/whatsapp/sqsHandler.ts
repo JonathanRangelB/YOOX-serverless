@@ -61,11 +61,12 @@ export const handler = async (event: SQSEvent) => {
               errorMessage
             ),
           });
-          await client.send(command);
+          const response = await client.send(command);
           console.error({
             message:
               'Error procesando el registro SQS, enviado a dead-letter queue',
             originalMessageId: record.messageId,
+            dlqMessageId: response.MessageId,
           });
         } else {
           console.error(
