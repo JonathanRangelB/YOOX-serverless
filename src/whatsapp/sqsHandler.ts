@@ -7,9 +7,23 @@ import {
 } from './interfaces/whatsappMessage';
 import { transformSQSRecordAttributes } from './utils/transformMessageAttributes';
 
-const processSimpleTextMessage = (message: SimpleTextMessage) => {
-  console.log(`Enviando mensaje de texto a ${message.to}: "${message.body}"`);
+const processSimpleTextMessage = async (message: SimpleTextMessage) => {
   // TODO: lógica para llamar a la API de WhatsApp, registrar datos en la BD, etc.
+  // const WA_API_URL = process.env.WHATSAPP_API_URL!;
+  // const WA_SQS_QUEUE = process.env.WHATSAPP_API_SQS_QUEUE!;
+  console.table(message);
+  const result = await fetch('http://localhost:3001/api/sendText', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      chatId: `${message.to}@c.us`,
+      text: message.body,
+      session: 'default',
+    }),
+  });
+  console.log(result);
 };
 
 // Función para procesar un mensaje de plantilla
