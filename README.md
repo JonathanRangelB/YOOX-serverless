@@ -164,7 +164,7 @@ curl -X POST "http://0.0.0.0:9324/" \
   -H "X-Amz-Target: AmazonSQS.SendMessage" \
   -d '{
     "QueueUrl": "http://0.0.0.0:9324/queue/yoox-whatsapp-dev",
-    "MessageBody": "{ \"messageType\": \"text\", \"to\": \"5219876543210\", \"body\": \"Test Message" }"
+    "MessageBody": "{ 'messageType': 'text', 'to': '5219876543210', 'body': 'Test Message' }"
   }'
 ```
 
