@@ -1,11 +1,12 @@
-import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import {
+  CommandBody,
   DEV_QUEUE,
   WhatsAppMessage,
 } from '../whatsapp/interfaces/whatsappMessage';
 
 export async function enqueueWhatsappMessage(wa_message: WhatsAppMessage) {
-  let commandBody;
+  let commandBody: CommandBody;
   const countryCode = wa_message.countryCode || '52'; // Por defecto es el codigo de Mexico si es que no se proporciona
 
   if (wa_message.messageType === 'text') {
@@ -13,7 +14,8 @@ export async function enqueueWhatsappMessage(wa_message: WhatsAppMessage) {
       QueueUrl: process.env.MAIN_SQS_URL || DEV_QUEUE,
       MessageBody: JSON.stringify({
         messageType: wa_message.messageType,
-        to: `${countryCode}1${wa_message.to}`, // NOTE: se agrega el numero 1 entre el codigo de pais y el numero de telefono, solo asi funciona, es cosa de whatsapp
+        // NOTE: se agrega el numero 1 entre el codigo de pais y el numero de telefono, solo asi funciona, es cosa de whatsapp
+        to: `${countryCode}1${wa_message.to}`,
         body: wa_message.body,
       }),
     };

@@ -1,10 +1,9 @@
-import { Int, Date as SQlDate, Float } from 'mssql';
-import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { Float, Int, Date as SQlDate } from 'mssql';
 
-import { SPAltaPago } from './types/SPAltaPago';
-import { StatusResponse } from './types/pagos';
 import { DbConnector } from '../helpers/dbConnector';
 import { enqueueWhatsappMessage } from '../helpers/sqs';
+import { SPAltaPago } from './types/SPAltaPago';
+import { StatusResponse } from './types/pagos';
 
 export const registerPayment = async (
   spaAltaPago: SPAltaPago
@@ -27,8 +26,10 @@ export const registerPayment = async (
     if (result.returnValue != 0) throw new Error(result.returnValue);
 
     message = `Alta del pago para el folio ${spaAltaPago.ID_PRESTAMO} correspondiente a la semana ${spaAltaPago.NUMERO_SEMANA} de manera exitosa`;
+
     await enqueueWhatsappMessage({
       messageType: 'text',
+      // TODO: generar un mecanismo para obtener el numero de telefono del cliente
       to: '3315757197',
       body: message,
     });

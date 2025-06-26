@@ -1,4 +1,5 @@
 import { APIGatewayEvent } from 'aws-lambda';
+
 import { generateJsonResponse } from '../helpers/generateJsonResponse';
 import { registerPayment } from './registerPayment';
 import { SPAltaPago } from './types/SPAltaPago';

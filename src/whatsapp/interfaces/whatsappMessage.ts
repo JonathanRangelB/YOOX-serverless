@@ -18,3 +18,8 @@ export interface TemplateMessage {
 export type WhatsAppMessage = SimpleTextMessage | TemplateMessage;
 
 export const DEV_QUEUE = 'http://0.0.0.0:9324/queue/yoox-whatsapp-dev';
+
+export interface CommandBody {
+  QueueUrl: string;
+  MessageBody: string;
+}
