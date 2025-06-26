@@ -27,11 +27,19 @@ export const registerPayment = async (
 
     message = `Alta del pago para el folio ${spaAltaPago.ID_PRESTAMO} correspondiente a la semana ${spaAltaPago.NUMERO_SEMANA} de manera exitosa`;
 
+    // NOTE: opcion 1
+    // await enqueueWhatsappMessage({
+    //   messageType: 'text',
+    //   to: '3315757197',
+    //   body: message,
+    // });
+    //
+    // NOTE: opcion 2
     await enqueueWhatsappMessage({
       messageType: 'text',
-      // TODO: generar un mecanismo para obtener el numero de telefono del cliente
-      to: '3315757197',
       body: message,
+      table: 'CLIENTES',
+      id_person: spaAltaPago.ID_CLIENTE,
     });
 
     return { message };

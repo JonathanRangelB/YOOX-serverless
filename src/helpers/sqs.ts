@@ -4,44 +4,88 @@ import {
   DEV_QUEUE,
   WhatsAppMessage,
 } from '../whatsapp/interfaces/whatsappMessage';
+import { getPhoneNumberByPersonId } from './asyncUtils';
+
+const sqsClientConfiguration = {
+  region: process.env.MY_AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY!,
+  },
+};
 
 export async function enqueueWhatsappMessage(wa_message: WhatsAppMessage) {
   let commandBody: CommandBody;
-  const countryCode = wa_message.countryCode || '52'; // Por defecto es el codigo de Mexico si es que no se proporciona
-
+  // seccion mensajes tipo "text"
   if (wa_message.messageType === 'text') {
-    commandBody = {
-      QueueUrl: process.env.MAIN_SQS_URL || DEV_QUEUE,
-      MessageBody: JSON.stringify({
-        messageType: wa_message.messageType,
-        // NOTE: se agrega el numero 1 entre el codigo de pais y el numero de telefono, solo asi funciona, es cosa de whatsapp
-        to: `${countryCode}1${wa_message.to}`,
-        body: wa_message.body,
-      }),
-    };
+    if ('to' in wa_message) {
+      // si tiene el "to" se manda directo
+      commandBody = buildSimpleTextMessageCommandBody(
+        wa_message.messageType,
+        wa_message.body,
+        wa_message.to
+      );
+    } else {
+      // en caso de que no tenga el "to" se busca el telefono por el id de la persona
+      const phoneNumber = await getPhoneNumberByPersonId(
+        wa_message.table,
+        wa_message.id_person
+      );
+      commandBody = buildSimpleTextMessageCommandBody(
+        wa_message.messageType,
+        wa_message.body,
+        phoneNumber
+      );
+    }
   } else {
-    // Cambiar por un else if cuando exista otro tipo de mensaje ademas de "template"
-    commandBody = {
-      QueueUrl: process.env.MAIN_SQS_URL || DEV_QUEUE,
-      MessageBody: JSON.stringify({
-        messageType: wa_message.messageType,
-        to: `${countryCode}1${wa_message.to}`,
-        body: 'Template no implementado, si estas leyendo esto notificalo.',
-      }),
-    };
+    // seccion mensajes tipo "template" (aun no implementada)
+    commandBody = buildTemplateTextMessageCommandBody(
+      wa_message.messageType,
+      'no implementado',
+      wa_message.to,
+      wa_message.languageCode,
+      wa_message.templateName,
+      wa_message.components
+    );
   }
-
-  const sqsClientConfiguration = {
-    region: process.env.MY_AWS_REGION,
-    credentials: {
-      accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY!,
-    },
-    // ...(process.env.NODE_ENV === 'development' ? { endpoint: DEV_QUEUE } : {}),
-  };
-
   const command = new SendMessageCommand(commandBody);
   const client = new SQSClient(sqsClientConfiguration);
-
   await client.send(command);
+}
+
+function buildSimpleTextMessageCommandBody(
+  messageType: string,
+  body: string,
+  phoneNumber: string,
+  countryCode = '52'
+) {
+  const isDevMode = process.env.ENV !== 'production';
+  return {
+    QueueUrl: process.env.MAIN_SQS_URL || DEV_QUEUE,
+    MessageBody: JSON.stringify({
+      messageType: messageType,
+      body: body,
+      to: isDevMode ? process.env.TEST_PHONE : `${countryCode}1${phoneNumber}`,
+    }),
+  };
+}
+
+function buildTemplateTextMessageCommandBody(
+  messageType: string,
+  body: string,
+  phoneNumber: string,
+  languageCode: string,
+  templateName: string,
+  components: any[],
+  countryCode = '52'
+) {
+  const isDevMode = process.env.ENV !== 'production';
+  return {
+    QueueUrl: process.env.MAIN_SQS_URL || DEV_QUEUE,
+    MessageBody: JSON.stringify({
+      messageType: messageType,
+      body: `${body}|${languageCode}|${templateName}|${components}`,
+      to: isDevMode ? process.env.TEST_PHONE : `${countryCode}1${phoneNumber}`,
+    }),
+  };
 }

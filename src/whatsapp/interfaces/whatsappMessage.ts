@@ -1,9 +1,19 @@
-export interface SimpleTextMessage {
+export interface DirectTextMessage {
   messageType: 'text';
   countryCode?: string;
   to: string;
   body: string;
 }
+
+export interface PersonTextMessage {
+  messageType: 'text';
+  countryCode?: string;
+  body: string;
+  table: 'CLIENTES' | 'USUARIOS';
+  id_person: number;
+}
+
+export type SimpleTextMessage = DirectTextMessage | PersonTextMessage;
 
 export interface TemplateMessage {
   messageType: 'template';
