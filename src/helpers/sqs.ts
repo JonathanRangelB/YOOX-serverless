@@ -59,7 +59,7 @@ function buildSimpleTextMessageCommandBody(
   phoneNumber: string,
   countryCode = '52'
 ) {
-  const isDevMode = process.env.ENV !== 'production';
+  const isDevMode = process.env.ENV_NAME !== 'production';
   return {
     QueueUrl: process.env.MAIN_SQS_URL || DEV_QUEUE,
     MessageBody: JSON.stringify({
@@ -79,7 +79,7 @@ function buildTemplateTextMessageCommandBody(
   components: any[],
   countryCode = '52'
 ) {
-  const isDevMode = process.env.ENV !== 'production';
+  const isDevMode = process.env.ENV_NAME !== 'production';
   return {
     QueueUrl: process.env.MAIN_SQS_URL || DEV_QUEUE,
     MessageBody: JSON.stringify({

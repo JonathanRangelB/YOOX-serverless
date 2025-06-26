@@ -1,7 +1,8 @@
 import { DirectTextMessage } from './interfaces/whatsappMessage';
 
 export const processSimpleTextMessage = async (message: DirectTextMessage) => {
-  const result = await fetch(`${process.env.WA_BASE_URL}/api/sendText`, {
+  const baseUrl = process.env.WA_BASE_URL || 'http://localhost:3001';
+  const result = await fetch(`${baseUrl}/api/sendText`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
