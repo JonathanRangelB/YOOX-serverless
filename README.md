@@ -130,11 +130,43 @@ It will add the `serverless-offline` plugin to `devDependencies` in `package.jso
 
 After installation, you can start local emulation with:
 
-```
+```bash
 serverless offline
+#or
+pnpm dev
+#this is prefered because it will spin up the local SQS service as well
 ```
 
 To learn more about the capabilities of `serverless-offline`, please refer to its [GitHub repository](https://github.com/dherault/serverless-offline).
+
+To test locally the SQS you new to have docker installed and the service running (In linux you cold use `sudo systemctl start docker`), then you can run the following command:
+
+> [!NOTE]
+> this might fail if you dont have your .env variables set, make sure you have the .env file present on the root of the project.
+
+```bash
+docker run --rm -it -p 9324:9324 -p 9325:9325 softwaremill/elasticmq-native
+```
+
+this will allow to use SQS locally, you can test it using the following command:
+
+```bash
+# using AWS CLI
+aws sqs send-message \
+  --queue-url http://0.0.0.0:9324/queue/yoox-whatsapp-dev \
+  --message-body '{ "messageType": "text", "to": "5219876543210", "body": "Test message" }' \
+  --endpoint-url http://0.0.0.0:9324 \
+  --region 'us-east-2'
+
+# using curl
+curl -X POST "http://0.0.0.0:9324/" \
+  -H "Content-Type: application/x-amz-json-1.0" \
+  -H "X-Amz-Target: AmazonSQS.SendMessage" \
+  -d '{
+    "QueueUrl": "http://0.0.0.0:9324/queue/yoox-whatsapp-dev",
+    "MessageBody": "{ 'messageType': 'text', 'to': '5219876543210', 'body': 'Test Message' }"
+  }'
+```
 
 ### Architecture diagram
 

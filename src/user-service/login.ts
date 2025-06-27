@@ -7,12 +7,15 @@ import { userSchema } from './schemas/userSchema';
 import { StatusCodes } from '../helpers/statusCodes';
 import { validatePayload } from '../helpers/utils';
 
-const LOGIN_FAILED = { message: 'Login failed, verify your credentials' };
-
 module.exports.handler = async (event: any) => {
   const data: Credentials = JSON.parse(event.body);
 
   const validData = validatePayload(data, userSchema);
+
+  const TOKEN_JWT = process.env.TOKEN_JWT;
+  if (!TOKEN_JWT) {
+    throw new Error('JWT_SECRET not configured');
+  }
 
   if (!validData.valid) {
     return generateJsonResponse(
@@ -29,12 +32,14 @@ module.exports.handler = async (event: any) => {
     const { recordset, rowsAffected } = await validateCredentials(data);
 
     if (!rowsAffected[0]) {
-      console.warn(LOGIN_FAILED);
-      return generateJsonResponse(LOGIN_FAILED, StatusCodes.NOT_FOUND);
+      return generateJsonResponse(
+        'Login failed, verify your credentials',
+        StatusCodes.NOT_FOUND
+      );
     }
 
-    const token = jwt.sign(recordset[0], process.env.TOKEN_JWT!, {
-      expiresIn: '30m',
+    const token = jwt.sign(recordset[0], TOKEN_JWT, {
+      expiresIn: '60m',
     });
 
     return generateJsonResponse(

@@ -15,10 +15,13 @@
     "format": "biome format --write ./src/**/*.ts",
     "lint": "biome lint --write",
     "prepare": "husky",
-    "commitlint": "commitlint --edit"
+    "commitlint": "commitlint --edit",
+    "predev": "docker run -d --name elasticmq-dev -p 9324:9324 -p 9325:9325 softwaremill/elasticmq-native:latest",
+    "postdev": "docker stop elasticmq-dev && docker rm elasticmq-dev || true"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.804.0",
+    "@aws-sdk/client-sqs": "^3.826.0",
     "@aws-sdk/s3-request-presigner": "^3.804.0",
     "@types/jsonwebtoken": "^9.0.9",
     "ajv": "^8.17.1",
@@ -48,6 +51,7 @@
     "serverless-dotenv-plugin": "^6.0.0",
     "serverless-esbuild": "^1.55.0",
     "serverless-offline": "^13.9.0",
+    "serverless-offline-sqs": "^8.0.0",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.3"
   },

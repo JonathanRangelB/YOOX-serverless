@@ -1,7 +1,9 @@
-import { Int, Date as SQlDate, Float } from 'mssql';
+import { Float, Int, Date as SQlDate } from 'mssql';
+
+import { DbConnector } from '../helpers/dbConnector';
+import { enqueueWhatsappMessage } from '../helpers/sqs';
 import { SPAltaPago } from './types/SPAltaPago';
 import { StatusResponse } from './types/pagos';
-import { DbConnector } from '../helpers/dbConnector';
 
 export const registerPayment = async (
   spaAltaPago: SPAltaPago
@@ -24,6 +26,22 @@ export const registerPayment = async (
     if (result.returnValue != 0) throw new Error(result.returnValue);
 
     message = `Alta del pago para el folio ${spaAltaPago.ID_PRESTAMO} correspondiente a la semana ${spaAltaPago.NUMERO_SEMANA} de manera exitosa`;
+
+    // NOTE: opcion 1
+    // await enqueueWhatsappMessage({
+    //   messageType: 'text',
+    //   to: '3315757197',
+    //   body: message,
+    // });
+    //
+    // NOTE: opcion 2
+    await enqueueWhatsappMessage({
+      messageType: 'text',
+      body: message,
+      table: 'CLIENTES',
+      id_person: spaAltaPago.ID_CLIENTE,
+    });
+
     return { message };
   } catch (err) {
     if (err instanceof Error) {

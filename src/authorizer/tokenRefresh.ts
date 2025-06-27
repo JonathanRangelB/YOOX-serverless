@@ -48,7 +48,7 @@ export const handler = async (event: APIGatewayEvent) => {
     // Verificar que el token no sea demasiado viejo
     // Por ejemplo, no permitir renovar tokens de más de 1 hora de expirados
     const now = Math.floor(Date.now() / 1000);
-    const maxRefreshWindow = 30 * 60; // 30 minutos en segundos
+    const maxRefreshWindow = 60 * 60; // 60 minutos en segundos
 
     if (now - decodedToken.exp > maxRefreshWindow) {
       return generateJsonResponse(
@@ -76,7 +76,7 @@ export const handler = async (event: APIGatewayEvent) => {
       );
     }
 
-    // Generar nuevo token con nueva expiración (30 minutos)
+    // Generar nuevo token con nueva expiración (60 minutos)
     const newTokenPayload: TokenPayload = {
       ID: decodedToken.ID,
       NOMBRE: decodedToken.NOMBRE,
@@ -85,7 +85,7 @@ export const handler = async (event: APIGatewayEvent) => {
       ID_GRUPO: decodedToken.ID_GRUPO,
       ID_ROL: decodedToken.ID_ROL,
       iat: now,
-      exp: now + 30 * 60, // 30 minutos desde ahora
+      exp: now + maxRefreshWindow, // 60 minutos desde ahora
     };
 
     const newToken = jwt.sign(newTokenPayload, TOKEN_JWT);
@@ -93,7 +93,6 @@ export const handler = async (event: APIGatewayEvent) => {
     return generateJsonResponse(
       {
         token: `Bearer ${newToken}`,
-        expiresInSeconds: 30 * 60, // segundos hasta expiración
       },
       StatusCodes.OK
     );

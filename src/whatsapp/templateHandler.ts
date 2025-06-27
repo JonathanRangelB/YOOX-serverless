@@ -1,0 +1,5 @@
+import { TemplateMessage } from './interfaces/whatsappMessage';
+
+export const processTemplateMessage = (message: TemplateMessage) => {
+  console.log(`Enviando plantilla "${message.templateName}" a ${message.to}`);
+};
