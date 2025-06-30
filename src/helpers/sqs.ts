@@ -59,13 +59,12 @@ function buildSimpleTextMessageCommandBody(
   phoneNumber: string,
   countryCode = '52'
 ) {
-  const isDevMode = process.env.ENV_NAME !== 'production';
   return {
     QueueUrl: process.env.MAIN_SQS_URL || DEV_QUEUE,
     MessageBody: JSON.stringify({
       messageType: messageType,
       body: body,
-      to: isDevMode ? process.env.TEST_PHONE : `${countryCode}1${phoneNumber}`,
+      to: process.env.TEST_PHONE || `${countryCode}1${phoneNumber}`,
     }),
   };
 }
@@ -79,13 +78,12 @@ function buildTemplateTextMessageCommandBody(
   components: any[],
   countryCode = '52'
 ) {
-  const isDevMode = process.env.ENV_NAME !== 'production';
   return {
     QueueUrl: process.env.MAIN_SQS_URL || DEV_QUEUE,
     MessageBody: JSON.stringify({
       messageType: messageType,
       body: `${body}|${languageCode}|${templateName}|${components}`,
-      to: isDevMode ? process.env.TEST_PHONE : `${countryCode}1${phoneNumber}`,
+      to: process.env.TEST_PHONE || `${countryCode}1${phoneNumber}`,
     }),
   };
 }
