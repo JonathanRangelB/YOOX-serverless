@@ -1,24 +1,38 @@
-import { SQSEvent } from 'aws-lambda';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 
-import { WhatsAppMessage } from './interfaces/whatsappMessage';
 import { transformSQSRecordAttributes } from './utils/transformMessageAttributes';
 import { processSimpleTextMessage } from './simpleTextHandler';
 import { processTemplateMessage } from './templateHandler';
+import {
+  DirectTextMessage,
+  TemplateMessage,
+} from './interfaces/whatsappMessage';
 
-export const handler = async (event: SQSEvent) => {
+export interface MessageBody {
+  messageType?: string;
+  body?: string;
+  to?: string;
+}
+
+export const handler = async (event: any) => {
   for (const record of event.Records) {
     try {
-      const messageBody = record.body;
-      const message = JSON.parse(messageBody) as WhatsAppMessage;
+      console.log(typeof event);
+      console.log({ record });
+      let message;
+      try {
+        message = JSON.parse(record.body) as MessageBody;
+      } catch (_) {
+        message = record as MessageBody;
+      }
 
       switch (message.messageType) {
         case 'text':
-          processSimpleTextMessage(message);
+          await processSimpleTextMessage(message as DirectTextMessage);
           break;
 
         case 'template':
-          processTemplateMessage(message);
+          await processTemplateMessage(message as TemplateMessage);
           break;
 
         default:

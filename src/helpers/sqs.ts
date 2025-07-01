@@ -31,6 +31,9 @@ export async function enqueueWhatsappMessage(wa_message: WhatsAppMessage) {
         wa_message.table,
         wa_message.id_person
       );
+      if (!phoneNumber) {
+        throw new Error('no se encontro el telefono de la persona');
+      }
       commandBody = buildSimpleTextMessageCommandBody(
         wa_message.messageType,
         wa_message.body,
@@ -50,7 +53,8 @@ export async function enqueueWhatsappMessage(wa_message: WhatsAppMessage) {
   }
   const command = new SendMessageCommand(commandBody);
   const client = new SQSClient(sqsClientConfiguration);
-  await client.send(command);
+  const result = await client.send(command);
+  console.log({ command, client, result });
 }
 
 function buildSimpleTextMessageCommandBody(
