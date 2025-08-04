@@ -1,7 +1,14 @@
 import { DbConnector } from './dbConnector';
-import { generateJsonResponse } from './generateJsonResponse';
-import { StatusCodes } from './statusCodes';
 
+interface WaErrorOptions {
+  uuid: string;
+  timestamp_sent: Date;
+  sent_to: string;
+  type: string;
+  message: string;
+  origin: string;
+  error_message: string;
+}
 export async function getPhoneNumberByPersonId(
   table: 'CLIENTES' | 'USUARIOS',
   id_person: number
@@ -16,4 +23,28 @@ export async function getPhoneNumberByPersonId(
   } catch (err) {
     console.error(err);
   }
+}
+
+export async function registerWAErrorInDB(options: WaErrorOptions) {
+  const queryStatement = `
+    INSERT INTO [MSG_WA] (
+      [UUID],
+      [TIMESTAMP_SENT],
+      [SENT_TO],
+      [TYPE],
+      [MESSAGE],
+      [ORIGIN],
+      [ERROR_MESSAGE])
+    VALUES (
+      '${options.uuid}',
+      '${options.timestamp_sent}',
+      '${options.sent_to}',
+      '${options.type}',
+      '${options.message}',
+      '${options.origin}',
+      '${options.error_message}')`;
+  const pool = await DbConnector.getInstance().connection;
+  await pool.query(queryStatement);
+
+  return;
 }

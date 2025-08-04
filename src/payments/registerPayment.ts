@@ -1,9 +1,10 @@
 import { Float, Int, Date as SQlDate } from 'mssql';
 
 import { DbConnector } from '../helpers/dbConnector';
-import { enqueueWhatsappMessage } from '../helpers/sqs';
 import { SPAltaPago } from './types/SPAltaPago';
 import { StatusResponse } from './types/pagos';
+import { enqueueWAMessageOnDB } from '../whatsapp/enqueueMessage';
+import { getPhoneNumberByPersonId } from '../helpers/asyncUtils';
 
 export const registerPayment = async (
   spaAltaPago: SPAltaPago
@@ -25,22 +26,14 @@ export const registerPayment = async (
 
     if (result.returnValue != 0) throw new Error(result.returnValue);
 
-    message = `Alta del pago para el folio ${spaAltaPago.ID_PRESTAMO} correspondiente a la semana ${spaAltaPago.NUMERO_SEMANA} de manera exitosa`;
+    message = `Pago registrado exitosamente para el folio #${spaAltaPago.ID_PRESTAMO} correspondiente a la semana *${spaAltaPago.NUMERO_SEMANA}* por la candidad de *$${spaAltaPago.CANTIDAD_PAGADA}* pesos`;
 
-    // NOTE: opcion 1
-    // await enqueueWhatsappMessage({
-    //   messageType: 'text',
-    //   to: '3315757197',
-    //   body: message,
-    // });
-    //
-    // NOTE: opcion 2
-    await enqueueWhatsappMessage({
-      messageType: 'text',
-      body: message,
-      table: 'CLIENTES',
-      id_person: spaAltaPago.ID_CLIENTE,
-    });
+    const target_phone_number = await getPhoneNumberByPersonId("CLIENTES", spaAltaPago.ID_CLIENTE)
+
+    if (target_phone_number) {
+      const enqueueResult = await enqueueWAMessageOnDB({ message, queue_ISOdate: new Date().toISOString(), target_phone_number: '3315757197' })
+      console.log({ enqueueResult })
+    }
 
     return { message };
   } catch (err) {
