@@ -367,11 +367,12 @@ export const registerUpdateLoanRequest = async (
 
     await procTransaction.commit();
 
-    if (updateLoanRequest.formCliente.telefono_movil_cliente) {
+    if (
+      updateLoanRequest.formCliente.telefono_movil_cliente &&
+      updateLoanRequest.loan_request_status !== "ACTUALIZAR"
+    ) {
       await enqueueWAMessageOnDB({
-        message: `Hola ${updateLoanRequest.formCliente.nombre_cliente}!
-          Se ha actualizado tu solicitud de prestamo con número ${request_number}.
-          Ahora se encuentra con el status de: ${updateLoanRequest.loan_request_status}`,
+        message: `Hola ${updateLoanRequest.formCliente.nombre_cliente}! Se ha actualizado tu solicitud de prestamo con número ${request_number}. El estado actual es: ${updateLoanRequest.loan_request_status}`,
         queue_ISOdate: new Date().toISOString(),
         target_phone_number:
           process.env.TEST_PHONE ||
