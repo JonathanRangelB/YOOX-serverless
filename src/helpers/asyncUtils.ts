@@ -1,4 +1,4 @@
-import { DbConnector } from './dbConnector';
+import { DbConnector } from "./dbConnector";
 
 interface WaErrorOptions {
   uuid: string;
@@ -11,34 +11,33 @@ interface WaErrorOptions {
 }
 
 export async function getPhoneNumberByPersonId(
-  table: 'CLIENTES' | 'USUARIOS',
-  id_person: number
+  table: "CLIENTES" | "USUARIOS",
+  id_person: number,
 ) {
   try {
     const pool = await DbConnector.getInstance().connection;
     const result = await pool.query<{ TELEFONO_MOVIL: string }>(
-      `SELECT TELEFONO_MOVIL from ${table} where ID = ${id_person}`
+      `SELECT TELEFONO_MOVIL from ${table} where ID = ${id_person}`,
     );
-    return result.recordset[0].TELEFONO_MOVIL || '';
+    return result.recordset[0].TELEFONO_MOVIL;
   } catch (err) {
     console.error(err);
   }
 }
 
-export async function getPhoneNumberInLoanRequestByRequestNumber(
-  request_number: string
-) {
-  try {
-    const pool = await DbConnector.getInstance().connection;
-    const result = await pool.query<{ TELEFONO_MOVIL_CLIENTE: string }>(
-      `SELECT TELEFONO_MOVIL_CLIENTE from LOAN_REQUEST where REQUEST_NUMBER = ${request_number}`
-    );
-    return result.recordset[0].TELEFONO_MOVIL_CLIENTE || '';
-  } catch (err) {
-    console.error(err);
-  }
-}
-
+// export async function getPhoneNumberInLoanRequestByRequestNumber(
+//   request_number: string
+// ) {
+//   try {
+//     const pool = await DbConnector.getInstance().connection;
+//     const result = await pool.query<{ TELEFONO_MOVIL_CLIENTE: string }>(
+//       `SELECT TELEFONO_MOVIL_CLIENTE from LOAN_REQUEST where REQUEST_NUMBER = ${request_number}`
+//     );
+//     return result.recordset[0].TELEFONO_MOVIL_CLIENTE || '';
+//   } catch (err) {
+//     console.error(err);
+//   }
+// }
 
 export async function registerWAErrorInDB(options: WaErrorOptions) {
   const queryStatement = `
