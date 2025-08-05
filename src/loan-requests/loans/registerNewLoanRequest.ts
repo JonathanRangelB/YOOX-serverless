@@ -26,10 +26,7 @@ export const registerNewLoanRequest = async (
     await procTransaction.commit();
     if (newLoanRequest.formCliente.telefono_movil_cliente) {
       await enqueueWAMessageOnDB({
-        message: `Hola ${newLoanRequest.formCliente.nombre_cliente}!
-          Se ha generado una nueva solicitud con el numero ${request_number}
-          por la cantidad solicitada de ${newLoanRequest.cantidad_prestada}.
-          Revisaremos tus datos y te responderemos en breve.`,
+        message: `Hola ${newLoanRequest.formCliente.nombre_cliente}! Se ha generado una nueva solicitud con el numero ${request_number} por la cantidad solicitada de $${newLoanRequest.cantidad_prestada} pesos. Revisaremos tus datos y te responderemos en breve.`,
         queue_ISOdate: new Date().toISOString(),
         target_phone_number:
           process.env.TEST_PHONE ||
