@@ -59,6 +59,11 @@ export async function registerWAErrorInDB(options: WaErrorOptions) {
       '${options.error_message}')`;
   const pool = await DbConnector.getInstance().connection;
   await pool.query(queryStatement);
-
   return;
+}
+
+export async function genericQuery<T>(query: string) {
+  const pool = await DbConnector.getInstance().connection;
+  const result = await pool.query<T>(query);
+  return result.recordset[0];
 }
