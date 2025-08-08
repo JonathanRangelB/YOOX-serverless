@@ -87,12 +87,12 @@ export const updateCustomer = async (
 
                   SET        
                   NOMBRE = '${nombre_cliente} ${apellido_paterno_cliente} ${apellido_materno_cliente}'
-                  ,TELEFONO_FIJO = '${telefono_fijo_cliente}'
-                  ,TELEFONO_MOVIL = '${telefono_movil_cliente}'
-                  ,CORREO_ELECTRONICO = '${correo_electronico_cliente}'
+                  ,TELEFONO_FIJO = ${telefono_fijo_cliente ? `'${telefono_fijo_cliente}'` : `NULL`}
+                  ,TELEFONO_MOVIL = ${telefono_movil_cliente ? `'${telefono_movil_cliente}'` : `NULL`}
+                  ,CORREO_ELECTRONICO = ${correo_electronico_cliente ? `'${correo_electronico_cliente}'` : `NULL`}
                   ,ACTIVO = ${cliente_activo}
                   ,ID_AGENTE = ${id_agente}
-                  ,OCUPACION = '${ocupacion_cliente}'
+                  ,OCUPACION = ${ocupacion_cliente ? `'${ocupacion_cliente}'` : `NULL`}
                   ,CURP = '${curp_cliente}'
                   ,ID_DOMICILIO = ${idDomicilio}
 

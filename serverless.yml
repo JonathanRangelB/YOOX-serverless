@@ -213,25 +213,12 @@ functions:
   customAuthorizer:
     handler: ./src/authorizer/auth.handler
 
-  processWhatsappMessage:
-    handler: src/whatsapp/sqsHandler.handler
-    memorySize: 256
-    events:
-      - sqs: ${env:MAIN_SQS_ARN} 
-
 custom:
   stage: ${opt:stage, self:provider.stage}
   environment:
     NODE_ENV: ${self:custom.stage}
-  serverless-offline-sqs:
-    autoCreate: true                  # Crea las colas de tu 'resources' automáticamente en ElasticMQ
-    endpoint: http://0.0.0.0:9324     # El endpoint de tu SQS local
-    region: ${self:provider.region}   # Usa la misma región que tu provider
-    accessKeyId: root                 # Credenciales dummy para el cliente local
-    secretAccessKey: root             # Credenciales dummy para el cliente local
 
 plugins:
   - serverless-dotenv-plugin
   - serverless-esbuild
-  - serverless-offline-sqs
   - serverless-offline

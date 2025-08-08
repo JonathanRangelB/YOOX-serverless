@@ -1,23 +1,24 @@
-import { Int } from 'mssql';
-import { DbConnector } from '../../helpers/dbConnector';
-import { LoanUpdateDate } from '../../helpers/table-schemas';
-import { UpdateLoanRequest } from '../types/SPInsertNewLoanRequest';
-import { UpdateStatusResponse } from '../types/loanRequest';
-import { registerNewCustomer } from '../../general-data-requests/transactions/customer/registerNewCustomer';
-import { convertDateTimeZone } from '../../helpers/utils';
-import { updateCustomer } from '../../general-data-requests/transactions/customer/updateCustomer';
-import { registerNewEndorsement } from '../../general-data-requests/transactions/endorsement/registerNewEndorsement';
-import { updateEndorsement } from '../../general-data-requests/transactions/endorsement/updateEndorsement';
-import { validateDataLoanRequestUpdate } from '../utils/validateData';
-import { LoanHeader } from '../../interfaces/loan-interface';
-import { registerNewLoan } from '../../general-data-requests/transactions/loan/registerNewLoan';
-import { Refinance } from '../../helpers/table-schemas';
-import { registerNewRefinancing } from '../../general-data-requests/transactions/refinancing/registerNewRefinancing';
-import { GenericBDRequest } from '../../general-data-requests/types/genericBDRequest';
-import { Status } from '../../helpers/utils';
+import { Int } from "mssql";
+import { DbConnector } from "../../helpers/dbConnector";
+import { LoanUpdateDate } from "../../helpers/table-schemas";
+import { UpdateLoanRequest } from "../types/SPInsertNewLoanRequest";
+import { UpdateStatusResponse } from "../types/loanRequest";
+import { registerNewCustomer } from "../../general-data-requests/transactions/customer/registerNewCustomer";
+import { convertDateTimeZone } from "../../helpers/utils";
+import { updateCustomer } from "../../general-data-requests/transactions/customer/updateCustomer";
+import { registerNewEndorsement } from "../../general-data-requests/transactions/endorsement/registerNewEndorsement";
+import { updateEndorsement } from "../../general-data-requests/transactions/endorsement/updateEndorsement";
+import { validateDataLoanRequestUpdate } from "../utils/validateData";
+import { LoanHeader } from "../../interfaces/loan-interface";
+import { registerNewLoan } from "../../general-data-requests/transactions/loan/registerNewLoan";
+import { Refinance } from "../../helpers/table-schemas";
+import { registerNewRefinancing } from "../../general-data-requests/transactions/refinancing/registerNewRefinancing";
+import { GenericBDRequest } from "../../general-data-requests/types/genericBDRequest";
+import { Status } from "../../helpers/utils";
+import { enqueueWAMessageOnDB } from "../../whatsapp/enqueueMessage";
 
 export const registerUpdateLoanRequest = async (
-  updateLoanRequest: UpdateLoanRequest
+  updateLoanRequest: UpdateLoanRequest,
 ): Promise<UpdateStatusResponse> => {
   const pool = await DbConnector.getInstance().connection;
   const procTransaction = pool.transaction();
@@ -28,13 +29,13 @@ export const registerUpdateLoanRequest = async (
 
     const queryResult = await procTransaction
       .request()
-      .input('ID_LOAN_REQUEST', Int, updateLoanRequest.id)
+      .input("ID_LOAN_REQUEST", Int, updateLoanRequest.id)
       .query<LoanUpdateDate>(
-        'SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;'
+        "SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;",
       );
 
     if (!queryResult.recordset[0]) {
-      throw new Error('La solicitud de préstamo no existe');
+      throw new Error("La solicitud de préstamo no existe");
     }
 
     // Manejo de concurrencia
@@ -42,15 +43,19 @@ export const registerUpdateLoanRequest = async (
     const currentLoanRequestStatus =
       queryResult.recordset[0].loan_request_status;
 
-    if ([Status.APROBADO as string, Status.RECHAZADO as string].includes(currentLoanRequestStatus)) {
+    if (
+      [Status.APROBADO as string, Status.RECHAZADO as string].includes(
+        currentLoanRequestStatus,
+      )
+    ) {
       throw new Error(
-        `La solicitud ya ha sido cerrada con el estatus ${currentLoanRequestStatus}`
+        `La solicitud ya ha sido cerrada con el estatus ${currentLoanRequestStatus}`,
       );
     }
 
     const current_local_date = convertDateTimeZone(
       queryResult.recordset[0].current_date_server,
-      'America/Mexico_City'
+      "America/Mexico_City",
     ) as Date;
 
     const {
@@ -118,17 +123,19 @@ export const registerUpdateLoanRequest = async (
     const { id: id_plazo, tasa_de_interes, semanas_plazo } = datosPlazo;
 
     //Comienza ensamblado de la cadena del query
-    let updateQueryColumns = '';
+    let updateQueryColumns = "";
 
     if (
       currentLoanRequestStatus === newLoanRequestStatus ||
-      (currentLoanRequestStatus === Status.ACTUALIZAR && [Status.APROBADO as string].includes(newLoanRequestStatus))
+      (currentLoanRequestStatus === Status.ACTUALIZAR &&
+        [Status.APROBADO as string].includes(newLoanRequestStatus))
     ) {
-      throw new Error('Cambio de status incorrecto');
+      throw new Error("Cambio de status incorrecto");
     }
 
     if (
-      currentLoanRequestStatus === Status.ACTUALIZAR && newLoanRequestStatus === Status.RECHAZADO
+      currentLoanRequestStatus === Status.ACTUALIZAR &&
+      newLoanRequestStatus === Status.RECHAZADO
     ) {
       updateQueryColumns += ` SET 
                         LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
@@ -138,17 +145,17 @@ export const registerUpdateLoanRequest = async (
         `;
     }
     if (
-      currentLoanRequestStatus === Status.ACTUALIZAR && newLoanRequestStatus === Status.EN_REVISION
+      currentLoanRequestStatus === Status.ACTUALIZAR &&
+      newLoanRequestStatus === Status.EN_REVISION
     ) {
-
       updateQueryColumns = `SET 
       LOAN_REQUEST_STATUS = '${newLoanRequestStatus}'
       ,ID_AGENTE = ${id_agente}
       ,ID_GRUPO_ORIGINAL = ${id_grupo_original}
       ,ID_CLIENTE = ${id_cliente ? id_cliente : `NULL`}
-      ,NOMBRE_CLIENTE = '${nombre_cliente}'
-      ,APELLIDO_PATERNO_CLIENTE = '${apellido_paterno_cliente}'
-      ,APELLIDO_MATERNO_CLIENTE = '${apellido_materno_cliente}'    
+      ,NOMBRE_CLIENTE = '${nombre_cliente.trim().toUpperCase()}'
+      ,APELLIDO_PATERNO_CLIENTE = '${apellido_paterno_cliente.trim().toUpperCase()}'
+      ,APELLIDO_MATERNO_CLIENTE = '${apellido_materno_cliente.trim().toUpperCase()}'
       ,TELEFONO_FIJO_CLIENTE = ${telefono_fijo_cliente ? `'${telefono_fijo_cliente}'` : `NULL`}
       ,TELEFONO_MOVIL_CLIENTE = '${telefono_movil_cliente}'
       ,CORREO_ELECTRONICO_CLIENTE = ${correo_electronico_cliente ? `'${correo_electronico_cliente}'` : `NULL`}
@@ -165,9 +172,9 @@ export const registerUpdateLoanRequest = async (
       ,CP_CLIENTE = '${cp_cliente}'
       ,REFERENCIAS_DOM_CLIENTE = ${referencias_dom_cliente ? `'${referencias_dom_cliente}'` : `NULL`}
       ,ID_AVAL = ${id_aval ? id_aval : `NULL`}
-      ,NOMBRE_AVAL = '${nombre_aval}'
-      ,APELLIDO_PATERNO_AVAL = '${apellido_paterno_aval}'
-      ,APELLIDO_MATERNO_AVAL = '${apellido_materno_aval}'
+      ,NOMBRE_AVAL = '${nombre_aval.trim()}'
+      ,APELLIDO_PATERNO_AVAL = '${apellido_paterno_aval.trim().toUpperCase()}'
+      ,APELLIDO_MATERNO_AVAL = '${apellido_materno_aval.trim().toUpperCase()}'
       ,TELEFONO_FIJO_AVAL = ${telefono_fijo_aval ? `'${telefono_fijo_aval}'` : `NULL`}
       ,TELEFONO_MOVIL_AVAL = '${telefono_movil_aval}'
       ,CORREO_ELECTRONICO_AVAL = ${correo_electronico_aval ? `'${correo_electronico_aval}'` : `NULL`}
@@ -236,7 +243,7 @@ export const registerUpdateLoanRequest = async (
 
             const procNewEndorsement = await registerNewEndorsement(
               datosAval,
-              procTransaction
+              procTransaction,
             );
 
             if (!procNewEndorsement.idEndorsment) {
@@ -251,7 +258,7 @@ export const registerUpdateLoanRequest = async (
 
             const procUpdateEndorsement = await updateEndorsement(
               datosAval,
-              procTransaction
+              procTransaction,
             );
 
             if (!procUpdateEndorsement.generatedId) {
@@ -268,7 +275,7 @@ export const registerUpdateLoanRequest = async (
 
             const procNewCustomer = await registerNewCustomer(
               datosCliente,
-              procTransaction
+              procTransaction,
             );
             if (!procNewCustomer.idCustomer) {
               throw new Error(procNewCustomer.message);
@@ -280,7 +287,7 @@ export const registerUpdateLoanRequest = async (
             datosCliente.fecha_modificacion_cliente = current_local_date;
             const procUpdateCustomer = await updateCustomer(
               datosCliente,
-              procTransaction
+              procTransaction,
             );
             if (!procUpdateCustomer.generatedId) {
               throw new Error(procUpdateCustomer.message);
@@ -301,7 +308,7 @@ export const registerUpdateLoanRequest = async (
             id_corte: 0,
             cantidad_restante: cantidad_pagar,
             cantidad_pagar: cantidad_pagar,
-            estatus: 'EMITIDO',
+            estatus: "EMITIDO",
             fecha_cancelado: fecha_final_estimada,
             usuario_cancelo: 0,
             id_concepto: 0,
@@ -322,12 +329,12 @@ export const registerUpdateLoanRequest = async (
             procInsertLoan = await registerNewRefinancing(
               encabezadoPrestamo,
               encabezadoRefinanciamiento,
-              procTransaction
+              procTransaction,
             );
           } else {
             procInsertLoan = await registerNewLoan(
               encabezadoPrestamo,
-              procTransaction
+              procTransaction,
             );
           }
 
@@ -344,7 +351,7 @@ export const registerUpdateLoanRequest = async (
           break;
 
         default:
-          throw new Error('Cambio de status incorrecto');
+          throw new Error("Cambio de status incorrecto");
       }
     }
 
@@ -355,17 +362,31 @@ export const registerUpdateLoanRequest = async (
       .query(updateQueryString);
 
     if (!updateResult.rowsAffected[0]) {
-      throw new Error('No se actualizó el registro');
+      throw new Error("No se actualizó el registro");
     }
 
     await procTransaction.commit();
 
+    if (
+      updateLoanRequest.formCliente.telefono_movil_cliente &&
+      updateLoanRequest.loan_request_status !== "ACTUALIZAR"
+    ) {
+      const message = buildMessageBasedOnStatus(updateLoanRequest);
+      await enqueueWAMessageOnDB({
+        message,
+        queue_ISOdate: new Date().toISOString(),
+        target_phone_number:
+          process.env.TEST_PHONE ||
+          updateLoanRequest.formCliente.telefono_movil_cliente,
+      });
+    }
+
     return {
-      message: 'Requerimiento de préstamo actualizado',
+      message: "Requerimiento de préstamo actualizado",
     };
   } catch (error) {
     await procTransaction.rollback();
-    let errorMessage = '';
+    let errorMessage = "";
 
     if (error instanceof Error) {
       errorMessage = error.message;
@@ -373,5 +394,17 @@ export const registerUpdateLoanRequest = async (
 
     return { error: errorMessage };
   }
-};
 
+  function buildMessageBasedOnStatus(
+    updateLoanRequest: UpdateLoanRequest,
+  ): string {
+    switch (updateLoanRequest.loan_request_status) {
+      case Status.EN_REVISION:
+        return `Hola ${updateLoanRequest.formCliente.nombre_cliente} ${updateLoanRequest.formCliente.apellido_paterno_cliente},\n\nHemos recibido su solicitud de préstamo con folio #${updateLoanRequest.request_number} y se encuentra en revisión.\n\nFinanciera YOOX agradece su preferencia.`;
+      case Status.RECHAZADO:
+        return `Hola ${updateLoanRequest.formCliente.nombre_cliente} ${updateLoanRequest.formCliente.apellido_paterno_cliente},\n\nSu solicitud de préstamo con folio #${updateLoanRequest.request_number} no fue aprobada.\n\nPóngase en contacto con su agente YOOX para más detalles.\n\nFinanciera YOOX.`;
+      default: // APROBADO
+        return `Hola ${updateLoanRequest.formCliente.nombre_cliente} ${updateLoanRequest.formCliente.apellido_paterno_cliente},\n\nSu solicitud de préstamo con folio #${updateLoanRequest.request_number} ha sido APROBADA.\n\nFinanciera YOOX agradece su preferencia.`;
+    }
+  }
+};

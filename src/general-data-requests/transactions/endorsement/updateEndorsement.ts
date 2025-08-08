@@ -83,16 +83,15 @@ export const updateEndorsement = async (
 
                     SET
                     NOMBRE = '${nombre_aval} ${apellido_paterno_aval} ${apellido_materno_aval}',
-                    TELEFONO_FIJO = '${telefono_fijo_aval}',
-                    TELEFONO_MOVIL = '${telefono_movil_aval}',
-                    CORREO_ELECTRONICO = '${correo_electronico_aval}',
+                    TELEFONO_FIJO = ${telefono_fijo_aval ? `'${telefono_fijo_aval}'` : `NULL`},
+                    TELEFONO_MOVIL = ${telefono_movil_aval ? `'${telefono_movil_aval}'` : `NULL`},
+                    CORREO_ELECTRONICO = ${correo_electronico_aval ? `'${correo_electronico_aval}'` : `NULL`},
                     CURP = '${curp_aval}',
                     ID_DOMICILIO = ${idDomicilio}
 
                     WHERE ID_AVAL = ${id_aval}
 
                     `;
-
     const updateEndorsementResult = await procTransaction
       .request()
       .query(queryUpdateEndorsement);
