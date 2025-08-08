@@ -118,7 +118,7 @@ export const registerNewLoan = async (
         cantidad_semanal,
         id_cobrador,
         cantidad_semanal,
-        'SYSTEM'
+        'WEB_LOAN_REQ'
       );
     }
 
