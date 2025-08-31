@@ -8,8 +8,6 @@ export function loanRequestListSearchQuery(
   const {
     id_usuario,
     rol_usuario,
-    offSetRows,
-    fetchRowsNumber,
     status,
     nombreCliente,
     folio,
