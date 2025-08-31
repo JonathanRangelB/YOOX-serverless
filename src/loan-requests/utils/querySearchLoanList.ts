@@ -1,22 +1,20 @@
-import { accessByUserRolTable } from '../../secure-data-access/getAccessByUserRol';
-import { DatosSolicitudPrestamoLista } from '../types/loanRequest';
-import { RolesDeUsuario } from '../../helpers/utils';
+import { accessByUserRolTable } from "../../secure-data-access/getAccessByUserRol";
+import { DatosSolicitudPrestamoLista } from "../types/loanRequest";
+import { RolesDeUsuario } from "../../helpers/utils";
 
 export function loanRequestListSearchQuery(
-  datosSolicitudPrestamoLista: DatosSolicitudPrestamoLista
+  datosSolicitudPrestamoLista: DatosSolicitudPrestamoLista,
 ): string {
   const {
     id_usuario,
     rol_usuario,
-    offSetRows,
-    fetchRowsNumber,
     status,
     nombreCliente,
     folio,
     userIdFilter,
   } = datosSolicitudPrestamoLista;
-  let whereCondition = '';
-  let limitOneWeekData = '';
+  let whereCondition = "";
+  let limitOneWeekData = "";
   let cteQuery = ` WITH
                     `;
 
@@ -33,12 +31,14 @@ export function loanRequestListSearchQuery(
       break;
   }
 
-  if (status) whereCondition += ` ${whereCondition ? ' AND ' : ' WHERE '}  LOAN_REQUEST_STATUS = '${status}' `;
+  if (status)
+    whereCondition += ` ${whereCondition ? " AND " : " WHERE "}  LOAN_REQUEST_STATUS = '${status}' `;
   if (nombreCliente)
-    whereCondition += ` ${whereCondition ? ' AND ' : ' WHERE '}  CONCAT(NOMBRE_CLIENTE, ' ', APELLIDO_PATERNO_CLIENTE, ' ', APELLIDO_MATERNO_CLIENTE) LIKE '%${nombreCliente.replace(/ /g, '%')}%' `;
-  if (folio) whereCondition += ` ${whereCondition ? ' AND ' : ' WHERE '}  REQUEST_NUMBER = '${folio}' `;
+    whereCondition += ` ${whereCondition ? " AND " : " WHERE "}  CONCAT(NOMBRE_CLIENTE, ' ', APELLIDO_PATERNO_CLIENTE, ' ', APELLIDO_MATERNO_CLIENTE) LIKE '%${nombreCliente.replace(/ /g, "%")}%' `;
+  if (folio)
+    whereCondition += ` ${whereCondition ? " AND " : " WHERE "}  REQUEST_NUMBER = '${folio}' `;
   if (userIdFilter) {
-    whereCondition += ` ${whereCondition ? ' AND ' : ' WHERE '} ID_AGENTE = ${userIdFilter} `;
+    whereCondition += ` ${whereCondition ? " AND " : " WHERE "} ID_AGENTE = ${userIdFilter} `;
   }
 
   cteQuery += `
@@ -93,20 +93,13 @@ export function loanRequestListSearchQuery(
         )
         SELECT *, COUNT(*) OVER() AS CNT
         FROM LOAN_REQUEST_LIST_TABLA
-        ORDER BY LOAN_REQUEST_STATUS, request_number ASC
-        OFFSET ${offSetRows} ROWS
-        FETCH NEXT ${fetchRowsNumber} ROWS ONLY
     `;
 
   return cteQuery;
 }
 
-export function getGroupUsers(
-  id_usuario: number,
-  rol_usuario: string
-): string {
-
-  let whereCondition = '';
+export function getGroupUsers(id_usuario: number, rol_usuario: string): string {
+  let whereCondition = "";
   let cteQuery = ` WITH
                     `;
 
@@ -122,7 +115,7 @@ export function getGroupUsers(
       break;
 
     default: {
-      whereCondition = ` WHERE U.ROL IN ('Líder de grupo', 'Cobrador') `
+      whereCondition = ` WHERE U.ROL IN ('Líder de grupo', 'Cobrador') `;
     }
   }
 
