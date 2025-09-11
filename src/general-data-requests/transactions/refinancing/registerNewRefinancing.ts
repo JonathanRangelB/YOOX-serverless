@@ -106,19 +106,21 @@ export const registerNewRefinancing = async (
 
             UPDATE PRESTAMOS SET CANTIDAD_RESTANTE = 0.00, STATUS = 'REFINANCIADO' 
                 WHERE STATUS = 'EMITIDO' AND ID = ${id_prestamo_actual}
-            `
-    );
 
-    const takeSnapshotResult = await registerSnapshotRealInvestmentReport(
-      id_cliente as number,
-      idLoanNew,
-      procTransaction
+            UPDATE [REPORTE_INVERSION_REAL_SNAPSHOT]
+              SET ID_PRESTAMO_ANTERIOR = ${id_prestamo_actual},
+                  CANTIDAD_REFINANCIADA = ${cantidad_refinanciada},
+                  INVERSION_REAL = INVERSION_TOTAL - ${cantidad_refinanciada}
+
+              WHERE ID_CLIENTE = ${id_cliente}
+              AND ID_PRESTAMO_NUEVO = ${idLoanNew}
+            
+            `
     );
 
     if (
       !bulkTableRefinanceResult.rowsAffected ||
-      !updateIndexes.rowsAffected[0] ||
-      !takeSnapshotResult.generatedId
+      !updateIndexes.rowsAffected[0]
     ) {
       return {
         message: 'Error durante la transacción',
