@@ -1,24 +1,24 @@
-import { Int } from 'mssql';
-import { DbConnector } from '../../helpers/dbConnector';
-import { LoanUpdateDate } from '../../helpers/table-schemas';
-import { UpdateLoanRequest } from '../types/SPInsertNewLoanRequest';
-import { UpdateStatusResponse } from '../types/loanRequest';
-import { registerNewCustomer } from '../../general-data-requests/transactions/customer/registerNewCustomer';
-import { convertDateTimeZone } from '../../helpers/utils';
-import { updateCustomer } from '../../general-data-requests/transactions/customer/updateCustomer';
-import { registerNewEndorsement } from '../../general-data-requests/transactions/endorsement/registerNewEndorsement';
-import { updateEndorsement } from '../../general-data-requests/transactions/endorsement/updateEndorsement';
-import { validateDataLoanRequestUpdate } from '../utils/validateData';
-import { LoanHeader } from '../../interfaces/loan-interface';
-import { registerNewLoan } from '../../general-data-requests/transactions/loan/registerNewLoan';
-import { Refinance } from '../../helpers/table-schemas';
-import { registerNewRefinancing } from '../../general-data-requests/transactions/refinancing/registerNewRefinancing';
-import { GenericBDRequest } from '../../general-data-requests/types/genericBDRequest';
-import { Status } from '../../helpers/utils';
-import { enqueueWAMessageOnDB } from '../../whatsapp/enqueueMessage';
-import { querySearchLoanToRefinance } from '../../general-data-requests/utils/querySearchLoanToRefinance';
-import { StatusCodes } from '../../helpers/statusCodes';
-import { UpdateError } from '../utils/customErrors';
+import { Int } from "mssql";
+import { DbConnector } from "../../helpers/dbConnector";
+import { LoanUpdateDate } from "../../helpers/table-schemas";
+import { UpdateLoanRequest } from "../types/SPInsertNewLoanRequest";
+import { UpdateStatusResponse } from "../types/loanRequest";
+import { registerNewCustomer } from "../../general-data-requests/transactions/customer/registerNewCustomer";
+import { convertDateTimeZone } from "../../helpers/utils";
+import { updateCustomer } from "../../general-data-requests/transactions/customer/updateCustomer";
+import { registerNewEndorsement } from "../../general-data-requests/transactions/endorsement/registerNewEndorsement";
+import { updateEndorsement } from "../../general-data-requests/transactions/endorsement/updateEndorsement";
+import { validateDataLoanRequestUpdate } from "../utils/validateData";
+import { LoanHeader } from "../../interfaces/loan-interface";
+import { registerNewLoan } from "../../general-data-requests/transactions/loan/registerNewLoan";
+import { Refinance } from "../../helpers/table-schemas";
+import { registerNewRefinancing } from "../../general-data-requests/transactions/refinancing/registerNewRefinancing";
+import { GenericBDRequest } from "../../general-data-requests/types/genericBDRequest";
+import { Status } from "../../helpers/utils";
+import { enqueueWAMessageOnDB } from "../../whatsapp/enqueueMessage";
+import { querySearchLoanToRefinance } from "../../general-data-requests/utils/querySearchLoanToRefinance";
+import { StatusCodes } from "../../helpers/statusCodes";
+import { UpdateError } from "../utils/customErrors";
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest
@@ -32,14 +32,14 @@ export const registerUpdateLoanRequest = async (
 
     const queryResult = await procTransaction
       .request()
-      .input('ID_LOAN_REQUEST', Int, updateLoanRequest.id)
+      .input("ID_LOAN_REQUEST", Int, updateLoanRequest.id)
       .query<LoanUpdateDate>(
-        'SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;'
+        "SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;"
       );
 
     if (!queryResult.recordset[0]) {
       throw new UpdateError(
-        'La solicitud de préstamo no existe',
+        "La solicitud de préstamo no existe",
         StatusCodes.NOT_FOUND
       );
     }
@@ -62,7 +62,7 @@ export const registerUpdateLoanRequest = async (
 
     const current_local_date = convertDateTimeZone(
       queryResult.recordset[0].current_date_server,
-      'America/Mexico_City'
+      "America/Mexico_City"
     ) as Date;
 
     const {
@@ -135,7 +135,7 @@ export const registerUpdateLoanRequest = async (
     let cantidad_restante_anterior = 0.0;
 
     if (id_loan_to_refinance) {
-      const queryCheckIfValid = `${querySearchLoanToRefinance('t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante')} where t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance} `;
+      const queryCheckIfValid = `${querySearchLoanToRefinance("t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante")} where t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance} `;
 
       const checkIfValid = await procTransaction
         .request()
@@ -152,7 +152,7 @@ export const registerUpdateLoanRequest = async (
     }
 
     //Comienza ensamblado de la cadena del query
-    let updateQueryColumns = '';
+    let updateQueryColumns = "";
 
     if (
       currentLoanRequestStatus === newLoanRequestStatus ||
@@ -160,7 +160,7 @@ export const registerUpdateLoanRequest = async (
         [Status.APROBADO as string].includes(newLoanRequestStatus))
     ) {
       throw new UpdateError(
-        'Cambio de status incorrecto',
+        "Cambio de status incorrecto",
         StatusCodes.BAD_REQUEST
       );
     }
@@ -341,7 +341,7 @@ export const registerUpdateLoanRequest = async (
             id_corte: 0,
             cantidad_restante: cantidad_pagar,
             cantidad_pagar: cantidad_pagar,
-            estatus: 'EMITIDO',
+            estatus: "EMITIDO",
             fecha_cancelado: fecha_final_estimada,
             usuario_cancelo: 0,
             id_concepto: 0,
@@ -386,7 +386,7 @@ export const registerUpdateLoanRequest = async (
 
         default:
           throw new UpdateError(
-            'Cambio de status incorrecto',
+            "Cambio de status incorrecto",
             StatusCodes.BAD_REQUEST
           );
       }
@@ -400,7 +400,7 @@ export const registerUpdateLoanRequest = async (
 
     if (!updateResult.rowsAffected[0]) {
       throw new UpdateError(
-        'No se actualizó el registro',
+        "No se actualizó el registro",
         StatusCodes.BAD_REQUEST
       );
     }
@@ -409,7 +409,7 @@ export const registerUpdateLoanRequest = async (
 
     if (
       updateLoanRequest.formCliente.telefono_movil_cliente &&
-      updateLoanRequest.loan_request_status !== 'ACTUALIZAR'
+      updateLoanRequest.loan_request_status !== "ACTUALIZAR"
     ) {
       const message = buildMessageBasedOnStatus(updateLoanRequest);
       await enqueueWAMessageOnDB({
@@ -422,11 +422,11 @@ export const registerUpdateLoanRequest = async (
     }
 
     return {
-      message: 'Requerimiento de préstamo actualizado',
+      message: "Requerimiento de préstamo actualizado",
     };
   } catch (error) {
     await procTransaction.rollback();
-    let errorMessage = '';
+    let errorMessage = "";
     let statusCode;
 
     // se deben revisar los errores especificos primero, y al ultimo el 'Error' normal
