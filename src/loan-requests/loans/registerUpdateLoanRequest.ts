@@ -18,6 +18,7 @@ import { Status } from "../../helpers/utils";
 import { enqueueWAMessageOnDB } from "../../whatsapp/enqueueMessage";
 import { querySearchLoanToRefinance } from '../../general-data-requests/utils/querySearchLoanToRefinance';
 import { StatusCodes } from '../../helpers/statusCodes';
+import { UpdateError } from '../utils/customErrors';
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest,
@@ -37,7 +38,10 @@ export const registerUpdateLoanRequest = async (
       );
 
     if (!queryResult.recordset[0]) {
-      throw new Error("La solicitud de préstamo no existe");
+      throw new UpdateError(
+        'La solicitud de préstamo no existe',
+        StatusCodes.NOT_FOUND
+      );
     }
 
     // Manejo de concurrencia
@@ -50,8 +54,9 @@ export const registerUpdateLoanRequest = async (
         currentLoanRequestStatus,
       )
     ) {
-      throw new Error(
+      throw new UpdateError(
         `La solicitud ya ha sido cerrada con el estatus ${currentLoanRequestStatus}`,
+        StatusCodes.BAD_REQUEST
       );
     }
 
@@ -137,10 +142,10 @@ export const registerUpdateLoanRequest = async (
         .query(queryCheckIfValid);
 
       if (!checkIfValid.rowsAffected[0]) {
-        return {
-          message: `El préstamo con folio ${id_loan_to_refinance} ya no puede ser refinanciado, elimine el préstamo a refinanciar.`,
-          statusCode: StatusCodes.CONFLICT
-        };
+        throw new UpdateError(
+          `El préstamo con folio ${id_loan_to_refinance} ya no puede ser refinanciado, elimine el préstamo a refinanciar.`,
+          StatusCodes.CONFLICT
+        );
       }
 
       cantidad_restante_anterior = checkIfValid.recordset[0].cantidad_restante;
@@ -154,7 +159,10 @@ export const registerUpdateLoanRequest = async (
       (currentLoanRequestStatus === Status.ACTUALIZAR &&
         [Status.APROBADO as string].includes(newLoanRequestStatus))
     ) {
-      throw new Error("Cambio de status incorrecto");
+      throw new UpdateError(
+        'Cambio de status incorrecto',
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     if (
@@ -377,7 +385,10 @@ export const registerUpdateLoanRequest = async (
           break;
 
         default:
-          throw new Error("Cambio de status incorrecto");
+          throw new UpdateError(
+            'Cambio de status incorrecto',
+            StatusCodes.BAD_REQUEST
+          );
       }
     }
 
@@ -388,7 +399,10 @@ export const registerUpdateLoanRequest = async (
       .query(updateQueryString);
 
     if (!updateResult.rowsAffected[0]) {
-      throw new Error("No se actualizó el registro");
+      throw new UpdateError(
+        'No se actualizó el registro',
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     await procTransaction.commit();
@@ -414,11 +428,17 @@ export const registerUpdateLoanRequest = async (
     await procTransaction.rollback();
     let errorMessage = "";
 
-    if (error instanceof Error) {
+    // se deben revisar los errores especificos primero, y al ultimo el 'Error' normal
+    if (error instanceof UpdateError) {
       errorMessage = error.message;
+      statusCode = error.codigo;
+      return { error: errorMessage, statusCode };
     }
 
-    return { error: errorMessage };
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      return { error: errorMessage };
+    }
   }
 
   function buildMessageBasedOnStatus(
