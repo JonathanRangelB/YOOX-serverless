@@ -16,6 +16,8 @@ import { registerNewRefinancing } from "../../general-data-requests/transactions
 import { GenericBDRequest } from "../../general-data-requests/types/genericBDRequest";
 import { Status } from "../../helpers/utils";
 import { enqueueWAMessageOnDB } from "../../whatsapp/enqueueMessage";
+import { querySearchLoanToRefinance } from '../../general-data-requests/utils/querySearchLoanToRefinance';
+import { StatusCodes } from '../../helpers/statusCodes';
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest,
@@ -122,6 +124,28 @@ export const registerUpdateLoanRequest = async (
 
     const { id: id_plazo, tasa_de_interes, semanas_plazo } = datosPlazo;
 
+    //Si hay un préstamo para refinanciar, aquí se verifica que
+    //el folio del préstamo siga disponible para refinanciamiento
+
+    let cantidad_restante_anterior = 0.0;
+
+    if (id_loan_to_refinance) {
+      const queryCheckIfValid = `${querySearchLoanToRefinance('t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante')} where t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance} `;
+
+      const checkIfValid = await procTransaction
+        .request()
+        .query(queryCheckIfValid);
+
+      if (!checkIfValid.rowsAffected[0]) {
+        return {
+          message: `El préstamo con folio ${id_loan_to_refinance} ya no puede ser refinanciado, elimine el préstamo a refinanciar.`,
+          statusCode: StatusCodes.CONFLICT
+        };
+      }
+
+      cantidad_restante_anterior = checkIfValid.recordset[0].cantidad_restante;
+    }
+
     //Comienza ensamblado de la cadena del query
     let updateQueryColumns = "";
 
@@ -217,7 +241,8 @@ export const registerUpdateLoanRequest = async (
       switch (newLoanRequestStatus) {
         case Status.ACTUALIZAR:
           updateQueryColumns += ` ,MODIFIED_BY = ${id_usuario}
-                                  ,MODIFIED_DATE = '${current_local_date.toISOString()}'                                 
+                                  ,MODIFIED_DATE = '${current_local_date.toISOString()}'
+                                  ,ID_LOAN_TO_REFINANCE = ${id_loan_to_refinance ? id_loan_to_refinance : `NULL`}                                 
           `;
           break;
 
@@ -324,6 +349,7 @@ export const registerUpdateLoanRequest = async (
               id_usuario: id_usuario,
               id_cliente: idClienteGenerado,
               id_prestamo_actual: id_loan_to_refinance,
+              cantidad_refinanciada: cantidad_restante_anterior
             };
 
             procInsertLoan = await registerNewRefinancing(

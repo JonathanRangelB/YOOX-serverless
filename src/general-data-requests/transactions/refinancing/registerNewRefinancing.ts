@@ -3,9 +3,7 @@ import { Int, Table, Transaction, Float, DateTime } from 'mssql';
 import { LoanHeader } from '../../../interfaces/loan-interface';
 import { GenericBDRequest } from '../../types/genericBDRequest';
 import { StatusCodes } from '../../../helpers/statusCodes';
-import { querySearchLoanToRefinance } from '../../utils/querySearchLoanToRefinance';
 import { registerNewLoan } from '../loan/registerNewLoan';
-import { registerSnapshotRealInvestmentReport } from '../reporting/registerSnapshotRealInvestmentReport';
 
 export const registerNewRefinancing = async (
   new_loan_header: LoanHeader,
@@ -18,29 +16,15 @@ export const registerNewRefinancing = async (
       id_usuario,
       id_cliente,
       id_prestamo_actual,
+      cantidad_refinanciada
     } = refinance;
 
     const { cantidad_prestada } = new_loan_header;
-
-    const queryCheckIfValid = `${querySearchLoanToRefinance('t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante')} where t0.id_cliente = ${id_cliente} and t0.id = ${id_prestamo_actual} `;
-
-    const checkIfValid = await procTransaction
-      .request()
-      .query(queryCheckIfValid);
-
-    if (!checkIfValid.rowsAffected[0]) {
-      return {
-        message: `El préstamo no puede ser refinanciado`,
-        generatedId: 0,
-        error: StatusCodes.BAD_REQUEST,
-      };
-    }
-
-    const cantidad_refinanciada = checkIfValid.recordset[0].cantidad_restante;
+    const cantidadRefinanciada = (cantidad_refinanciada as number)
 
     if (
       cantidad_prestada < 1000.0 ||
-      cantidad_prestada < cantidad_refinanciada
+      cantidad_prestada < cantidadRefinanciada
     ) {
       return {
         message: `No se puede refinanciar por una cantidad menor a la cantidad pendiente por pagar`,
@@ -90,7 +74,7 @@ export const registerNewRefinancing = async (
       id_cliente,
       id_prestamo_actual,
       idLoanNew,
-      cantidad_refinanciada
+      cantidadRefinanciada
     );
 
     const bulkTableRefinanceResult = await procTransaction
@@ -109,8 +93,8 @@ export const registerNewRefinancing = async (
 
             UPDATE [REPORTE_INVERSION_REAL_SNAPSHOT]
               SET ID_PRESTAMO_ANTERIOR = ${id_prestamo_actual},
-                  CANTIDAD_REFINANCIADA = ${cantidad_refinanciada},
-                  INVERSION_REAL = INVERSION_TOTAL - ${cantidad_refinanciada}
+                  CANTIDAD_REFINANCIADA = ${cantidadRefinanciada},
+                  INVERSION_REAL = INVERSION_TOTAL - ${cantidadRefinanciada}
 
               WHERE ID_CLIENTE = ${id_cliente}
               AND ID_PRESTAMO_NUEVO = ${idLoanNew}
