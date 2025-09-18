@@ -22,7 +22,7 @@ import { UpdateError } from '../utils/customErrors';
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest
-): Promise<UpdateStatusResponse> => {
+): Promise<UpdateStatusResponse | undefined> => {
   const pool = await DbConnector.getInstance().connection;
   const procTransaction = pool.transaction();
 
