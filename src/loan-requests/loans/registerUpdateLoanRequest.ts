@@ -16,6 +16,7 @@ import { registerNewRefinancing } from "../../general-data-requests/transactions
 import { GenericBDRequest } from "../../general-data-requests/types/genericBDRequest";
 import { Status } from "../../helpers/utils";
 import { enqueueWAMessageOnDB } from "../../whatsapp/enqueueMessage";
+import { fullUpdateLoanReqQuery } from "../utils/queryFullUpdateLoanReq";
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest,
@@ -79,45 +80,45 @@ export const registerUpdateLoanRequest = async (
 
     const {
       id_cliente,
-      nombre_cliente,
-      apellido_paterno_cliente,
-      apellido_materno_cliente,
-      telefono_fijo_cliente,
-      telefono_movil_cliente,
-      correo_electronico_cliente,
-      ocupacion_cliente,
-      curp_cliente,
-      tipo_calle_cliente,
-      nombre_calle_cliente,
-      numero_exterior_cliente,
-      numero_interior_cliente,
-      colonia_cliente,
-      municipio_cliente,
-      estado_cliente,
-      cp_cliente,
-      referencias_dom_cliente,
-      id_domicilio_cliente,
+      // nombre_cliente,
+      // apellido_paterno_cliente,
+      // apellido_materno_cliente,
+      // telefono_fijo_cliente,
+      // telefono_movil_cliente,
+      // correo_electronico_cliente,
+      // ocupacion_cliente,
+      // curp_cliente,
+      // tipo_calle_cliente,
+      // nombre_calle_cliente,
+      // numero_exterior_cliente,
+      // numero_interior_cliente,
+      // colonia_cliente,
+      // municipio_cliente,
+      // estado_cliente,
+      // cp_cliente,
+      // referencias_dom_cliente,
+      // id_domicilio_cliente,
     } = datosCliente;
 
     const {
       id_aval,
-      nombre_aval,
-      apellido_paterno_aval,
-      apellido_materno_aval,
-      telefono_fijo_aval,
-      telefono_movil_aval,
-      correo_electronico_aval,
-      curp_aval,
-      tipo_calle_aval,
-      nombre_calle_aval,
-      numero_exterior_aval,
-      numero_interior_aval,
-      colonia_aval,
-      municipio_aval,
-      estado_aval,
-      cp_aval,
-      referencias_dom_aval,
-      id_domicilio_aval,
+      // nombre_aval,
+      // apellido_paterno_aval,
+      // apellido_materno_aval,
+      // telefono_fijo_aval,
+      // telefono_movil_aval,
+      // correo_electronico_aval,
+      // curp_aval,
+      // tipo_calle_aval,
+      // nombre_calle_aval,
+      // numero_exterior_aval,
+      // numero_interior_aval,
+      // colonia_aval,
+      // municipio_aval,
+      // estado_aval,
+      // cp_aval,
+      // referencias_dom_aval,
+      // id_domicilio_aval,
     } = datosAval;
 
     const { id: id_plazo, tasa_de_interes, semanas_plazo } = datosPlazo;
@@ -148,66 +149,15 @@ export const registerUpdateLoanRequest = async (
       currentLoanRequestStatus === Status.ACTUALIZAR &&
       newLoanRequestStatus === Status.EN_REVISION
     ) {
-      updateQueryColumns = `SET 
-      LOAN_REQUEST_STATUS = '${newLoanRequestStatus}'
-      ,ID_AGENTE = ${id_agente}
-      ,ID_GRUPO_ORIGINAL = ${id_grupo_original}
-      ,ID_CLIENTE = ${id_cliente ? id_cliente : `NULL`}
-      ,NOMBRE_CLIENTE = '${nombre_cliente.trim().toUpperCase()}'
-      ,APELLIDO_PATERNO_CLIENTE = '${apellido_paterno_cliente.trim().toUpperCase()}'
-      ,APELLIDO_MATERNO_CLIENTE = '${apellido_materno_cliente.trim().toUpperCase()}'
-      ,TELEFONO_FIJO_CLIENTE = ${telefono_fijo_cliente ? `'${telefono_fijo_cliente}'` : `NULL`}
-      ,TELEFONO_MOVIL_CLIENTE = '${telefono_movil_cliente}'
-      ,CORREO_ELECTRONICO_CLIENTE = ${correo_electronico_cliente ? `'${correo_electronico_cliente}'` : `NULL`}
-      ,OCUPACION_CLIENTE = ${ocupacion_cliente ? `'${ocupacion_cliente}'` : `NULL`}
-      ,CURP_CLIENTE = '${curp_cliente}'
-      ,ID_DOMICILIO_CLIENTE = ${id_domicilio_cliente ? id_domicilio_cliente : `NULL`}
-      ,TIPO_CALLE_CLIENTE = '${tipo_calle_cliente.value}' 
-      ,NOMBRE_CALLE_CLIENTE = '${nombre_calle_cliente}' 
-      ,NUMERO_EXTERIOR_CLIENTE = ${numero_exterior_cliente ? `'${numero_exterior_cliente}'` : `NULL`}
-      ,NUMERO_INTERIOR_CLIENTE = ${numero_interior_cliente ? `'${numero_interior_cliente}'` : `NULL`} 
-      ,COLONIA_CLIENTE = '${colonia_cliente}' 
-      ,MUNICIPIO_CLIENTE = '${municipio_cliente}' 
-      ,ESTADO_CLIENTE = '${estado_cliente.value}' 
-      ,CP_CLIENTE = '${cp_cliente}'
-      ,REFERENCIAS_DOM_CLIENTE = ${referencias_dom_cliente ? `'${referencias_dom_cliente}'` : `NULL`}
-      ,ID_AVAL = ${id_aval ? id_aval : `NULL`}
-      ,NOMBRE_AVAL = '${nombre_aval.trim()}'
-      ,APELLIDO_PATERNO_AVAL = '${apellido_paterno_aval.trim().toUpperCase()}'
-      ,APELLIDO_MATERNO_AVAL = '${apellido_materno_aval.trim().toUpperCase()}'
-      ,TELEFONO_FIJO_AVAL = ${telefono_fijo_aval ? `'${telefono_fijo_aval}'` : `NULL`}
-      ,TELEFONO_MOVIL_AVAL = '${telefono_movil_aval}'
-      ,CORREO_ELECTRONICO_AVAL = ${correo_electronico_aval ? `'${correo_electronico_aval}'` : `NULL`}
-      ,CURP_AVAL = '${curp_aval}'
-      ,ID_DOMICILIO_AVAL = ${id_domicilio_aval ? id_domicilio_aval : `NULL`}
-      ,TIPO_CALLE_AVAL = '${tipo_calle_aval.value}'
-      ,NOMBRE_CALLE_AVAL = '${nombre_calle_aval}'
-      ,NUMERO_EXTERIOR_AVAL = ${numero_exterior_aval ? `'${numero_exterior_aval}'` : `NULL`}
-      ,NUMERO_INTERIOR_AVAL = ${numero_interior_aval ? `'${numero_interior_aval}'` : `NULL`}
-      ,COLONIA_AVAL = '${colonia_aval}'
-      ,MUNICIPIO_AVAL = '${municipio_aval}'
-      ,ESTADO_AVAL = '${estado_aval.value}'
-      ,CP_AVAL = '${cp_aval}'
-      ,REFERENCIAS_DOM_AVAL = ${referencias_dom_aval ? `'${referencias_dom_aval}'` : `NULL`}
-      ,ID_PLAZO = ${id_plazo}
-		  ,TASA_DE_INTERES = ${tasa_de_interes} 
-		  ,SEMANAS_PLAZO = ${semanas_plazo}
-      ,CANTIDAD_PRESTADA = ${cantidad_prestada}
-      ,DIA_SEMANA = '${dia_semana}'
-      ,FECHA_INICIAL = '${fecha_inicial}'
-      ,FECHA_FINAL_ESTIMADA = '${fecha_final_estimada}'
-      ,CANTIDAD_PAGAR = ${cantidad_pagar}      
-      ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
-      ,MODIFIED_BY = ${id_usuario}
-      ,MODIFIED_DATE = '${current_local_date.toISOString()}'
-      ,ID_LOAN_TO_REFINANCE = ${id_loan_to_refinance ? id_loan_to_refinance : `NULL`}
+      updateQueryColumns = fullUpdateLoanReqQuery(updateLoanRequest, false)
 
-      `;
+      updateQueryColumns += `
+        ,MODIFIED_BY = ${id_usuario}
+        ,MODIFIED_DATE = '${current_local_date.toISOString()}'
+
+      `
+
     } else if (currentLoanRequestStatus === Status.EN_REVISION) {
-      updateQueryColumns = `SET 
-                        LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
-                        ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
-                        `;
 
       let idClienteGenerado;
       let idPrestamoGenerado;
@@ -216,25 +166,26 @@ export const registerUpdateLoanRequest = async (
 
       switch (newLoanRequestStatus) {
         case Status.ACTUALIZAR:
+          updateQueryColumns = fullUpdateLoanReqQuery(updateLoanRequest, false);
           updateQueryColumns += ` ,MODIFIED_BY = ${id_usuario}
                                   ,MODIFIED_DATE = '${current_local_date.toISOString()}'                                 
           `;
           break;
 
         case Status.RECHAZADO:
-          updateQueryColumns += ` ,CLOSED_BY = ${id_usuario} 
-                                  ,CLOSED_DATE = '${current_local_date.toISOString()}'                                  
+          updateQueryColumns = ` SET 
+                        LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
+                        ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}          
+                        ,CLOSED_BY = ${id_usuario} 
+                        ,CLOSED_DATE = '${current_local_date.toISOString()}'                                  
                                   `;
 
           break;
 
         case Status.APROBADO:
+
           datosCliente.id_agente = id_agente;
           datosCliente.cliente_activo = 1;
-
-          updateQueryColumns += ` ,CLOSED_BY = ${id_usuario} 
-                                  ,CLOSED_DATE = '${current_local_date.toISOString()}'
-                                  `;
 
           if (!id_aval) {
             datosAval.aval_creado_por = id_usuario;
@@ -251,7 +202,7 @@ export const registerUpdateLoanRequest = async (
             }
 
             datosCliente.id_aval = procNewEndorsement.idEndorsment;
-            updateQueryColumns += `,ID_AVAL = ${datosCliente.id_aval}`;
+
           } else {
             datosAval.aval_modificado_por = id_usuario;
             datosAval.fecha_modificacion_aval = current_local_date;
@@ -281,7 +232,7 @@ export const registerUpdateLoanRequest = async (
               throw new Error(procNewCustomer.message);
             } else idClienteGenerado = procNewCustomer.idCustomer;
 
-            updateQueryColumns += `,ID_CLIENTE = ${idClienteGenerado}`;
+
           } else {
             datosCliente.cliente_modificado_por = id_usuario;
             datosCliente.fecha_modificacion_cliente = current_local_date;
@@ -342,11 +293,18 @@ export const registerUpdateLoanRequest = async (
             throw new Error(procInsertLoan.message);
           } else idPrestamoGenerado = procInsertLoan.generatedId;
 
-          updateQueryColumns += `,ID_LOAN = ${idPrestamoGenerado}
-                                 ,ID_LOAN_TO_REFINANCE = ${id_loan_to_refinance ? `${id_loan_to_refinance}` : `NULL`}
+
+
+          updateQueryColumns = fullUpdateLoanReqQuery(updateLoanRequest, true);
+
+          updateQueryColumns += `,ID_AVAL = ${datosCliente.id_aval}
+                                 ,ID_CLIENTE = ${idClienteGenerado}
+                                 ,ID_LOAN = ${idPrestamoGenerado}
                                  ,ID_DOMICILIO_CLIENTE = (SELECT ID_DOMICILIO FROM CLIENTES WHERE ID = ${idClienteGenerado})
                                  ,ID_DOMICILIO_AVAL = (SELECT ID_DOMICILIO FROM AVALES WHERE ID_AVAL = ${datosCliente.id_aval})
-          `;
+                                 ,CLOSED_BY = ${id_usuario} 
+                                 ,CLOSED_DATE = '${current_local_date.toISOString()}'
+                                  `;
 
           break;
 
@@ -356,7 +314,7 @@ export const registerUpdateLoanRequest = async (
     }
 
     const updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = ${id_loan_request};`;
-
+    console.log('updateQueryString: ' + updateQueryString)
     const updateResult = await procTransaction
       .request()
       .query(updateQueryString);
