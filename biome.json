@@ -8,7 +8,8 @@
     "lineEnding": "lf",
     "lineWidth": 80,
     "attributePosition": "auto",
-    "bracketSpacing": true
+    "bracketSpacing": true,
+    "ignore": [".esbuild/*", ".husky/*", ".github/*", ".infisical.json"]
   },
   "linter": {
     "enabled": true,
@@ -86,7 +87,7 @@
         "useValidTypeof": "error"
       }
     },
-    "ignore": ["swagger/*", ".esbuild/*", "eslint.config.mjs"]
+    "ignore": [".esbuild/*", ".husky/*", ".github/*", ".infisical.json"]
   },
   "javascript": {
     "formatter": {
@@ -102,9 +103,10 @@
     },
     "globals": ["exports"]
   },
-  "overrides": [
-    {
-      "include": ["src/**/*.{ts}"]
-    }
-  ]
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "main"
+  }
 }
