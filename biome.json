@@ -86,7 +86,11 @@
         "useValidTypeof": "error"
       }
     },
-    "ignore": ["swagger/*", ".esbuild/*", "eslint.config.mjs"]
+    "ignore": [
+      "swagger/*",
+      ".esbuild/*",
+      "eslint.config.mjs"
+    ]
   },
   "javascript": {
     "formatter": {
@@ -96,15 +100,19 @@
       "semicolons": "always",
       "arrowParentheses": "always",
       "bracketSameLine": false,
-      "quoteStyle": "single",
+      "quoteStyle": "double",
       "attributePosition": "auto",
       "bracketSpacing": true
     },
-    "globals": ["exports"]
+    "globals": [
+      "exports"
+    ]
   },
   "overrides": [
     {
-      "include": ["src/**/*.{ts}"]
+      "include": [
+        "src/**/*.{ts}"
+      ]
     }
   ]
 }
