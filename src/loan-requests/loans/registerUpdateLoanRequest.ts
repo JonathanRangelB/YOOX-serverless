@@ -16,10 +16,13 @@ import { registerNewRefinancing } from "../../general-data-requests/transactions
 import { GenericBDRequest } from "../../general-data-requests/types/genericBDRequest";
 import { Status } from "../../helpers/utils";
 import { enqueueWAMessageOnDB } from "../../whatsapp/enqueueMessage";
+import { querySearchLoanToRefinance } from "../../general-data-requests/utils/querySearchLoanToRefinance";
+import { StatusCodes } from "../../helpers/statusCodes";
+import { UpdateError } from "../utils/customErrors";
 
 export const registerUpdateLoanRequest = async (
-  updateLoanRequest: UpdateLoanRequest,
-): Promise<UpdateStatusResponse> => {
+  updateLoanRequest: UpdateLoanRequest
+): Promise<UpdateStatusResponse | undefined> => {
   const pool = await DbConnector.getInstance().connection;
   const procTransaction = pool.transaction();
 
@@ -31,11 +34,14 @@ export const registerUpdateLoanRequest = async (
       .request()
       .input("ID_LOAN_REQUEST", Int, updateLoanRequest.id)
       .query<LoanUpdateDate>(
-        "SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;",
+        "SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;"
       );
 
     if (!queryResult.recordset[0]) {
-      throw new Error("La solicitud de préstamo no existe");
+      throw new UpdateError(
+        "La solicitud de préstamo no existe",
+        StatusCodes.NOT_FOUND
+      );
     }
 
     // Manejo de concurrencia
@@ -45,17 +51,18 @@ export const registerUpdateLoanRequest = async (
 
     if (
       [Status.APROBADO as string, Status.RECHAZADO as string].includes(
-        currentLoanRequestStatus,
+        currentLoanRequestStatus
       )
     ) {
-      throw new Error(
+      throw new UpdateError(
         `La solicitud ya ha sido cerrada con el estatus ${currentLoanRequestStatus}`,
+        StatusCodes.BAD_REQUEST
       );
     }
 
     const current_local_date = convertDateTimeZone(
       queryResult.recordset[0].current_date_server,
-      "America/Mexico_City",
+      "America/Mexico_City"
     ) as Date;
 
     const {
@@ -122,6 +129,28 @@ export const registerUpdateLoanRequest = async (
 
     const { id: id_plazo, tasa_de_interes, semanas_plazo } = datosPlazo;
 
+    //Si hay un préstamo para refinanciar, aquí se verifica que
+    //el folio del préstamo siga disponible para refinanciamiento
+
+    let cantidad_restante_anterior = 0.0;
+
+    if (id_loan_to_refinance) {
+      const queryCheckIfValid = `${querySearchLoanToRefinance("t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante")} where t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance} `;
+
+      const checkIfValid = await procTransaction
+        .request()
+        .query(queryCheckIfValid);
+
+      if (!checkIfValid.rowsAffected[0]) {
+        throw new UpdateError(
+          `El préstamo con folio ${id_loan_to_refinance} ya no puede ser refinanciado, elimine el préstamo a refinanciar.`,
+          StatusCodes.CONFLICT
+        );
+      }
+
+      cantidad_restante_anterior = checkIfValid.recordset[0].cantidad_restante;
+    }
+
     //Comienza ensamblado de la cadena del query
     let updateQueryColumns = "";
 
@@ -130,7 +159,10 @@ export const registerUpdateLoanRequest = async (
       (currentLoanRequestStatus === Status.ACTUALIZAR &&
         [Status.APROBADO as string].includes(newLoanRequestStatus))
     ) {
-      throw new Error("Cambio de status incorrecto");
+      throw new UpdateError(
+        "Cambio de status incorrecto",
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     if (
@@ -217,7 +249,8 @@ export const registerUpdateLoanRequest = async (
       switch (newLoanRequestStatus) {
         case Status.ACTUALIZAR:
           updateQueryColumns += ` ,MODIFIED_BY = ${id_usuario}
-                                  ,MODIFIED_DATE = '${current_local_date.toISOString()}'                                 
+                                  ,MODIFIED_DATE = '${current_local_date.toISOString()}'
+                                  ,ID_LOAN_TO_REFINANCE = ${id_loan_to_refinance ? id_loan_to_refinance : `NULL`}                                 
           `;
           break;
 
@@ -243,7 +276,7 @@ export const registerUpdateLoanRequest = async (
 
             const procNewEndorsement = await registerNewEndorsement(
               datosAval,
-              procTransaction,
+              procTransaction
             );
 
             if (!procNewEndorsement.idEndorsment) {
@@ -258,7 +291,7 @@ export const registerUpdateLoanRequest = async (
 
             const procUpdateEndorsement = await updateEndorsement(
               datosAval,
-              procTransaction,
+              procTransaction
             );
 
             if (!procUpdateEndorsement.generatedId) {
@@ -275,7 +308,7 @@ export const registerUpdateLoanRequest = async (
 
             const procNewCustomer = await registerNewCustomer(
               datosCliente,
-              procTransaction,
+              procTransaction
             );
             if (!procNewCustomer.idCustomer) {
               throw new Error(procNewCustomer.message);
@@ -287,7 +320,7 @@ export const registerUpdateLoanRequest = async (
             datosCliente.fecha_modificacion_cliente = current_local_date;
             const procUpdateCustomer = await updateCustomer(
               datosCliente,
-              procTransaction,
+              procTransaction
             );
             if (!procUpdateCustomer.generatedId) {
               throw new Error(procUpdateCustomer.message);
@@ -324,17 +357,18 @@ export const registerUpdateLoanRequest = async (
               id_usuario: id_usuario,
               id_cliente: idClienteGenerado,
               id_prestamo_actual: id_loan_to_refinance,
+              cantidad_refinanciada: cantidad_restante_anterior,
             };
 
             procInsertLoan = await registerNewRefinancing(
               encabezadoPrestamo,
               encabezadoRefinanciamiento,
-              procTransaction,
+              procTransaction
             );
           } else {
             procInsertLoan = await registerNewLoan(
               encabezadoPrestamo,
-              procTransaction,
+              procTransaction
             );
           }
 
@@ -351,7 +385,10 @@ export const registerUpdateLoanRequest = async (
           break;
 
         default:
-          throw new Error("Cambio de status incorrecto");
+          throw new UpdateError(
+            "Cambio de status incorrecto",
+            StatusCodes.BAD_REQUEST
+          );
       }
     }
 
@@ -362,7 +399,10 @@ export const registerUpdateLoanRequest = async (
       .query(updateQueryString);
 
     if (!updateResult.rowsAffected[0]) {
-      throw new Error("No se actualizó el registro");
+      throw new UpdateError(
+        "No se actualizó el registro",
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     await procTransaction.commit();
@@ -387,16 +427,23 @@ export const registerUpdateLoanRequest = async (
   } catch (error) {
     await procTransaction.rollback();
     let errorMessage = "";
+    let statusCode;
+
+    // se deben revisar los errores especificos primero, y al ultimo el 'Error' normal
+    if (error instanceof UpdateError) {
+      errorMessage = error.message;
+      statusCode = error.codigo;
+      return { error: errorMessage, statusCode };
+    }
 
     if (error instanceof Error) {
       errorMessage = error.message;
+      return { error: errorMessage };
     }
-
-    return { error: errorMessage };
   }
 
   function buildMessageBasedOnStatus(
-    updateLoanRequest: UpdateLoanRequest,
+    updateLoanRequest: UpdateLoanRequest
   ): string {
     switch (updateLoanRequest.loan_request_status) {
       case Status.EN_REVISION:

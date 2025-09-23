@@ -1,3 +1,5 @@
+import { StatusCodes } from "../../helpers/statusCodes";
+
 export interface StatusResponse {
   customerFolderName: string | undefined;
   error?: string;
@@ -6,6 +8,7 @@ export interface StatusResponse {
 export interface UpdateStatusResponse {
   message?: string;
   error?: string;
+  statusCode?: StatusCodes
 }
 
 export interface DatosSolicitudPrestamoLista {
