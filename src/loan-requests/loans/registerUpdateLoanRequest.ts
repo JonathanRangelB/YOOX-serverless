@@ -80,45 +80,10 @@ export const registerUpdateLoanRequest = async (
 
     const {
       id_cliente,
-      // nombre_cliente,
-      // apellido_paterno_cliente,
-      // apellido_materno_cliente,
-      // telefono_fijo_cliente,
-      // telefono_movil_cliente,
-      // correo_electronico_cliente,
-      // ocupacion_cliente,
-      // curp_cliente,
-      // tipo_calle_cliente,
-      // nombre_calle_cliente,
-      // numero_exterior_cliente,
-      // numero_interior_cliente,
-      // colonia_cliente,
-      // municipio_cliente,
-      // estado_cliente,
-      // cp_cliente,
-      // referencias_dom_cliente,
-      // id_domicilio_cliente,
     } = datosCliente;
 
     const {
       id_aval,
-      // nombre_aval,
-      // apellido_paterno_aval,
-      // apellido_materno_aval,
-      // telefono_fijo_aval,
-      // telefono_movil_aval,
-      // correo_electronico_aval,
-      // curp_aval,
-      // tipo_calle_aval,
-      // nombre_calle_aval,
-      // numero_exterior_aval,
-      // numero_interior_aval,
-      // colonia_aval,
-      // municipio_aval,
-      // estado_aval,
-      // cp_aval,
-      // referencias_dom_aval,
-      // id_domicilio_aval,
     } = datosAval;
 
     const { id: id_plazo, tasa_de_interes, semanas_plazo } = datosPlazo;
@@ -314,7 +279,7 @@ export const registerUpdateLoanRequest = async (
     }
 
     const updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = ${id_loan_request};`;
-    console.log('updateQueryString: ' + updateQueryString)
+
     const updateResult = await procTransaction
       .request()
       .query(updateQueryString);
