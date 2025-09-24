@@ -16,10 +16,14 @@ import { registerNewRefinancing } from "../../general-data-requests/transactions
 import { GenericBDRequest } from "../../general-data-requests/types/genericBDRequest";
 import { Status } from "../../helpers/utils";
 import { enqueueWAMessageOnDB } from "../../whatsapp/enqueueMessage";
+import { fullUpdateLoanReqQuery } from "../utils/queryFullUpdateLoanReq";
+import { querySearchLoanToRefinance } from "../../general-data-requests/utils/querySearchLoanToRefinance";
+import { StatusCodes } from "../../helpers/statusCodes";
+import { UpdateError } from "../utils/customErrors";
 
 export const registerUpdateLoanRequest = async (
-  updateLoanRequest: UpdateLoanRequest,
-): Promise<UpdateStatusResponse> => {
+  updateLoanRequest: UpdateLoanRequest
+): Promise<UpdateStatusResponse | undefined> => {
   const pool = await DbConnector.getInstance().connection;
   const procTransaction = pool.transaction();
 
@@ -31,11 +35,14 @@ export const registerUpdateLoanRequest = async (
       .request()
       .input("ID_LOAN_REQUEST", Int, updateLoanRequest.id)
       .query<LoanUpdateDate>(
-        "SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;",
+        "SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;"
       );
 
     if (!queryResult.recordset[0]) {
-      throw new Error("La solicitud de préstamo no existe");
+      throw new UpdateError(
+        "La solicitud de préstamo no existe",
+        StatusCodes.NOT_FOUND
+      );
     }
 
     // Manejo de concurrencia
@@ -45,17 +52,18 @@ export const registerUpdateLoanRequest = async (
 
     if (
       [Status.APROBADO as string, Status.RECHAZADO as string].includes(
-        currentLoanRequestStatus,
+        currentLoanRequestStatus
       )
     ) {
-      throw new Error(
+      throw new UpdateError(
         `La solicitud ya ha sido cerrada con el estatus ${currentLoanRequestStatus}`,
+        StatusCodes.BAD_REQUEST
       );
     }
 
     const current_local_date = convertDateTimeZone(
       queryResult.recordset[0].current_date_server,
-      "America/Mexico_City",
+      "America/Mexico_City"
     ) as Date;
 
     const {
@@ -77,50 +85,33 @@ export const registerUpdateLoanRequest = async (
       id_loan_to_refinance,
     } = updateLoanRequest;
 
-    const {
-      id_cliente,
-      nombre_cliente,
-      apellido_paterno_cliente,
-      apellido_materno_cliente,
-      telefono_fijo_cliente,
-      telefono_movil_cliente,
-      correo_electronico_cliente,
-      ocupacion_cliente,
-      curp_cliente,
-      tipo_calle_cliente,
-      nombre_calle_cliente,
-      numero_exterior_cliente,
-      numero_interior_cliente,
-      colonia_cliente,
-      municipio_cliente,
-      estado_cliente,
-      cp_cliente,
-      referencias_dom_cliente,
-      id_domicilio_cliente,
-    } = datosCliente;
+    const { id_cliente } = datosCliente;
 
-    const {
-      id_aval,
-      nombre_aval,
-      apellido_paterno_aval,
-      apellido_materno_aval,
-      telefono_fijo_aval,
-      telefono_movil_aval,
-      correo_electronico_aval,
-      curp_aval,
-      tipo_calle_aval,
-      nombre_calle_aval,
-      numero_exterior_aval,
-      numero_interior_aval,
-      colonia_aval,
-      municipio_aval,
-      estado_aval,
-      cp_aval,
-      referencias_dom_aval,
-      id_domicilio_aval,
-    } = datosAval;
+    const { id_aval } = datosAval;
 
     const { id: id_plazo, tasa_de_interes, semanas_plazo } = datosPlazo;
+
+    //Si hay un préstamo para refinanciar, aquí se verifica que
+    //el folio del préstamo siga disponible para refinanciamiento
+
+    let cantidad_restante_anterior = 0.0;
+
+    if (id_loan_to_refinance) {
+      const queryCheckIfValid = `${querySearchLoanToRefinance("t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante")} where t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance} `;
+
+      const checkIfValid = await procTransaction
+        .request()
+        .query(queryCheckIfValid);
+
+      if (!checkIfValid.rowsAffected[0]) {
+        throw new UpdateError(
+          `El préstamo con folio ${id_loan_to_refinance} ya no puede ser refinanciado, elimine el préstamo a refinanciar.`,
+          StatusCodes.CONFLICT
+        );
+      }
+
+      cantidad_restante_anterior = checkIfValid.recordset[0].cantidad_restante;
+    }
 
     //Comienza ensamblado de la cadena del query
     let updateQueryColumns = "";
@@ -130,7 +121,10 @@ export const registerUpdateLoanRequest = async (
       (currentLoanRequestStatus === Status.ACTUALIZAR &&
         [Status.APROBADO as string].includes(newLoanRequestStatus))
     ) {
-      throw new Error("Cambio de status incorrecto");
+      throw new UpdateError(
+        "Cambio de status incorrecto",
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     if (
@@ -148,67 +142,14 @@ export const registerUpdateLoanRequest = async (
       currentLoanRequestStatus === Status.ACTUALIZAR &&
       newLoanRequestStatus === Status.EN_REVISION
     ) {
-      updateQueryColumns = `SET 
-      LOAN_REQUEST_STATUS = '${newLoanRequestStatus}'
-      ,ID_AGENTE = ${id_agente}
-      ,ID_GRUPO_ORIGINAL = ${id_grupo_original}
-      ,ID_CLIENTE = ${id_cliente ? id_cliente : `NULL`}
-      ,NOMBRE_CLIENTE = '${nombre_cliente.trim().toUpperCase()}'
-      ,APELLIDO_PATERNO_CLIENTE = '${apellido_paterno_cliente.trim().toUpperCase()}'
-      ,APELLIDO_MATERNO_CLIENTE = '${apellido_materno_cliente.trim().toUpperCase()}'
-      ,TELEFONO_FIJO_CLIENTE = ${telefono_fijo_cliente ? `'${telefono_fijo_cliente}'` : `NULL`}
-      ,TELEFONO_MOVIL_CLIENTE = '${telefono_movil_cliente}'
-      ,CORREO_ELECTRONICO_CLIENTE = ${correo_electronico_cliente ? `'${correo_electronico_cliente}'` : `NULL`}
-      ,OCUPACION_CLIENTE = ${ocupacion_cliente ? `'${ocupacion_cliente}'` : `NULL`}
-      ,CURP_CLIENTE = '${curp_cliente}'
-      ,ID_DOMICILIO_CLIENTE = ${id_domicilio_cliente ? id_domicilio_cliente : `NULL`}
-      ,TIPO_CALLE_CLIENTE = '${tipo_calle_cliente.value}' 
-      ,NOMBRE_CALLE_CLIENTE = '${nombre_calle_cliente}' 
-      ,NUMERO_EXTERIOR_CLIENTE = ${numero_exterior_cliente ? `'${numero_exterior_cliente}'` : `NULL`}
-      ,NUMERO_INTERIOR_CLIENTE = ${numero_interior_cliente ? `'${numero_interior_cliente}'` : `NULL`} 
-      ,COLONIA_CLIENTE = '${colonia_cliente}' 
-      ,MUNICIPIO_CLIENTE = '${municipio_cliente}' 
-      ,ESTADO_CLIENTE = '${estado_cliente.value}' 
-      ,CP_CLIENTE = '${cp_cliente}'
-      ,REFERENCIAS_DOM_CLIENTE = ${referencias_dom_cliente ? `'${referencias_dom_cliente}'` : `NULL`}
-      ,ID_AVAL = ${id_aval ? id_aval : `NULL`}
-      ,NOMBRE_AVAL = '${nombre_aval.trim()}'
-      ,APELLIDO_PATERNO_AVAL = '${apellido_paterno_aval.trim().toUpperCase()}'
-      ,APELLIDO_MATERNO_AVAL = '${apellido_materno_aval.trim().toUpperCase()}'
-      ,TELEFONO_FIJO_AVAL = ${telefono_fijo_aval ? `'${telefono_fijo_aval}'` : `NULL`}
-      ,TELEFONO_MOVIL_AVAL = '${telefono_movil_aval}'
-      ,CORREO_ELECTRONICO_AVAL = ${correo_electronico_aval ? `'${correo_electronico_aval}'` : `NULL`}
-      ,CURP_AVAL = '${curp_aval}'
-      ,ID_DOMICILIO_AVAL = ${id_domicilio_aval ? id_domicilio_aval : `NULL`}
-      ,TIPO_CALLE_AVAL = '${tipo_calle_aval.value}'
-      ,NOMBRE_CALLE_AVAL = '${nombre_calle_aval}'
-      ,NUMERO_EXTERIOR_AVAL = ${numero_exterior_aval ? `'${numero_exterior_aval}'` : `NULL`}
-      ,NUMERO_INTERIOR_AVAL = ${numero_interior_aval ? `'${numero_interior_aval}'` : `NULL`}
-      ,COLONIA_AVAL = '${colonia_aval}'
-      ,MUNICIPIO_AVAL = '${municipio_aval}'
-      ,ESTADO_AVAL = '${estado_aval.value}'
-      ,CP_AVAL = '${cp_aval}'
-      ,REFERENCIAS_DOM_AVAL = ${referencias_dom_aval ? `'${referencias_dom_aval}'` : `NULL`}
-      ,ID_PLAZO = ${id_plazo}
-		  ,TASA_DE_INTERES = ${tasa_de_interes} 
-		  ,SEMANAS_PLAZO = ${semanas_plazo}
-      ,CANTIDAD_PRESTADA = ${cantidad_prestada}
-      ,DIA_SEMANA = '${dia_semana}'
-      ,FECHA_INICIAL = '${fecha_inicial}'
-      ,FECHA_FINAL_ESTIMADA = '${fecha_final_estimada}'
-      ,CANTIDAD_PAGAR = ${cantidad_pagar}      
-      ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
-      ,MODIFIED_BY = ${id_usuario}
-      ,MODIFIED_DATE = '${current_local_date.toISOString()}'
-      ,ID_LOAN_TO_REFINANCE = ${id_loan_to_refinance ? id_loan_to_refinance : `NULL`}
+      updateQueryColumns = fullUpdateLoanReqQuery(updateLoanRequest, false);
+
+      updateQueryColumns += `
+        ,MODIFIED_BY = ${id_usuario}
+        ,MODIFIED_DATE = '${current_local_date.toISOString()}'
 
       `;
     } else if (currentLoanRequestStatus === Status.EN_REVISION) {
-      updateQueryColumns = `SET 
-                        LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
-                        ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
-                        `;
-
       let idClienteGenerado;
       let idPrestamoGenerado;
       let encabezadoPrestamo: LoanHeader;
@@ -216,14 +157,19 @@ export const registerUpdateLoanRequest = async (
 
       switch (newLoanRequestStatus) {
         case Status.ACTUALIZAR:
+          updateQueryColumns = fullUpdateLoanReqQuery(updateLoanRequest, false);
           updateQueryColumns += ` ,MODIFIED_BY = ${id_usuario}
-                                  ,MODIFIED_DATE = '${current_local_date.toISOString()}'                                 
+                                  ,MODIFIED_DATE = '${current_local_date.toISOString()}'
+                                  ,ID_LOAN_TO_REFINANCE = ${id_loan_to_refinance ? id_loan_to_refinance : `NULL`}                                 
           `;
           break;
 
         case Status.RECHAZADO:
-          updateQueryColumns += ` ,CLOSED_BY = ${id_usuario} 
-                                  ,CLOSED_DATE = '${current_local_date.toISOString()}'                                  
+          updateQueryColumns = ` SET 
+                        LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
+                        ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}          
+                        ,CLOSED_BY = ${id_usuario} 
+                        ,CLOSED_DATE = '${current_local_date.toISOString()}'                                  
                                   `;
 
           break;
@@ -232,10 +178,6 @@ export const registerUpdateLoanRequest = async (
           datosCliente.id_agente = id_agente;
           datosCliente.cliente_activo = 1;
 
-          updateQueryColumns += ` ,CLOSED_BY = ${id_usuario} 
-                                  ,CLOSED_DATE = '${current_local_date.toISOString()}'
-                                  `;
-
           if (!id_aval) {
             datosAval.aval_creado_por = id_usuario;
             datosAval.fecha_creacion_aval = current_local_date;
@@ -243,7 +185,7 @@ export const registerUpdateLoanRequest = async (
 
             const procNewEndorsement = await registerNewEndorsement(
               datosAval,
-              procTransaction,
+              procTransaction
             );
 
             if (!procNewEndorsement.idEndorsment) {
@@ -251,14 +193,13 @@ export const registerUpdateLoanRequest = async (
             }
 
             datosCliente.id_aval = procNewEndorsement.idEndorsment;
-            updateQueryColumns += `,ID_AVAL = ${datosCliente.id_aval}`;
           } else {
             datosAval.aval_modificado_por = id_usuario;
             datosAval.fecha_modificacion_aval = current_local_date;
 
             const procUpdateEndorsement = await updateEndorsement(
               datosAval,
-              procTransaction,
+              procTransaction
             );
 
             if (!procUpdateEndorsement.generatedId) {
@@ -275,19 +216,17 @@ export const registerUpdateLoanRequest = async (
 
             const procNewCustomer = await registerNewCustomer(
               datosCliente,
-              procTransaction,
+              procTransaction
             );
             if (!procNewCustomer.idCustomer) {
               throw new Error(procNewCustomer.message);
             } else idClienteGenerado = procNewCustomer.idCustomer;
-
-            updateQueryColumns += `,ID_CLIENTE = ${idClienteGenerado}`;
           } else {
             datosCliente.cliente_modificado_por = id_usuario;
             datosCliente.fecha_modificacion_cliente = current_local_date;
             const procUpdateCustomer = await updateCustomer(
               datosCliente,
-              procTransaction,
+              procTransaction
             );
             if (!procUpdateCustomer.generatedId) {
               throw new Error(procUpdateCustomer.message);
@@ -324,17 +263,18 @@ export const registerUpdateLoanRequest = async (
               id_usuario: id_usuario,
               id_cliente: idClienteGenerado,
               id_prestamo_actual: id_loan_to_refinance,
+              cantidad_refinanciada: cantidad_restante_anterior,
             };
 
             procInsertLoan = await registerNewRefinancing(
               encabezadoPrestamo,
               encabezadoRefinanciamiento,
-              procTransaction,
+              procTransaction
             );
           } else {
             procInsertLoan = await registerNewLoan(
               encabezadoPrestamo,
-              procTransaction,
+              procTransaction
             );
           }
 
@@ -342,16 +282,24 @@ export const registerUpdateLoanRequest = async (
             throw new Error(procInsertLoan.message);
           } else idPrestamoGenerado = procInsertLoan.generatedId;
 
-          updateQueryColumns += `,ID_LOAN = ${idPrestamoGenerado}
-                                 ,ID_LOAN_TO_REFINANCE = ${id_loan_to_refinance ? `${id_loan_to_refinance}` : `NULL`}
+          updateQueryColumns = fullUpdateLoanReqQuery(updateLoanRequest, true);
+
+          updateQueryColumns += `,ID_AVAL = ${datosCliente.id_aval}
+                                 ,ID_CLIENTE = ${idClienteGenerado}
+                                 ,ID_LOAN = ${idPrestamoGenerado}
                                  ,ID_DOMICILIO_CLIENTE = (SELECT ID_DOMICILIO FROM CLIENTES WHERE ID = ${idClienteGenerado})
                                  ,ID_DOMICILIO_AVAL = (SELECT ID_DOMICILIO FROM AVALES WHERE ID_AVAL = ${datosCliente.id_aval})
-          `;
+                                 ,CLOSED_BY = ${id_usuario} 
+                                 ,CLOSED_DATE = '${current_local_date.toISOString()}'
+                                  `;
 
           break;
 
         default:
-          throw new Error("Cambio de status incorrecto");
+          throw new UpdateError(
+            "Cambio de status incorrecto",
+            StatusCodes.BAD_REQUEST
+          );
       }
     }
 
@@ -362,7 +310,10 @@ export const registerUpdateLoanRequest = async (
       .query(updateQueryString);
 
     if (!updateResult.rowsAffected[0]) {
-      throw new Error("No se actualizó el registro");
+      throw new UpdateError(
+        "No se actualizó el registro",
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     await procTransaction.commit();
@@ -387,16 +338,23 @@ export const registerUpdateLoanRequest = async (
   } catch (error) {
     await procTransaction.rollback();
     let errorMessage = "";
+    let statusCode;
+
+    // se deben revisar los errores especificos primero, y al ultimo el 'Error' normal
+    if (error instanceof UpdateError) {
+      errorMessage = error.message;
+      statusCode = error.codigo;
+      return { error: errorMessage, statusCode };
+    }
 
     if (error instanceof Error) {
       errorMessage = error.message;
+      return { error: errorMessage };
     }
-
-    return { error: errorMessage };
   }
 
   function buildMessageBasedOnStatus(
-    updateLoanRequest: UpdateLoanRequest,
+    updateLoanRequest: UpdateLoanRequest
   ): string {
     switch (updateLoanRequest.loan_request_status) {
       case Status.EN_REVISION:
