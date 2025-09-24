@@ -1,20 +1,25 @@
 import { RolesDeUsuario } from "../../helpers/utils";
 
 export const loanRequestListSearchParametersSchema = {
-  type: 'object',
+  type: "object",
 
   properties: {
-    id_usuario: { type: 'number' },
+    id_usuario: { type: "number" },
     rol_usuario: {
-      type: 'string',
-      enum: [RolesDeUsuario.ADMINISTRADOR, RolesDeUsuario.COBRADOR, RolesDeUsuario.LIDER_DE_GRUPO, RolesDeUsuario.USUARIO_NORMAL]
+      type: "string",
+      enum: [
+        RolesDeUsuario.ADMINISTRADOR,
+        RolesDeUsuario.COBRADOR,
+        RolesDeUsuario.LIDER_DE_GRUPO,
+        RolesDeUsuario.USUARIO_NORMAL,
+      ],
     },
-    status: { type: 'string' },
-    nombre_cliente: { type: 'string' },
-    folio: { type: 'string' },
+    status: { type: "string" },
+    nombre_cliente: { type: "string" },
+    folio: { type: "string" },
   },
 
-  required: ['id_usuario', 'rol_usuario'],
+  required: ["id_usuario", "rol_usuario"],
 
   additionalProperties: true,
 };

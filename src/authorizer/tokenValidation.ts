@@ -1,16 +1,16 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 import {
   JsonWebTokenError,
   TokenExpiredError,
   NotBeforeError,
-} from 'jsonwebtoken';
+} from "jsonwebtoken";
 
-import { generateJsonResponse } from '../helpers/generateJsonResponse';
-import { StatusCodes } from '../helpers/statusCodes';
+import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { StatusCodes } from "../helpers/statusCodes";
 
 module.exports.handler = async (event: any) => {
   const { headers } = event;
-  const authToken = headers?.authorization?.split(' ')[1];
+  const authToken = headers?.authorization?.split(" ")[1];
 
   try {
     jwt.verify(authToken, process.env.TOKEN_JWT!);

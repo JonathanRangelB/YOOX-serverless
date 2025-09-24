@@ -1,5 +1,5 @@
-import { TipoCalle } from './common-properties';
-import { EntidadFederativa } from './common-properties';
+import { TipoCalle } from "./common-properties";
+import { EntidadFederativa } from "./common-properties";
 
 export interface FormEndorsement {
   id_aval: number;

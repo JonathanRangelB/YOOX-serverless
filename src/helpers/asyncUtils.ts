@@ -1,28 +1,28 @@
 import { DbConnector } from "./dbConnector";
 
 interface WaErrorOptions {
-	uuid: string;
-	timestamp_sent: Date;
-	sent_to: string;
-	type: string;
-	message: string;
-	origin: string;
-	error_message: string;
+  uuid: string;
+  timestamp_sent: Date;
+  sent_to: string;
+  type: string;
+  message: string;
+  origin: string;
+  error_message: string;
 }
 
 export async function getPhoneNumberByPersonId(
-	table: "CLIENTES" | "USUARIOS",
-	id_person: number,
+  table: "CLIENTES" | "USUARIOS",
+  id_person: number
 ) {
-	try {
-		const pool = await DbConnector.getInstance().connection;
-		const result = await pool.query<{ TELEFONO_MOVIL: string }>(
-			`SELECT TELEFONO_MOVIL from ${table} where ID = ${id_person}`,
-		);
-		return result.recordset[0].TELEFONO_MOVIL;
-	} catch (err) {
-		console.error(err);
-	}
+  try {
+    const pool = await DbConnector.getInstance().connection;
+    const result = await pool.query<{ TELEFONO_MOVIL: string }>(
+      `SELECT TELEFONO_MOVIL from ${table} where ID = ${id_person}`
+    );
+    return result.recordset[0].TELEFONO_MOVIL;
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 // export async function getPhoneNumberInLoanRequestByRequestNumber(
@@ -40,7 +40,7 @@ export async function getPhoneNumberByPersonId(
 // }
 
 export async function registerWAErrorInDB(options: WaErrorOptions) {
-	const queryStatement = `
+  const queryStatement = `
     INSERT INTO [MSG_WA] (
       [UUID],
       [TIMESTAMP_SENT],
@@ -57,9 +57,9 @@ export async function registerWAErrorInDB(options: WaErrorOptions) {
       '${options.message}',
       '${options.origin}',
       '${options.error_message}')`;
-	const pool = await DbConnector.getInstance().connection;
-	await pool.query(queryStatement);
-	return;
+  const pool = await DbConnector.getInstance().connection;
+  await pool.query(queryStatement);
+  return;
 }
 
 /**
@@ -69,7 +69,7 @@ export async function registerWAErrorInDB(options: WaErrorOptions) {
  * @param {string} query - es el query que se desea ejecutar
  */
 export async function genericQuery<T>(query: string) {
-	const pool = await DbConnector.getInstance().connection;
-	const result = await pool.query<T>(query);
-	return result.recordset[0];
+  const pool = await DbConnector.getInstance().connection;
+  const result = await pool.query<T>(query);
+  return result.recordset[0];
 }

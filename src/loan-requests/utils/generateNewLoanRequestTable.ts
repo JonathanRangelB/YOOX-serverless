@@ -1,6 +1,6 @@
-import { DateTime, Float, Int, Table, VarChar } from 'mssql';
+import { DateTime, Float, Int, Table, VarChar } from "mssql";
 
-import { InsertNewLoanRequest } from '../types/SPInsertNewLoanRequest';
+import { InsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
 
 export function generateNewLoanRequestTable(
   newLoanRequest: InsertNewLoanRequest,
@@ -80,141 +80,141 @@ export function generateNewLoanRequestTable(
   const { id, request_number, loan_request_status, created_date } =
     additionalData;
 
-  const tableNewRequestLoan = new Table('LOAN_REQUEST');
+  const tableNewRequestLoan = new Table("LOAN_REQUEST");
 
   tableNewRequestLoan.create = false;
 
-  tableNewRequestLoan.columns.add('ID', Int, { nullable: false });
-  tableNewRequestLoan.columns.add('REQUEST_NUMBER', VarChar, {
+  tableNewRequestLoan.columns.add("ID", Int, { nullable: false });
+  tableNewRequestLoan.columns.add("REQUEST_NUMBER", VarChar, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add('LOAN_REQUEST_STATUS', VarChar, {
+  tableNewRequestLoan.columns.add("LOAN_REQUEST_STATUS", VarChar, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add('ID_AGENTE', Int, { nullable: true });
-  tableNewRequestLoan.columns.add('ID_GRUPO_ORIGINAL', Int, { nullable: true });
-  tableNewRequestLoan.columns.add('ID_CLIENTE', Int, { nullable: true });
-  tableNewRequestLoan.columns.add('NOMBRE_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("ID_AGENTE", Int, { nullable: true });
+  tableNewRequestLoan.columns.add("ID_GRUPO_ORIGINAL", Int, { nullable: true });
+  tableNewRequestLoan.columns.add("ID_CLIENTE", Int, { nullable: true });
+  tableNewRequestLoan.columns.add("NOMBRE_CLIENTE", VarChar, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add('APELLIDO_PATERNO_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("APELLIDO_PATERNO_CLIENTE", VarChar, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add('APELLIDO_MATERNO_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("APELLIDO_MATERNO_CLIENTE", VarChar, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add('TELEFONO_FIJO_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("TELEFONO_FIJO_CLIENTE", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('TELEFONO_MOVIL_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("TELEFONO_MOVIL_CLIENTE", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('CORREO_ELECTRONICO_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("CORREO_ELECTRONICO_CLIENTE", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('OCUPACION_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("OCUPACION_CLIENTE", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('CURP_CLIENTE', VarChar, { nullable: false });
-  tableNewRequestLoan.columns.add('ID_DOMICILIO_CLIENTE', Int, {
+  tableNewRequestLoan.columns.add("CURP_CLIENTE", VarChar, { nullable: false });
+  tableNewRequestLoan.columns.add("ID_DOMICILIO_CLIENTE", Int, {
     nullable: true,
   });
 
-  tableNewRequestLoan.columns.add('TIPO_CALLE_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("TIPO_CALLE_CLIENTE", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('NOMBRE_CALLE_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("NOMBRE_CALLE_CLIENTE", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('NUMERO_EXTERIOR_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("NUMERO_EXTERIOR_CLIENTE", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('NUMERO_INTERIOR_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("NUMERO_INTERIOR_CLIENTE", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('COLONIA_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("COLONIA_CLIENTE", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('MUNICIPIO_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("MUNICIPIO_CLIENTE", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('ESTADO_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("ESTADO_CLIENTE", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('CP_CLIENTE', VarChar, { nullable: true });
-  tableNewRequestLoan.columns.add('REFERENCIAS_DOM_CLIENTE', VarChar, {
+  tableNewRequestLoan.columns.add("CP_CLIENTE", VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add("REFERENCIAS_DOM_CLIENTE", VarChar, {
     nullable: true,
   });
 
   //AVAL INICIO
-  tableNewRequestLoan.columns.add('ID_AVAL', Int, { nullable: true });
-  tableNewRequestLoan.columns.add('NOMBRE_AVAL', VarChar, { nullable: false });
-  tableNewRequestLoan.columns.add('APELLIDO_PATERNO_AVAL', VarChar, {
+  tableNewRequestLoan.columns.add("ID_AVAL", Int, { nullable: true });
+  tableNewRequestLoan.columns.add("NOMBRE_AVAL", VarChar, { nullable: false });
+  tableNewRequestLoan.columns.add("APELLIDO_PATERNO_AVAL", VarChar, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add('APELLIDO_MATERNO_AVAL', VarChar, {
+  tableNewRequestLoan.columns.add("APELLIDO_MATERNO_AVAL", VarChar, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add('TELEFONO_FIJO_AVAL', VarChar, {
+  tableNewRequestLoan.columns.add("TELEFONO_FIJO_AVAL", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('TELEFONO_MOVIL_AVAL', VarChar, {
+  tableNewRequestLoan.columns.add("TELEFONO_MOVIL_AVAL", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('CORREO_ELECTRONICO_AVAL', VarChar, {
+  tableNewRequestLoan.columns.add("CORREO_ELECTRONICO_AVAL", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('CURP_AVAL', VarChar, { nullable: false });
+  tableNewRequestLoan.columns.add("CURP_AVAL", VarChar, { nullable: false });
 
-  tableNewRequestLoan.columns.add('ID_DOMICILIO_AVAL', Int, { nullable: true });
+  tableNewRequestLoan.columns.add("ID_DOMICILIO_AVAL", Int, { nullable: true });
 
-  tableNewRequestLoan.columns.add('TIPO_CALLE_AVAL', VarChar, {
+  tableNewRequestLoan.columns.add("TIPO_CALLE_AVAL", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('NOMBRE_CALLE_AVAL', VarChar, {
+  tableNewRequestLoan.columns.add("NOMBRE_CALLE_AVAL", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('NUMERO_EXTERIOR_AVAL', VarChar, {
+  tableNewRequestLoan.columns.add("NUMERO_EXTERIOR_AVAL", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('NUMERO_INTERIOR_AVAL', VarChar, {
+  tableNewRequestLoan.columns.add("NUMERO_INTERIOR_AVAL", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('COLONIA_AVAL', VarChar, { nullable: true });
-  tableNewRequestLoan.columns.add('MUNICIPIO_AVAL', VarChar, {
+  tableNewRequestLoan.columns.add("COLONIA_AVAL", VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add("MUNICIPIO_AVAL", VarChar, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add('ESTADO_AVAL', VarChar, { nullable: true });
-  tableNewRequestLoan.columns.add('CP_AVAL', VarChar, { nullable: true });
-  tableNewRequestLoan.columns.add('REFERENCIAS_DOM_AVAL', VarChar, {
+  tableNewRequestLoan.columns.add("ESTADO_AVAL", VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add("CP_AVAL", VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add("REFERENCIAS_DOM_AVAL", VarChar, {
     nullable: true,
   });
   //AVAL FIN
 
-  tableNewRequestLoan.columns.add('ID_PLAZO', Int, { nullable: false });
+  tableNewRequestLoan.columns.add("ID_PLAZO", Int, { nullable: false });
 
-  tableNewRequestLoan.columns.add('TASA_DE_INTERES', Int, { nullable: true });
-  tableNewRequestLoan.columns.add('SEMANAS_PLAZO', VarChar, {
+  tableNewRequestLoan.columns.add("TASA_DE_INTERES", Int, { nullable: true });
+  tableNewRequestLoan.columns.add("SEMANAS_PLAZO", VarChar, {
     nullable: false,
   });
 
-  tableNewRequestLoan.columns.add('CANTIDAD_PRESTADA', Float, {
+  tableNewRequestLoan.columns.add("CANTIDAD_PRESTADA", Float, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add('DIA_SEMANA', VarChar, { nullable: false });
-  tableNewRequestLoan.columns.add('FECHA_INICIAL', DateTime, {
+  tableNewRequestLoan.columns.add("DIA_SEMANA", VarChar, { nullable: false });
+  tableNewRequestLoan.columns.add("FECHA_INICIAL", DateTime, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add('FECHA_FINAL_ESTIMADA', DateTime, {
+  tableNewRequestLoan.columns.add("FECHA_FINAL_ESTIMADA", DateTime, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add('CANTIDAD_PAGAR', Float, { nullable: true });
-  tableNewRequestLoan.columns.add('OBSERVACIONES', VarChar, { nullable: true });
-  tableNewRequestLoan.columns.add('CREATED_BY', Int, { nullable: false });
-  tableNewRequestLoan.columns.add('CREATED_DATE', DateTime, {
+  tableNewRequestLoan.columns.add("CANTIDAD_PAGAR", Float, { nullable: true });
+  tableNewRequestLoan.columns.add("OBSERVACIONES", VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add("CREATED_BY", Int, { nullable: false });
+  tableNewRequestLoan.columns.add("CREATED_DATE", DateTime, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add('ID_LOAN_TO_REFINANCE', Int, {
+  tableNewRequestLoan.columns.add("ID_LOAN_TO_REFINANCE", Int, {
     nullable: true,
   });
 

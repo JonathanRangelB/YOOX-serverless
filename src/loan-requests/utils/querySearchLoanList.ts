@@ -3,7 +3,7 @@ import { DatosSolicitudPrestamoLista } from "../types/loanRequest";
 import { RolesDeUsuario } from "../../helpers/utils";
 
 export function loanRequestListSearchQuery(
-  datosSolicitudPrestamoLista: DatosSolicitudPrestamoLista,
+  datosSolicitudPrestamoLista: DatosSolicitudPrestamoLista
 ): string {
   const {
     id_usuario,

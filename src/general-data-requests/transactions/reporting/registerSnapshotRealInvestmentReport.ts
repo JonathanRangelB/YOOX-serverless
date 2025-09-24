@@ -1,6 +1,6 @@
-import { Transaction } from 'mssql';
-import { GenericBDRequest } from '../../types/genericBDRequest';
-import { StatusCodes } from '../../../helpers/statusCodes';
+import { Transaction } from "mssql";
+import { GenericBDRequest } from "../../types/genericBDRequest";
+import { StatusCodes } from "../../../helpers/statusCodes";
 
 export const registerSnapshotRealInvestmentReport = async (
   id_customer: number,
@@ -110,14 +110,14 @@ export const registerSnapshotRealInvestmentReport = async (
 
     if (!executeInsertResult.rowsAffected[0]) {
       return {
-        message: 'Error durante la transacción',
+        message: "Error durante la transacción",
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST,
       };
     }
 
     return {
-      message: 'Snapshot de inversion real registrado correctamente',
+      message: "Snapshot de inversion real registrado correctamente",
       generatedId: 1,
       error: StatusCodes.OK,
     };

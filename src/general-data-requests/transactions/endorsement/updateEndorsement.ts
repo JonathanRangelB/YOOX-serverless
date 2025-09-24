@@ -1,10 +1,10 @@
-import { Transaction } from 'mssql';
-import { FormEndorsement } from '../../../interfaces/endorsement-interface';
-import { Direccion } from '../../../interfaces/common-properties';
-import { StatusCodes } from '../../../helpers/statusCodes';
-import { GenericBDRequest } from '../../types/genericBDRequest';
-import { registerNewAddress } from '../address/registerNewAddress';
-import { updateAddress } from '../address/updateAddress';
+import { Transaction } from "mssql";
+import { FormEndorsement } from "../../../interfaces/endorsement-interface";
+import { Direccion } from "../../../interfaces/common-properties";
+import { StatusCodes } from "../../../helpers/statusCodes";
+import { GenericBDRequest } from "../../types/genericBDRequest";
+import { registerNewAddress } from "../address/registerNewAddress";
+import { updateAddress } from "../address/updateAddress";
 
 export const updateEndorsement = async (
   formAval: FormEndorsement,
@@ -56,7 +56,7 @@ export const updateEndorsement = async (
       resultadoOperacion = await updateAddress(
         direccionAval,
         id_aval,
-        'AVAL',
+        "AVAL",
         procTransaction
       );
       idDomicilio = id_domicilio_aval;
@@ -64,7 +64,7 @@ export const updateEndorsement = async (
       resultadoOperacion = await registerNewAddress(
         direccionAval,
         id_aval,
-        'AVAL',
+        "AVAL",
         procTransaction
       );
       idDomicilio = resultadoOperacion.generatedId;
@@ -72,7 +72,7 @@ export const updateEndorsement = async (
 
     if (!resultadoOperacion.generatedId)
       return {
-        message: 'Error al registrar/actualizar el domicilio del aval',
+        message: "Error al registrar/actualizar el domicilio del aval",
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST,
       };
@@ -98,18 +98,18 @@ export const updateEndorsement = async (
 
     if (!updateEndorsementResult.rowsAffected[0])
       return {
-        message: 'Aval no actualizado',
+        message: "Aval no actualizado",
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST,
       };
 
     return {
-      message: 'Aval actualizado',
+      message: "Aval actualizado",
       generatedId: id_aval,
       error: StatusCodes.OK,
     };
   } catch (error) {
-    let errorMessage = '';
+    let errorMessage = "";
     if (error instanceof Error) {
       errorMessage = error.message as string;
     }

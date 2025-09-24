@@ -1,8 +1,8 @@
-import { APIGatewayEvent } from 'aws-lambda';
-import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { APIGatewayEvent } from "aws-lambda";
+import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
 
-import { generateJsonResponse } from '../helpers/generateJsonResponse';
-import { StatusCodes } from '../helpers/statusCodes';
+import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { StatusCodes } from "../helpers/statusCodes";
 
 const client = new S3Client({
   region: process.env.MY_AWS_REGION,
@@ -15,7 +15,7 @@ const client = new S3Client({
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.pathParameters)
     return generateJsonResponse(
-      { message: 'No pathParameters provided' },
+      { message: "No pathParameters provided" },
       StatusCodes.BAD_REQUEST
     );
 
@@ -23,11 +23,11 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   if (!foldername)
     return generateJsonResponse(
-      { message: 'No foldername provided' },
+      { message: "No foldername provided" },
       StatusCodes.BAD_REQUEST
     );
 
-  const bucketName = process.env.BUCKET_NAME || 'documentos-clientes-yoox';
+  const bucketName = process.env.BUCKET_NAME || "documentos-clientes-yoox";
   const params = {
     Bucket: bucketName,
     Prefix: foldername,

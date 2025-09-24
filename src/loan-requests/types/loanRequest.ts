@@ -8,7 +8,7 @@ export interface StatusResponse {
 export interface UpdateStatusResponse {
   message?: string;
   error?: string;
-  statusCode?: StatusCodes
+  statusCode?: StatusCodes;
 }
 
 export interface DatosSolicitudPrestamoLista {
@@ -27,4 +27,3 @@ export interface SolicitudPrestamoLista {
   created_date: Date;
   loan_request_status: string;
 }
-

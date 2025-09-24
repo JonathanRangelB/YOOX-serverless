@@ -1,19 +1,19 @@
-import { APIGatewayEvent } from 'aws-lambda';
-import { DbConnector } from '../helpers/dbConnector';
-import { generateJsonResponse } from '../helpers/generateJsonResponse';
-import { StatusCodes } from '../helpers/statusCodes';
+import { APIGatewayEvent } from "aws-lambda";
+import { DbConnector } from "../helpers/dbConnector";
+import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { StatusCodes } from "../helpers/statusCodes";
 import {
   DatosBusquedaTelefono,
   ResultadoTelefono,
-} from './types/DatosBusqueda.interface';
-import { searchTelefonoQuery } from './utils/querySearchData';
-import { validatePayload } from '../helpers/utils';
-import { customerSearchTelefonoSchema } from './schemas/personaTelefono.schema';
+} from "./types/DatosBusqueda.interface";
+import { searchTelefonoQuery } from "./utils/querySearchData";
+import { validatePayload } from "../helpers/utils";
+import { customerSearchTelefonoSchema } from "./schemas/personaTelefono.schema";
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
     return generateJsonResponse(
-      { message: 'No body provided' },
+      { message: "No body provided" },
       StatusCodes.BAD_REQUEST
     );
   }
@@ -29,7 +29,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   if (!validateSearchParameters.valid) {
     return generateJsonResponse(
       {
-        message: 'Object provided invalid',
+        message: "Object provided invalid",
         error: validateSearchParameters.error,
       },
       StatusCodes.BAD_REQUEST
@@ -44,7 +44,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
       AVALES: ` AND ID_AVAL <> ${id_persona} `,
     };
 
-    const whereFilter = (id_persona && whereFilterMap[table]) || '';
+    const whereFilter = (id_persona && whereFilterMap[table]) || "";
 
     let queryStatement = searchTelefonoQuery(
       telefono_fijo,
@@ -60,7 +60,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
     if (!registrosEncontrados.rowsAffected[0])
       return generateJsonResponse(
-        { message: 'Error 404', error: 'No se encontraron registros' },
+        { message: "Error 404", error: "No se encontraron registros" },
         StatusCodes.NOT_FOUND
       );
 

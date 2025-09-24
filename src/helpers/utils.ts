@@ -1,13 +1,13 @@
-import { toZonedTime } from 'date-fns-tz';
-import Ajv from 'ajv';
-import formats from 'ajv-formats';
+import { toZonedTime } from "date-fns-tz";
+import Ajv from "ajv";
+import formats from "ajv-formats";
 import {
   AdditionalProperties,
   ValidateLoanResponse,
-} from '../loan-requests/types/validateLoanResponse';
+} from "../loan-requests/types/validateLoanResponse";
 
 export function convertToBase36(intValue: number) {
-  return intValue.toString(36).padStart(6, '0').toUpperCase();
+  return intValue.toString(36).padStart(6, "0").toUpperCase();
 }
 
 /**
@@ -33,8 +33,8 @@ export function convertDateTimeZone(
   if (locale)
     // la siguiente linea regresa un string basandose en la fecha UTC y la convierte a la hora local especifica
     return new Intl.DateTimeFormat(locale, {
-      dateStyle: 'full',
-      timeStyle: 'long',
+      dateStyle: "full",
+      timeStyle: "long",
       timeZone: timeZone,
     }).format(localDate);
   return localDate;
@@ -48,15 +48,15 @@ export function validatePayload(
   formats(ajv);
   const validate = ajv.compile(schema);
   const valid = validate(payload);
-  const error = ajv.errorsText(validate.errors, { separator: ' AND ' });
+  const error = ajv.errorsText(validate.errors, { separator: " AND " });
   const additionalProperties: AdditionalProperties[] = [];
   if (validate.errors) {
     additionalProperties.push(
       ...validate.errors
-        .filter((error) => error.keyword === 'additionalProperties')
+        .filter((error) => error.keyword === "additionalProperties")
         .map((error) => ({
           propiedad: error.params.additionalProperty as string,
-          path: error.instancePath || 'raíz del objeto',
+          path: error.instancePath || "raíz del objeto",
         }))
     );
   }
@@ -69,79 +69,79 @@ export function validatePayload(
 }
 
 export const REGEX_CURP: string =
-  '^([A-Z][AEIOUX][A-Z]{2}\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\\d])(\\d)$';
+  "^([A-Z][AEIOUX][A-Z]{2}\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\\d])(\\d)$";
 export const REGEX_EMAIL: string =
-  '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
-export const REGEX_ZIP_CODE: string = '^\\d{5}$';
-export const REGEX_PHONE: string = '^\\d{10}$';
+  "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+export const REGEX_ZIP_CODE: string = "^\\d{5}$";
+export const REGEX_PHONE: string = "^\\d{10}$";
 
 export const Status = {
-  EN_REVISION: 'EN REVISION',
-  ACTUALIZAR: 'ACTUALIZAR',
-  APROBADO: 'APROBADO',
-  RECHAZADO: 'RECHAZADO',
+  EN_REVISION: "EN REVISION",
+  ACTUALIZAR: "ACTUALIZAR",
+  APROBADO: "APROBADO",
+  RECHAZADO: "RECHAZADO",
 } as const;
 
 // NOTE: esta es una forma de definir un tipo que es igual a las claves del objeto Status
 export type Status = keyof typeof Status;
 
 export const States = {
-  JALISCO: 'JALISCO',
-  AGUASCALIENTES: 'AGUASCALIENTES',
-  BAJA_CALIFORNIA: 'BAJA CALIFORNIA',
-  BAJA_CALIFORNIA_SUR: 'BAJA CALIFORNIA SUR',
-  CAMPECHE: 'CAMPECHE',
-  COAHUILA: 'COAHUILA',
-  COLIMA: 'COLIMA',
-  CHIAPAS: 'CHIAPAS',
-  CHIHUAHUA: 'CHIHUAHUA',
-  DURANGO: 'DURANGO',
-  CDMX: 'CDMX',
-  GUANAJUATO: 'GUANAJUATO',
-  GUERRERO: 'GUERRERO',
-  HIDALGO: 'HIDALGO',
-  ESTADO_DE_MEXICO: 'ESTADO DE MEXICO',
-  MICHOACAN: 'MICHOACAN',
-  MORELOS: 'MORELOS',
-  NAYARIT: 'NAYARIT',
-  NUEVO_LEON: 'NUEVO LEON',
-  OAXACA: 'OAXACA',
-  PUEBLA: 'PUEBLA',
-  QUERETARO: 'QUERETARO',
-  QUINTANA_ROO: 'QUINTANA ROO',
-  SAN_LUIS_POTOSI: 'SAN LUIS POTOSI',
-  SINALOA: 'SINALOA',
-  SONORA: 'SONORA',
-  TABASCO: 'TABASCO',
-  TAMAULIPAS: 'TAMAULIPAS',
-  TLAXCALA: 'TLAXCALA',
-  VERACRUZ: 'VERACRUZ',
-  YUCATAN: 'YUCATAN',
-  ZACATECAS: 'ZACATECAS',
+  JALISCO: "JALISCO",
+  AGUASCALIENTES: "AGUASCALIENTES",
+  BAJA_CALIFORNIA: "BAJA CALIFORNIA",
+  BAJA_CALIFORNIA_SUR: "BAJA CALIFORNIA SUR",
+  CAMPECHE: "CAMPECHE",
+  COAHUILA: "COAHUILA",
+  COLIMA: "COLIMA",
+  CHIAPAS: "CHIAPAS",
+  CHIHUAHUA: "CHIHUAHUA",
+  DURANGO: "DURANGO",
+  CDMX: "CDMX",
+  GUANAJUATO: "GUANAJUATO",
+  GUERRERO: "GUERRERO",
+  HIDALGO: "HIDALGO",
+  ESTADO_DE_MEXICO: "ESTADO DE MEXICO",
+  MICHOACAN: "MICHOACAN",
+  MORELOS: "MORELOS",
+  NAYARIT: "NAYARIT",
+  NUEVO_LEON: "NUEVO LEON",
+  OAXACA: "OAXACA",
+  PUEBLA: "PUEBLA",
+  QUERETARO: "QUERETARO",
+  QUINTANA_ROO: "QUINTANA ROO",
+  SAN_LUIS_POTOSI: "SAN LUIS POTOSI",
+  SINALOA: "SINALOA",
+  SONORA: "SONORA",
+  TABASCO: "TABASCO",
+  TAMAULIPAS: "TAMAULIPAS",
+  TLAXCALA: "TLAXCALA",
+  VERACRUZ: "VERACRUZ",
+  YUCATAN: "YUCATAN",
+  ZACATECAS: "ZACATECAS",
 } as const;
 
 export const DiasDeSemana = {
-  DOMINGO: 'DOMINGO',
-  LUNES: 'LUNES',
-  MARTES: 'MARTES',
-  MIERCOLES: 'MIERCOLES',
-  JUEVES: 'JUEVES',
-  VIERNES: 'VIERNES',
-  SABADO: 'SABADO',
+  DOMINGO: "DOMINGO",
+  LUNES: "LUNES",
+  MARTES: "MARTES",
+  MIERCOLES: "MIERCOLES",
+  JUEVES: "JUEVES",
+  VIERNES: "VIERNES",
+  SABADO: "SABADO",
 } as const;
 
 export const RolesDeUsuario = {
-  ADMINISTRADOR: 'Administrador',
-  COBRADOR: 'Cobrador',
-  LIDER_DE_GRUPO: 'Líder de grupo',
-  USUARIO_NORMAL: 'Usuario normal',
+  ADMINISTRADOR: "Administrador",
+  COBRADOR: "Cobrador",
+  LIDER_DE_GRUPO: "Líder de grupo",
+  USUARIO_NORMAL: "Usuario normal",
 } as const;
 
 export const TipoCalles = {
-  CALLE: 'CALLE',
-  AVENIDA: 'AVENIDA',
-  PROLONGACION: 'PROLONGACION',
-  CARRETERA: 'CARRETERA',
-  PRIVADA: 'PRIVADA',
-  BOULEVARD: 'BOULEVARD',
+  CALLE: "CALLE",
+  AVENIDA: "AVENIDA",
+  PROLONGACION: "PROLONGACION",
+  CARRETERA: "CARRETERA",
+  PRIVADA: "PRIVADA",
+  BOULEVARD: "BOULEVARD",
 } as const;

@@ -1,4 +1,4 @@
-import { StatusCodes } from './statusCodes';
+import { StatusCodes } from "./statusCodes";
 
 export const generateGetJsonResponse = (
   bodyData: any,
@@ -10,8 +10,8 @@ export const generateGetJsonResponse = (
   return {
     statusCode,
     headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': `public, must-revalidate, max-age=${oneMinuteInSeconds}`, // Controla la duración del caché
+      "Content-Type": "application/json",
+      "Cache-Control": `public, must-revalidate, max-age=${oneMinuteInSeconds}`, // Controla la duración del caché
       Expires: expires, // Fecha exacta de expiración
     },
     body: JSON.stringify(bodyData),

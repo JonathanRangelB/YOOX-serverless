@@ -1,7 +1,7 @@
-import { Transaction } from 'mssql';
-import { GenericBDRequest } from '../../types/genericBDRequest';
-import { Direccion } from '../../../interfaces/common-properties';
-import { StatusCodes } from '../../../helpers/statusCodes';
+import { Transaction } from "mssql";
+import { GenericBDRequest } from "../../types/genericBDRequest";
+import { Direccion } from "../../../interfaces/common-properties";
+import { StatusCodes } from "../../../helpers/statusCodes";
 
 export const updateAddress = async (
   direccion: Direccion,
@@ -34,7 +34,7 @@ export const updateAddress = async (
 
     if (!domicilioEncontrado.rowsAffected[0])
       return {
-        message: 'Domicilio no encontrado',
+        message: "Domicilio no encontrado",
         generatedId: 0,
         error: StatusCodes.NOT_FOUND,
       };
@@ -60,19 +60,19 @@ export const updateAddress = async (
         
         `;
 
-    let tipoId = '';
-    let valoresAInsertar = '';
-    let queryClearSuiteNumber = '';
-    let queryUpdateSuiteNumber = '';
+    let tipoId = "";
+    let valoresAInsertar = "";
+    let queryClearSuiteNumber = "";
+    let queryUpdateSuiteNumber = "";
 
     switch (tipo) {
-      case 'CLIENTE':
+      case "CLIENTE":
         valoresAInsertar = `(${id}, '${numero_interior}', ${id_persona}, NULL, 'CLIENTE')`;
-        tipoId = 'ID_CLIENTE';
+        tipoId = "ID_CLIENTE";
         break;
-      case 'AVAL':
+      case "AVAL":
         valoresAInsertar = `(${id}, '${numero_interior}', NULL, ${id_persona}, 'AVAL')`;
-        tipoId = 'ID_AVAL';
+        tipoId = "ID_AVAL";
         break;
     }
 
@@ -102,12 +102,12 @@ export const updateAddress = async (
 
     if (!updateResult.rowsAffected[0])
       return {
-        message: 'Domicilio no actualizado',
+        message: "Domicilio no actualizado",
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST,
       };
     return {
-      message: 'Domicilio actualizado',
+      message: "Domicilio actualizado",
       generatedId: id,
     };
   } catch (exception) {

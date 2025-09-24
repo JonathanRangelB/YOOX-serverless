@@ -11,7 +11,7 @@ export function customerSearchQuery(
   } else if (curp) {
     whereCondition += `clientes.curp = '${curp}' `;
   } else if (nombre_cliente) {
-    whereCondition += `clientes.nombre like '%${nombre_cliente.replace(/ /g, '%')}%' `;
+    whereCondition += `clientes.nombre like '%${nombre_cliente.replace(/ /g, "%")}%' `;
   }
 
   return `with t_clientes as (

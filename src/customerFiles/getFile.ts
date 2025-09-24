@@ -24,7 +24,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body)
     return generateJsonResponse(
       { message: "No body provided" },
-      StatusCodes.BAD_REQUEST,
+      StatusCodes.BAD_REQUEST
     );
 
   const data: FileData = JSON.parse(event.body);
@@ -37,7 +37,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
         error: validData.error,
         additionalProperties: validData.additionalProperties,
       },
-      StatusCodes.BAD_REQUEST,
+      StatusCodes.BAD_REQUEST
     );
 
   const { filename, path } = data;
@@ -58,7 +58,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     if (error instanceof Error)
       return generateJsonResponse(
         { error: error.message },
-        StatusCodes.INTERNAL_SERVER_ERROR,
+        StatusCodes.INTERNAL_SERVER_ERROR
       );
   }
 };

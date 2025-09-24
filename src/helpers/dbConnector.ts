@@ -1,4 +1,4 @@
-import sql, { config } from 'mssql';
+import sql, { config } from "mssql";
 
 export class DbConnector {
   private static instance: DbConnector;

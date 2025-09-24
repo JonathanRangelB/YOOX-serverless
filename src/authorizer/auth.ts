@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
 import {
   Context,
@@ -6,16 +6,16 @@ import {
   PolicyDocument,
   Callback,
   StatementEffect,
-} from 'aws-lambda';
+} from "aws-lambda";
 
 const generatePolicyDocument = (
   effect: StatementEffect,
   resource: string
 ): PolicyDocument => ({
-  Version: '2012-10-17',
+  Version: "2012-10-17",
   Statement: [
     {
-      Action: 'execute-api:Invoke',
+      Action: "execute-api:Invoke",
       Effect: effect,
       Resource: [resource],
     },
@@ -38,19 +38,19 @@ module.exports.handler = (
 ) => {
   const { headers, routeArn } = event;
 
-  const authToken = headers?.authorization?.split(' ')[1];
+  const authToken = headers?.authorization?.split(" ")[1];
 
   if (!authToken) {
-    console.error('Invalid authorization bearer token or not found');
-    callback('Unauthorized, token cannot be null or undefined');
+    console.error("Invalid authorization bearer token or not found");
+    callback("Unauthorized, token cannot be null or undefined");
   }
 
   jwt.verify(authToken!, process.env.TOKEN_JWT!, (err: any, _: any) => {
     if (err) {
       console.warn({ err });
-      callback('Unauthorized', generateResponse('user', 'Deny', routeArn));
+      callback("Unauthorized", generateResponse("user", "Deny", routeArn));
       return;
     }
-    callback(null, generateResponse('user', 'Allow', routeArn));
+    callback(null, generateResponse("user", "Allow", routeArn));
   });
 };

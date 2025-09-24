@@ -1,7 +1,7 @@
 export function searchCurpQuery(curp: string, table: string): string {
   const whereCondition = ` where CURP = '${curp}' `;
 
-  let selectStatement = (table && mapTableName(table)) || '';
+  let selectStatement = (table && mapTableName(table)) || "";
 
   selectStatement += `
                     ${table}
@@ -16,9 +16,9 @@ export function searchTelefonoQuery(
   telefono_movil: string,
   table: string
 ): string {
-  let selectStatement = (table && mapTableName(table)) || '';
+  let selectStatement = (table && mapTableName(table)) || "";
 
-  let listInCondition = '';
+  let listInCondition = "";
 
   if (telefono_fijo) listInCondition += `'${telefono_fijo}'`;
 

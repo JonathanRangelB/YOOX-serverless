@@ -1,20 +1,20 @@
-import { APIGatewayEvent } from 'aws-lambda';
+import { APIGatewayEvent } from "aws-lambda";
 
-import { DbConnector } from '../helpers/dbConnector';
-import { generateGetJsonResponse } from '../helpers/generateGetJsonResponse';
-import { generateJsonResponse } from '../helpers/generateJsonResponse';
-import { StatusCodes } from '../helpers/statusCodes';
-import { validatePayload } from '../helpers/utils';
-import { guarantorSearchParametersSchema } from './schemas/guarantor.schema';
-import { AvalDomicilio, DatosAval } from './types/getGuarantor.interface';
-import { guarantorSearchQuery } from './utils/querySearchGuarantor';
+import { DbConnector } from "../helpers/dbConnector";
+import { generateGetJsonResponse } from "../helpers/generateGetJsonResponse";
+import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { StatusCodes } from "../helpers/statusCodes";
+import { validatePayload } from "../helpers/utils";
+import { guarantorSearchParametersSchema } from "./schemas/guarantor.schema";
+import { AvalDomicilio, DatosAval } from "./types/getGuarantor.interface";
+import { guarantorSearchQuery } from "./utils/querySearchGuarantor";
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   const params = event.queryStringParameters as DatosAval;
 
   if (!params)
     return generateJsonResponse(
-      { message: 'Error 400', error: 'Params not provided.' },
+      { message: "Error 400", error: "Params not provided." },
       StatusCodes.BAD_REQUEST
     );
 
@@ -26,7 +26,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   if (!validateSearchParameters.valid) {
     return generateJsonResponse(
       {
-        message: 'Object provided invalid',
+        message: "Object provided invalid",
         error: validateSearchParameters.error,
         additionalProperties: validateSearchParameters.additionalProperties,
       },
@@ -49,7 +49,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
     if (!registrosEncontrados.rowsAffected[0])
       return generateJsonResponse(
-        { message: 'Error 404', error: 'No se encontraron registros' },
+        { message: "Error 404", error: "No se encontraron registros" },
         StatusCodes.NOT_FOUND
       );
 

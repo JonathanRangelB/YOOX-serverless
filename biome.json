@@ -101,9 +101,7 @@
       "attributePosition": "auto",
       "bracketSpacing": true
     },
-    "globals": [
-      "exports"
-    ]
+    "globals": ["exports"]
   },
   "vcs": {
     "enabled": true,

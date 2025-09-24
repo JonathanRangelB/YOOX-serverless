@@ -1,6 +1,6 @@
-import { Plazo } from '../../installments/types/installments.type';
-import { FormCustomer } from '../../interfaces/customer-interface';
-import { FormEndorsement } from '../../interfaces/endorsement-interface';
+import { Plazo } from "../../installments/types/installments.type";
+import { FormCustomer } from "../../interfaces/customer-interface";
+import { FormEndorsement } from "../../interfaces/endorsement-interface";
 
 export interface InsertNewLoanRequest {
   cantidad_prestada: number;
