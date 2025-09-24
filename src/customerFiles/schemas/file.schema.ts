@@ -1,9 +1,9 @@
 export const FileDataSchema = {
-  type: 'object',
+  type: "object",
   properties: {
-    filename: { type: 'string' },
-    path: { type: 'string' },
+    filename: { type: "string" },
+    path: { type: "string" },
   },
-  required: ['filename', 'path'],
+  required: ["filename", "path"],
   additionalProperties: false,
 };

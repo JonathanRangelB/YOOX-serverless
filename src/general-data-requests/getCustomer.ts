@@ -1,16 +1,16 @@
-import { APIGatewayEvent } from 'aws-lambda';
-import { DbConnector } from '../helpers/dbConnector';
-import { ClienteDomicilio, DatosCliente } from './types/getCustomer.interface';
-import { generateJsonResponse } from '../helpers/generateJsonResponse';
-import { StatusCodes } from '../helpers/statusCodes';
-import { customerSearchQuery } from './utils/querySearchCustomer';
-import { validatePayload } from '../helpers/utils';
-import { customerSearchParametersSchema } from './schemas/customer.schema';
+import { APIGatewayEvent } from "aws-lambda";
+import { DbConnector } from "../helpers/dbConnector";
+import { ClienteDomicilio, DatosCliente } from "./types/getCustomer.interface";
+import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { StatusCodes } from "../helpers/statusCodes";
+import { customerSearchQuery } from "./utils/querySearchCustomer";
+import { validatePayload } from "../helpers/utils";
+import { customerSearchParametersSchema } from "./schemas/customer.schema";
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
     return generateJsonResponse(
-      { message: 'No body provided' },
+      { message: "No body provided" },
       StatusCodes.BAD_REQUEST
     );
   }
@@ -27,7 +27,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   if (!validateSearchParameters.valid) {
     return generateJsonResponse(
       {
-        message: 'Object provided invalid',
+        message: "Object provided invalid",
         error: validateSearchParameters.error,
         additionalProperties: validateSearchParameters.additionalProperties,
       },
@@ -47,7 +47,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
     if (!registrosEncontrados.rowsAffected[0])
       return generateJsonResponse(
-        { message: 'Error 404', error: 'No se encontraron registros' },
+        { message: "Error 404", error: "No se encontraron registros" },
         StatusCodes.NOT_FOUND
       );
 

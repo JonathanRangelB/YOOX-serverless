@@ -1,15 +1,15 @@
-import { APIGatewayEvent } from 'aws-lambda';
-import { DbConnector } from '../helpers/dbConnector';
-import { StatusCodes } from '../helpers/statusCodes';
-import { generateGetJsonResponse } from '../helpers/generateGetJsonResponse';
-import { Address } from '../helpers/table-schemas';
-import { generateJsonResponse } from '../helpers/generateJsonResponse';
+import { APIGatewayEvent } from "aws-lambda";
+import { DbConnector } from "../helpers/dbConnector";
+import { StatusCodes } from "../helpers/statusCodes";
+import { generateGetJsonResponse } from "../helpers/generateGetJsonResponse";
+import { Address } from "../helpers/table-schemas";
+import { generateJsonResponse } from "../helpers/generateJsonResponse";
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   try {
     const addressid = event.queryStringParameters?.addressid;
     if (!addressid || isNaN(+addressid) || +addressid <= 0)
-      throw new Error('Parametros incompletos');
+      throw new Error("Parametros incompletos");
     const pool = await DbConnector.getInstance().connection;
     const query = `
             select
@@ -37,7 +37,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     const result = await pool.query<Address>(query);
 
     if (result.recordset.length == 0)
-      throw new Error('No se encontraron registros');
+      throw new Error("No se encontraron registros");
 
     return generateGetJsonResponse(result.recordset[0], StatusCodes.OK);
   } catch (err) {

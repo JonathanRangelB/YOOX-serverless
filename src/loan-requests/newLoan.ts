@@ -1,14 +1,14 @@
-import { APIGatewayEvent } from 'aws-lambda';
-import { generateJsonResponse } from '../helpers/generateJsonResponse';
-import { registerNewLoanRequest } from './loans/registerNewLoanRequest';
-import { StatusCodes } from '../helpers/statusCodes';
-import { validatePayload } from '../helpers/utils';
-import { loanSchema } from './schemas/loanNew.schema';
+import { APIGatewayEvent } from "aws-lambda";
+import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { registerNewLoanRequest } from "./loans/registerNewLoanRequest";
+import { StatusCodes } from "../helpers/statusCodes";
+import { validatePayload } from "../helpers/utils";
+import { loanSchema } from "./schemas/loanNew.schema";
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
     return generateJsonResponse(
-      { message: 'No body provided' },
+      { message: "No body provided" },
       StatusCodes.BAD_REQUEST
     );
   }
@@ -17,7 +17,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   if (!body) {
     return generateJsonResponse(
-      { message: 'No body provided' },
+      { message: "No body provided" },
       StatusCodes.BAD_REQUEST
     );
   }
@@ -27,7 +27,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   if (!validatedData.valid) {
     return generateJsonResponse(
       {
-        messbge: 'Object provided invalid',
+        messbge: "Object provided invalid",
         error: validatedData.error,
         additionalProperties: validatedData.additionalProperties,
       },

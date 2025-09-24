@@ -1,10 +1,10 @@
-import { Transaction } from 'mssql';
-import { FormCustomer } from '../../../interfaces/customer-interface';
-import { Direccion } from '../../../interfaces/common-properties';
-import { StatusCodes } from '../../../helpers/statusCodes';
-import { GenericBDRequest } from '../../types/genericBDRequest';
-import { registerNewAddress } from '../address/registerNewAddress';
-import { updateAddress } from '../address/updateAddress';
+import { Transaction } from "mssql";
+import { FormCustomer } from "../../../interfaces/customer-interface";
+import { Direccion } from "../../../interfaces/common-properties";
+import { StatusCodes } from "../../../helpers/statusCodes";
+import { GenericBDRequest } from "../../types/genericBDRequest";
+import { registerNewAddress } from "../address/registerNewAddress";
+import { updateAddress } from "../address/updateAddress";
 
 export const updateCustomer = async (
   formCliente: FormCustomer,
@@ -60,7 +60,7 @@ export const updateCustomer = async (
       resultadoOperacionActualizaDomicilio = await updateAddress(
         direccionCliente,
         id_cliente,
-        'CLIENTE',
+        "CLIENTE",
         procTransaction
       );
       idDomicilio = id_domicilio_cliente;
@@ -68,7 +68,7 @@ export const updateCustomer = async (
       resultadoOperacionActualizaDomicilio = await registerNewAddress(
         direccionCliente,
         id_cliente,
-        'CLIENTE',
+        "CLIENTE",
         procTransaction
       );
       idDomicilio = resultadoOperacionActualizaDomicilio.generatedId;
@@ -76,7 +76,7 @@ export const updateCustomer = async (
 
     if (!resultadoOperacionActualizaDomicilio.generatedId)
       return {
-        message: 'Error al registrar/actualizar el domicilio del cliente',
+        message: "Error al registrar/actualizar el domicilio del cliente",
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST,
       };
@@ -102,7 +102,7 @@ export const updateCustomer = async (
     const queryLimpiaAvalCliente = ` DELETE FROM CLIENTES_AVALES WHERE ID_CLIENTE = ${id_cliente} 
 
                   `;
-    let queryActualizaAvalCliente = '';
+    let queryActualizaAvalCliente = "";
 
     if (id_aval) {
       queryActualizaAvalCliente = ` INSERT INTO CLIENTES_AVALES (ID_CLIENTE, ID_AVAL) VALUES (${id_cliente}, ${id_aval}) 
@@ -117,18 +117,18 @@ export const updateCustomer = async (
 
     if (!customerUpdate.rowsAffected[0])
       return {
-        message: 'Cliente no actualizado',
+        message: "Cliente no actualizado",
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST,
       };
 
     return {
-      message: 'Cliente actualizado',
+      message: "Cliente actualizado",
       generatedId: id_cliente,
       error: StatusCodes.OK,
     };
   } catch (error) {
-    let errorMessage = '';
+    let errorMessage = "";
 
     if (error instanceof Error) {
       errorMessage = error.message as string;

@@ -1,10 +1,10 @@
-import { Int, Table, VarChar, Transaction, Bit } from 'mssql';
-import { IndexesId } from '../../../helpers/table-schemas';
-import { CustomerReqResponse } from '../../types/customerRequest';
-import { FormCustomer } from '../../../interfaces/customer-interface';
-import { Direccion } from '../../../interfaces/common-properties';
-import { registerNewAddress } from '../address/registerNewAddress';
-import { updateAddress } from '../address/updateAddress';
+import { Int, Table, VarChar, Transaction, Bit } from "mssql";
+import { IndexesId } from "../../../helpers/table-schemas";
+import { CustomerReqResponse } from "../../types/customerRequest";
+import { FormCustomer } from "../../../interfaces/customer-interface";
+import { Direccion } from "../../../interfaces/common-properties";
+import { registerNewAddress } from "../address/registerNewAddress";
+import { updateAddress } from "../address/updateAddress";
 
 export const registerNewCustomer = async (
   formCliente: FormCustomer,
@@ -59,29 +59,29 @@ export const registerNewCustomer = async (
       );
 
     const lastCustomerId = nextIdQuery.recordset[0].indice;
-    const tableCustomerBD = new Table('CLIENTES');
+    const tableCustomerBD = new Table("CLIENTES");
 
     tableCustomerBD.create = false;
 
-    tableCustomerBD.columns.add('ID', Int, { nullable: false });
-    tableCustomerBD.columns.add('NOMBRE', VarChar, { nullable: false });
-    tableCustomerBD.columns.add('TELEFONO_FIJO', VarChar, { nullable: true });
-    tableCustomerBD.columns.add('TELEFONO_MOVIL', VarChar, { nullable: true });
-    tableCustomerBD.columns.add('CORREO_ELECTRONICO', VarChar, {
+    tableCustomerBD.columns.add("ID", Int, { nullable: false });
+    tableCustomerBD.columns.add("NOMBRE", VarChar, { nullable: false });
+    tableCustomerBD.columns.add("TELEFONO_FIJO", VarChar, { nullable: true });
+    tableCustomerBD.columns.add("TELEFONO_MOVIL", VarChar, { nullable: true });
+    tableCustomerBD.columns.add("CORREO_ELECTRONICO", VarChar, {
       nullable: true,
     });
-    tableCustomerBD.columns.add('ACTIVO', Bit, { nullable: true });
-    tableCustomerBD.columns.add('ID_AGENTE', Int, { nullable: true });
-    tableCustomerBD.columns.add('OCUPACION', VarChar, { nullable: true });
-    tableCustomerBD.columns.add('CURP', VarChar, { nullable: false });
+    tableCustomerBD.columns.add("ACTIVO", Bit, { nullable: true });
+    tableCustomerBD.columns.add("ID_AGENTE", Int, { nullable: true });
+    tableCustomerBD.columns.add("OCUPACION", VarChar, { nullable: true });
+    tableCustomerBD.columns.add("CURP", VarChar, { nullable: false });
 
     tableCustomerBD.rows.add(
       lastCustomerId,
       nombre_cliente +
-      ' ' +
-      apellido_paterno_cliente +
-      ' ' +
-      apellido_materno_cliente,
+        " " +
+        apellido_paterno_cliente +
+        " " +
+        apellido_materno_cliente,
       telefono_fijo_cliente,
       telefono_movil_cliente,
       correo_electronico_cliente,
@@ -91,7 +91,7 @@ export const registerNewCustomer = async (
       curp_cliente
     );
 
-    let updateIndexIdQuery = '';
+    let updateIndexIdQuery = "";
 
     const insertBulkData = await procTransaction
       .request()
@@ -107,14 +107,14 @@ export const registerNewCustomer = async (
       addAddressResult = await updateAddress(
         direccionCliente,
         lastCustomerId,
-        'CLIENTE',
+        "CLIENTE",
         procTransaction
       );
     } else {
       addAddressResult = await registerNewAddress(
         direccionCliente,
         lastCustomerId,
-        'CLIENTE',
+        "CLIENTE",
         procTransaction
       );
     }
@@ -122,13 +122,13 @@ export const registerNewCustomer = async (
     const lastAddressId = addAddressResult.generatedId;
 
     if (!lastAddressId) {
-      return { message: 'Error al registrar domicilio', idCustomer: 0 };
+      return { message: "Error al registrar domicilio", idCustomer: 0 };
     }
 
     const updateAddressIdCustomer = `
                             UPDATE CLIENTES SET ID_DOMICILIO = ${lastAddressId} WHERE ID = ${lastCustomerId} `;
 
-    let queryUpdateCustomerEndorsement = '';
+    let queryUpdateCustomerEndorsement = "";
 
     if (id_aval) {
       queryUpdateCustomerEndorsement = ` INSERT INTO CLIENTES_AVALES (ID_CLIENTE, ID_AVAL) VALUES (${lastCustomerId}, ${id_aval}) `;
@@ -137,26 +137,26 @@ export const registerNewCustomer = async (
     const requestUpdate = procTransaction.request();
     const updateResult = await requestUpdate.query(
       updateIndexIdQuery +
-      queryUpdateCustomerEndorsement +
-      updateAddressIdCustomer
+        queryUpdateCustomerEndorsement +
+        updateAddressIdCustomer
     );
 
     if (!insertBulkData.rowsAffected || !updateResult.rowsAffected.length) {
-      return { message: 'No se pudo registrar el cliente', idCustomer: 0 };
+      return { message: "No se pudo registrar el cliente", idCustomer: 0 };
     }
     return {
-      message: 'Alta de nuevo cliente terminó de manera exitosa',
+      message: "Alta de nuevo cliente terminó de manera exitosa",
       idCustomer: lastCustomerId,
     };
   } catch (error) {
-    let errorMessage = '';
+    let errorMessage = "";
 
     if (error instanceof Error) {
       errorMessage = error.message as string;
     }
 
     return {
-      message: 'Error durante la transacción',
+      message: "Error durante la transacción",
       idCustomer: 0,
       error: errorMessage,
     };

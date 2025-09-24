@@ -1,9 +1,9 @@
-import { Int, Table, VarChar, Transaction, Float, DateTime } from 'mssql';
-import { LoanHeader } from '../../../interfaces/loan-interface';
-import { GenericBDRequest } from '../../types/genericBDRequest';
-import { IndexesId } from '../../../helpers/table-schemas';
-import { StatusCodes } from '../../../helpers/statusCodes';
-import { registerSnapshotRealInvestmentReport } from '../reporting/registerSnapshotRealInvestmentReport';
+import { Int, Table, VarChar, Transaction, Float, DateTime } from "mssql";
+import { LoanHeader } from "../../../interfaces/loan-interface";
+import { GenericBDRequest } from "../../types/genericBDRequest";
+import { IndexesId } from "../../../helpers/table-schemas";
+import { StatusCodes } from "../../../helpers/statusCodes";
+import { registerSnapshotRealInvestmentReport } from "../reporting/registerSnapshotRealInvestmentReport";
 
 export const registerNewLoan = async (
   loan_header: LoanHeader,
@@ -33,50 +33,50 @@ export const registerNewLoan = async (
       );
 
     const lastLoanId = nextIdQuery.recordset[0].indice;
-    const tableLoanHeaderBD = new Table('PRESTAMOS');
-    const tableLoanDetailBD = new Table('PRESTAMOS_DETALLE');
+    const tableLoanHeaderBD = new Table("PRESTAMOS");
+    const tableLoanDetailBD = new Table("PRESTAMOS_DETALLE");
 
     tableLoanHeaderBD.create = false;
     tableLoanDetailBD.create = false;
 
-    tableLoanHeaderBD.columns.add('ID', Int, { nullable: false });
-    tableLoanHeaderBD.columns.add('ID_CLIENTE', Int, { nullable: false });
-    tableLoanHeaderBD.columns.add('ID_PLAZO', Int, { nullable: false });
-    tableLoanHeaderBD.columns.add('ID_USUARIO', Int, { nullable: false });
-    tableLoanHeaderBD.columns.add('CANTIDAD_PRESTADA', Float, {
+    tableLoanHeaderBD.columns.add("ID", Int, { nullable: false });
+    tableLoanHeaderBD.columns.add("ID_CLIENTE", Int, { nullable: false });
+    tableLoanHeaderBD.columns.add("ID_PLAZO", Int, { nullable: false });
+    tableLoanHeaderBD.columns.add("ID_USUARIO", Int, { nullable: false });
+    tableLoanHeaderBD.columns.add("CANTIDAD_PRESTADA", Float, {
       nullable: false,
     });
-    tableLoanHeaderBD.columns.add('DIA_SEMANA', VarChar, { nullable: false });
-    tableLoanHeaderBD.columns.add('FECHA_INICIAL', DateTime, {
+    tableLoanHeaderBD.columns.add("DIA_SEMANA", VarChar, { nullable: false });
+    tableLoanHeaderBD.columns.add("FECHA_INICIAL", DateTime, {
       nullable: false,
     });
-    tableLoanHeaderBD.columns.add('FECHA_FINAL_ESTIMADA', DateTime, {
+    tableLoanHeaderBD.columns.add("FECHA_FINAL_ESTIMADA", DateTime, {
       nullable: false,
     });
-    tableLoanHeaderBD.columns.add('FECHA_FINAL_REAL', DateTime, {
+    tableLoanHeaderBD.columns.add("FECHA_FINAL_REAL", DateTime, {
       nullable: false,
     });
-    tableLoanHeaderBD.columns.add('ID_COBRADOR', Int, { nullable: false });
-    tableLoanHeaderBD.columns.add('CANTIDAD_RESTANTE', Float, {
+    tableLoanHeaderBD.columns.add("ID_COBRADOR", Int, { nullable: false });
+    tableLoanHeaderBD.columns.add("CANTIDAD_RESTANTE", Float, {
       nullable: true,
     });
-    tableLoanHeaderBD.columns.add('CANTIDAD_PAGAR', Float, { nullable: true });
-    tableLoanHeaderBD.columns.add('STATUS', VarChar, { nullable: true });
-    tableLoanHeaderBD.columns.add('ID_CONCEPTO', Int, { nullable: true });
-    tableLoanHeaderBD.columns.add('TASA_INTERES', Int, { nullable: true });
-    tableLoanHeaderBD.columns.add('ID_GRUPO_ORIGINAL', Int, { nullable: true });
+    tableLoanHeaderBD.columns.add("CANTIDAD_PAGAR", Float, { nullable: true });
+    tableLoanHeaderBD.columns.add("STATUS", VarChar, { nullable: true });
+    tableLoanHeaderBD.columns.add("ID_CONCEPTO", Int, { nullable: true });
+    tableLoanHeaderBD.columns.add("TASA_INTERES", Int, { nullable: true });
+    tableLoanHeaderBD.columns.add("ID_GRUPO_ORIGINAL", Int, { nullable: true });
 
-    tableLoanDetailBD.columns.add('ID_PRESTAMO', Int, { nullable: false });
-    tableLoanDetailBD.columns.add('NUMERO_SEMANA', Int, { nullable: false });
-    tableLoanDetailBD.columns.add('ID_USUARIO', Int, { nullable: false });
-    tableLoanDetailBD.columns.add('FECHA_VENCIMIENTO', DateTime, {
+    tableLoanDetailBD.columns.add("ID_PRESTAMO", Int, { nullable: false });
+    tableLoanDetailBD.columns.add("NUMERO_SEMANA", Int, { nullable: false });
+    tableLoanDetailBD.columns.add("ID_USUARIO", Int, { nullable: false });
+    tableLoanDetailBD.columns.add("FECHA_VENCIMIENTO", DateTime, {
       nullable: false,
     });
-    tableLoanDetailBD.columns.add('STATUS', VarChar, { nullable: true });
-    tableLoanDetailBD.columns.add('CANTIDAD', Float, { nullable: false });
-    tableLoanDetailBD.columns.add('ID_COBRADOR', Int, { nullable: false });
-    tableLoanDetailBD.columns.add('SALDO_PENDIENTE', Float, { nullable: true });
-    tableLoanDetailBD.columns.add('MODO_INSERCION', VarChar, {
+    tableLoanDetailBD.columns.add("STATUS", VarChar, { nullable: true });
+    tableLoanDetailBD.columns.add("CANTIDAD", Float, { nullable: false });
+    tableLoanDetailBD.columns.add("ID_COBRADOR", Int, { nullable: false });
+    tableLoanDetailBD.columns.add("SALDO_PENDIENTE", Float, { nullable: true });
+    tableLoanDetailBD.columns.add("MODO_INSERCION", VarChar, {
       nullable: true,
     });
 
@@ -94,7 +94,7 @@ export const registerNewLoan = async (
       id_cobrador,
       cantidad_restante,
       cantidad_pagar,
-      'EMITIDO',
+      "EMITIDO",
       1,
       tasa_interes,
       id_grupo_original
@@ -114,11 +114,11 @@ export const registerNewLoan = async (
         counter,
         id_usuario,
         fechaDePago.toISOString(),
-        'NO PAGADO',
+        "NO PAGADO",
         cantidad_semanal,
         id_cobrador,
         cantidad_semanal,
-        'WEB_LOAN_REQ'
+        "WEB_LOAN_REQ"
       );
     }
 
@@ -147,7 +147,7 @@ export const registerNewLoan = async (
       !takeSnapshotResult
     )
       return {
-        message: 'Error durante la transacción de generación de préstamo',
+        message: "Error durante la transacción de generación de préstamo",
         error: StatusCodes.BAD_REQUEST,
         generatedId: 0,
       };

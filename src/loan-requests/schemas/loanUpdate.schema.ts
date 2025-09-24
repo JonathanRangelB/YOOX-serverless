@@ -1,10 +1,10 @@
 import {
   propertiesForLoanRequest,
   requiredFielsForUpdateLoanRequest,
-} from './propertiesForLoanRequest.schema';
+} from "./propertiesForLoanRequest.schema";
 
 export const loanSchema = {
-  type: 'object',
+  type: "object",
   properties: propertiesForLoanRequest,
   required: requiredFielsForUpdateLoanRequest,
   additionalProperties: false,

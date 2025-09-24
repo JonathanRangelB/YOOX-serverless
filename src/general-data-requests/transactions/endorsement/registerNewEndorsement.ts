@@ -1,10 +1,10 @@
-import { Int, Table, VarChar, Transaction } from 'mssql';
-import { IndexesId } from '../../../helpers/table-schemas';
-import { EndorsementReqResponse } from '../../types/endorsmentRequest';
-import { FormEndorsement } from '../../../interfaces/endorsement-interface';
-import { Direccion } from '../../../interfaces/common-properties';
-import { registerNewAddress } from '../address/registerNewAddress';
-import { updateAddress } from '../address/updateAddress';
+import { Int, Table, VarChar, Transaction } from "mssql";
+import { IndexesId } from "../../../helpers/table-schemas";
+import { EndorsementReqResponse } from "../../types/endorsmentRequest";
+import { FormEndorsement } from "../../../interfaces/endorsement-interface";
+import { Direccion } from "../../../interfaces/common-properties";
+import { registerNewAddress } from "../address/registerNewAddress";
+import { updateAddress } from "../address/updateAddress";
 
 export const registerNewEndorsement = async (
   formAval: FormEndorsement,
@@ -59,25 +59,25 @@ export const registerNewEndorsement = async (
 
     lastEndorsmentId = nextIdQuery.recordset[0].indice;
 
-    const tableEndorsmentBD = new Table('AVALES');
+    const tableEndorsmentBD = new Table("AVALES");
 
     tableEndorsmentBD.create = false;
 
-    tableEndorsmentBD.columns.add('ID_AVAL', Int, { nullable: false });
-    tableEndorsmentBD.columns.add('NOMBRE', VarChar, { nullable: false });
-    tableEndorsmentBD.columns.add('TELEFONO_FIJO', VarChar, { nullable: true });
-    tableEndorsmentBD.columns.add('TELEFONO_MOVIL', VarChar, {
+    tableEndorsmentBD.columns.add("ID_AVAL", Int, { nullable: false });
+    tableEndorsmentBD.columns.add("NOMBRE", VarChar, { nullable: false });
+    tableEndorsmentBD.columns.add("TELEFONO_FIJO", VarChar, { nullable: true });
+    tableEndorsmentBD.columns.add("TELEFONO_MOVIL", VarChar, {
       nullable: true,
     });
-    tableEndorsmentBD.columns.add('CORREO_ELECTRONICO', VarChar, {
+    tableEndorsmentBD.columns.add("CORREO_ELECTRONICO", VarChar, {
       nullable: true,
     });
-    tableEndorsmentBD.columns.add('OBSERVACIONES', VarChar, { nullable: true });
-    tableEndorsmentBD.columns.add('CURP', VarChar, { nullable: false });
+    tableEndorsmentBD.columns.add("OBSERVACIONES", VarChar, { nullable: true });
+    tableEndorsmentBD.columns.add("CURP", VarChar, { nullable: false });
 
     tableEndorsmentBD.rows.add(
       lastEndorsmentId,
-      nombre_aval + ' ' + apellido_paterno_aval + ' ' + apellido_materno_aval,
+      nombre_aval + " " + apellido_paterno_aval + " " + apellido_materno_aval,
       telefono_fijo_aval,
       telefono_movil_aval,
       correo_electronico_aval,
@@ -97,14 +97,14 @@ export const registerNewEndorsement = async (
       addAddressResult = await updateAddress(
         direccionAval,
         lastEndorsmentId,
-        'AVAL',
+        "AVAL",
         procTransaction
       );
     } else {
       addAddressResult = await registerNewAddress(
         direccionAval,
         lastEndorsmentId,
-        'AVAL',
+        "AVAL",
         procTransaction
       );
     }
@@ -112,7 +112,7 @@ export const registerNewEndorsement = async (
     const lastAddressId = addAddressResult.generatedId;
 
     if (!lastAddressId) {
-      return { message: 'Error al registrar domicilio', idEndorsment: 0 };
+      return { message: "Error al registrar domicilio", idEndorsment: 0 };
     }
 
     const updateAddressIdEndorsement = `
@@ -124,22 +124,22 @@ export const registerNewEndorsement = async (
     );
 
     if (!insertBulkData.rowsAffected || !updateResult.rowsAffected.length) {
-      return { message: 'No se pudo registrar el aval', idEndorsment: 0 };
+      return { message: "No se pudo registrar el aval", idEndorsment: 0 };
     }
 
     return {
-      message: 'Alta de nuevo aval terminó de manera exitosa',
+      message: "Alta de nuevo aval terminó de manera exitosa",
       idEndorsment: lastEndorsmentId,
     };
   } catch (error) {
-    let errorMessage = '';
+    let errorMessage = "";
 
     if (error instanceof Error) {
       errorMessage = error.message as string;
     }
 
     return {
-      message: 'Error durante la transacción',
+      message: "Error durante la transacción",
       idEndorsment: 0,
       error: errorMessage,
     };

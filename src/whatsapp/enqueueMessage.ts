@@ -2,7 +2,7 @@ import { DbConnector } from "../helpers/dbConnector";
 
 interface WhatsappMessageDTO {
   message: string;
-  queue_ISOdate: string;// ISO 8601 format
+  queue_ISOdate: string; // ISO 8601 format
   target_phone_number: string;
 }
 
@@ -20,4 +20,3 @@ export async function enqueueWAMessageOnDB(options: WhatsappMessageDTO) {
   const result = await pool.query(queryStatement);
   return result.rowsAffected[0];
 }
-

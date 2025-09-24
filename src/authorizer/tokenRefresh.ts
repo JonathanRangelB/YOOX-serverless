@@ -1,20 +1,20 @@
-import { APIGatewayEvent } from 'aws-lambda';
-import * as jwt from 'jsonwebtoken';
-import { StatusCodes } from '../helpers/statusCodes';
-import { DbConnector } from '../helpers/dbConnector';
-import { RefreshRequestBody, TokenPayload } from './auth.interface';
-import { generateJsonResponse } from '../helpers/generateJsonResponse';
+import { APIGatewayEvent } from "aws-lambda";
+import * as jwt from "jsonwebtoken";
+import { StatusCodes } from "../helpers/statusCodes";
+import { DbConnector } from "../helpers/dbConnector";
+import { RefreshRequestBody, TokenPayload } from "./auth.interface";
+import { generateJsonResponse } from "../helpers/generateJsonResponse";
 
 export const handler = async (event: APIGatewayEvent) => {
   try {
     // Manejar preflight CORS
-    if (event.httpMethod === 'OPTIONS') {
-      return generateJsonResponse('', StatusCodes.OK);
+    if (event.httpMethod === "OPTIONS") {
+      return generateJsonResponse("", StatusCodes.OK);
     }
 
     if (!event.body) {
       return generateJsonResponse(
-        { error: 'Request body is required' },
+        { error: "Request body is required" },
         StatusCodes.BAD_REQUEST
       );
     }
@@ -23,7 +23,7 @@ export const handler = async (event: APIGatewayEvent) => {
 
     if (!body.token) {
       return generateJsonResponse(
-        { error: 'Token is required' },
+        { error: "Token is required" },
         StatusCodes.BAD_REQUEST
       );
     }
@@ -31,16 +31,16 @@ export const handler = async (event: APIGatewayEvent) => {
     // Obtener el JWT secret del environment
     const TOKEN_JWT = process.env.TOKEN_JWT;
     if (!TOKEN_JWT) {
-      throw new Error('JWT_SECRET not configured');
+      throw new Error("JWT_SECRET not configured");
     }
 
     // Decodificar el token SIN verificar expiración
-    const tokenWithoutBearer = body.token.split(' ')[1];
+    const tokenWithoutBearer = body.token.split(" ")[1];
     const decodedToken = jwt.decode(tokenWithoutBearer) as TokenPayload;
 
     if (!decodedToken) {
       return generateJsonResponse(
-        { error: 'Invalid token format' },
+        { error: "Invalid token format" },
         StatusCodes.UNAUTHORIZED
       );
     }
@@ -52,7 +52,7 @@ export const handler = async (event: APIGatewayEvent) => {
 
     if (now - decodedToken.exp > maxRefreshWindow) {
       return generateJsonResponse(
-        { error: 'Token expired beyond refresh window' },
+        { error: "Token expired beyond refresh window" },
         StatusCodes.UNAUTHORIZED
       );
     }
@@ -61,9 +61,9 @@ export const handler = async (event: APIGatewayEvent) => {
     try {
       jwt.verify(tokenWithoutBearer, TOKEN_JWT, { ignoreExpiration: true });
     } catch (error) {
-      console.error('Token verification failed:', error);
+      console.error("Token verification failed:", error);
       return generateJsonResponse(
-        { error: 'Invalid token signature' },
+        { error: "Invalid token signature" },
         StatusCodes.UNAUTHORIZED
       );
     }
@@ -71,7 +71,7 @@ export const handler = async (event: APIGatewayEvent) => {
     // Verificar que el usuario no ha sido deshabilitado
     if (!(await userIsActive(decodedToken.ID))) {
       return generateJsonResponse(
-        { error: 'User no longer active, contact support' },
+        { error: "User no longer active, contact support" },
         StatusCodes.UNAUTHORIZED
       );
     }
@@ -97,10 +97,10 @@ export const handler = async (event: APIGatewayEvent) => {
       StatusCodes.OK
     );
   } catch (error) {
-    console.error('Error in refresh token:', { error });
+    console.error("Error in refresh token:", { error });
 
     return generateJsonResponse(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       StatusCodes.INTERNAL_SERVER_ERROR
     );
   }

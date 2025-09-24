@@ -1,5 +1,5 @@
-import { DbConnector } from '../helpers/dbConnector';
-import { PagosReglasDias } from '../helpers/table-schemas';
+import { DbConnector } from "../helpers/dbConnector";
+import { PagosReglasDias } from "../helpers/table-schemas";
 
 export const getPagosAdelantadosPermitidos = async (idCliente: number) => {
   try {

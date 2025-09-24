@@ -1,8 +1,8 @@
-import { propertiesForLoanRequest } from './propertiesForLoanRequest.schema';
-import { requiredFielsForNewLoanRequest } from './propertiesForLoanRequest.schema';
+import { propertiesForLoanRequest } from "./propertiesForLoanRequest.schema";
+import { requiredFielsForNewLoanRequest } from "./propertiesForLoanRequest.schema";
 
 export const loanSchema = {
-  type: 'object',
+  type: "object",
   properties: propertiesForLoanRequest,
   required: requiredFielsForNewLoanRequest,
   additionalProperties: false,

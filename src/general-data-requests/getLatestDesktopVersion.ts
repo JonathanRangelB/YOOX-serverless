@@ -1,9 +1,9 @@
-import { APIGatewayEvent } from 'aws-lambda';
-import { generateJsonResponse } from '../helpers/generateJsonResponse';
-import { StatusCodes } from '../helpers/statusCodes';
-import { DbConnector } from '../helpers/dbConnector';
-import { DesktopVersionData } from './types/desktopVersionData';
-import { generateGetJsonResponse } from '../helpers/generateGetJsonResponse';
+import { APIGatewayEvent } from "aws-lambda";
+import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { StatusCodes } from "../helpers/statusCodes";
+import { DbConnector } from "../helpers/dbConnector";
+import { DesktopVersionData } from "./types/desktopVersionData";
+import { generateGetJsonResponse } from "../helpers/generateGetJsonResponse";
 
 module.exports.handler = async (_: APIGatewayEvent) => {
   try {
@@ -13,7 +13,7 @@ module.exports.handler = async (_: APIGatewayEvent) => {
     );
     if (res.recordset.length === 0) {
       return generateJsonResponse(
-        { error: 'Query throw no data' },
+        { error: "Query throw no data" },
         StatusCodes.NOT_FOUND
       );
     }

@@ -1,15 +1,15 @@
-import { APIGatewayEvent } from 'aws-lambda';
+import { APIGatewayEvent } from "aws-lambda";
 import {
   S3Client,
   PutObjectCommand,
   PutObjectRequest,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-import { generateJsonResponse } from '../helpers/generateJsonResponse';
-import { StatusCodes } from '../helpers/statusCodes';
-import { FileNamesSchema } from './schemas/filenames.schema';
-import { validatePayload } from '../helpers/utils';
+import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { StatusCodes } from "../helpers/statusCodes";
+import { FileNamesSchema } from "./schemas/filenames.schema";
+import { validatePayload } from "../helpers/utils";
 
 const client = new S3Client({
   region: process.env.MY_AWS_REGION,
@@ -22,7 +22,7 @@ const client = new S3Client({
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body)
     return generateJsonResponse(
-      { message: 'No body provided' },
+      { message: "No body provided" },
       StatusCodes.BAD_REQUEST
     );
 
@@ -33,7 +33,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   if (!validData.valid)
     return generateJsonResponse(
       {
-        message: 'Object provided invalid',
+        message: "Object provided invalid",
         error: validData.error,
         additionalProperties: validData.additionalProperties,
       },
@@ -42,16 +42,16 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
   const { filenames } = data;
 
-  const bucketName = process.env.BUCKET_NAME || 'documentos-clientes-yoox';
+  const bucketName = process.env.BUCKET_NAME || "documentos-clientes-yoox";
 
   try {
     const uploadUrls = await Promise.all(
       filenames.map(async (fullFileName: string) => {
-        const [path, filename] = fullFileName.split('/');
+        const [path, filename] = fullFileName.split("/");
         const params: PutObjectRequest = {
           Bucket: bucketName,
           Key: `${path.toUpperCase()}/${filename}`, // Archivo que se subirá con su ruta completa. Ej: documentos/imagen/{filename}
-          ContentType: 'application/octet-stream', // Tipo de contenido generico binario, osea cualquier tipo de archivo
+          ContentType: "application/octet-stream", // Tipo de contenido generico binario, osea cualquier tipo de archivo
         };
         const command = new PutObjectCommand(params);
         const signedUrl = await getSignedUrl(client, command, {
@@ -65,7 +65,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   } catch (error) {
     if (error instanceof Error)
       return generateJsonResponse(
-        { message: 'Error generating signed URL', error: error.message },
+        { message: "Error generating signed URL", error: error.message },
         StatusCodes.INTERNAL_SERVER_ERROR
       );
   }

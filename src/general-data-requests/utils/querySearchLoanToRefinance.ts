@@ -38,5 +38,5 @@ export function querySearchLoanToRefinance(selectStatement: string): string {
           having count(*) >= pz.semanas_refinancia                      
 
   ) as t0  
-  `
+  `;
 }

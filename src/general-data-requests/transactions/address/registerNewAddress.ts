@@ -1,8 +1,8 @@
-import { Int, Table, VarChar, Transaction, DateTime } from 'mssql';
-import { IndexesId } from '../../../helpers/table-schemas';
-import { GenericBDRequest } from '../../types/genericBDRequest';
-import { StatusCodes } from '../../../helpers/statusCodes';
-import { Direccion } from '../../../interfaces/common-properties';
+import { Int, Table, VarChar, Transaction, DateTime } from "mssql";
+import { IndexesId } from "../../../helpers/table-schemas";
+import { GenericBDRequest } from "../../types/genericBDRequest";
+import { StatusCodes } from "../../../helpers/statusCodes";
+import { Direccion } from "../../../interfaces/common-properties";
 
 export const registerNewAddress = async (
   direccion: Direccion,
@@ -37,25 +37,25 @@ export const registerNewAddress = async (
 
     const lastAddressId = nextIdQuery.recordset[0].indice;
 
-    const tableAddressBD = new Table('DOMICILIOS');
+    const tableAddressBD = new Table("DOMICILIOS");
 
     tableAddressBD.create = false;
 
-    tableAddressBD.columns.add('ID', Int, { nullable: false });
-    tableAddressBD.columns.add('TIPO_CALLE', VarChar(50), { nullable: true });
-    tableAddressBD.columns.add('NOMBRE_CALLE', VarChar(100), {
+    tableAddressBD.columns.add("ID", Int, { nullable: false });
+    tableAddressBD.columns.add("TIPO_CALLE", VarChar(50), { nullable: true });
+    tableAddressBD.columns.add("NOMBRE_CALLE", VarChar(100), {
       nullable: true,
     });
-    tableAddressBD.columns.add('NUMERO_EXTERIOR', VarChar(10), {
+    tableAddressBD.columns.add("NUMERO_EXTERIOR", VarChar(10), {
       nullable: true,
     });
-    tableAddressBD.columns.add('COLONIA', VarChar(100), { nullable: true });
-    tableAddressBD.columns.add('MUNICIPIO', VarChar(100), { nullable: true });
-    tableAddressBD.columns.add('ESTADO', VarChar(50), { nullable: true });
-    tableAddressBD.columns.add('CP', VarChar(10), { nullable: true });
-    tableAddressBD.columns.add('REFERENCIAS', VarChar(100), { nullable: true });
-    tableAddressBD.columns.add('CREATED_BY_USR', Int, { nullable: true });
-    tableAddressBD.columns.add('CREATED_DATE', DateTime, { nullable: true });
+    tableAddressBD.columns.add("COLONIA", VarChar(100), { nullable: true });
+    tableAddressBD.columns.add("MUNICIPIO", VarChar(100), { nullable: true });
+    tableAddressBD.columns.add("ESTADO", VarChar(50), { nullable: true });
+    tableAddressBD.columns.add("CP", VarChar(10), { nullable: true });
+    tableAddressBD.columns.add("REFERENCIAS", VarChar(100), { nullable: true });
+    tableAddressBD.columns.add("CREATED_BY_USR", Int, { nullable: true });
+    tableAddressBD.columns.add("CREATED_DATE", DateTime, { nullable: true });
 
     tableAddressBD.rows.add(
       lastAddressId,
@@ -74,30 +74,30 @@ export const registerNewAddress = async (
     const insertResult = await procTransaction.request().bulk(tableAddressBD);
 
     if (numero_interior) {
-      const tableAddressSuiteNumberBD = new Table('DOMICILIOS_NUM_INTERIOR');
+      const tableAddressSuiteNumberBD = new Table("DOMICILIOS_NUM_INTERIOR");
       tableAddressSuiteNumberBD.create = false;
 
-      tableAddressSuiteNumberBD.columns.add('ID_DOMICILIO', Int, {
+      tableAddressSuiteNumberBD.columns.add("ID_DOMICILIO", Int, {
         nullable: false,
       });
-      tableAddressSuiteNumberBD.columns.add('NUMERO_INTERIOR', VarChar, {
+      tableAddressSuiteNumberBD.columns.add("NUMERO_INTERIOR", VarChar, {
         nullable: false,
       });
-      tableAddressSuiteNumberBD.columns.add('ID_CLIENTE', Int, {
+      tableAddressSuiteNumberBD.columns.add("ID_CLIENTE", Int, {
         nullable: true,
       });
-      tableAddressSuiteNumberBD.columns.add('ID_AVAL', Int, {
+      tableAddressSuiteNumberBD.columns.add("ID_AVAL", Int, {
         nullable: true,
       });
-      tableAddressSuiteNumberBD.columns.add('TIPO', VarChar, {
+      tableAddressSuiteNumberBD.columns.add("TIPO", VarChar, {
         nullable: true,
       });
 
       tableAddressSuiteNumberBD.rows.add(
         lastAddressId,
         numero_interior,
-        tipo === 'CLIENTE' ? id_persona : null,
-        tipo === 'AVAL' ? id_persona : null,
+        tipo === "CLIENTE" ? id_persona : null,
+        tipo === "AVAL" ? id_persona : null,
         tipo
       );
 
@@ -107,7 +107,7 @@ export const registerNewAddress = async (
 
       if (!updateSuiteNumber.rowsAffected)
         return {
-          message: 'No se pudo registrar el número interior',
+          message: "No se pudo registrar el número interior",
           generatedId: 0,
           error: StatusCodes.BAD_REQUEST,
         };
@@ -120,12 +120,12 @@ export const registerNewAddress = async (
 
     if (!insertResult.rowsAffected || !updateIndexIdResult.rowsAffected[0])
       return {
-        message: 'No se pudo registrar el domicilio',
+        message: "No se pudo registrar el domicilio",
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST,
       };
     return {
-      message: 'Domicilio registrado correctamente',
+      message: "Domicilio registrado correctamente",
       generatedId: lastAddressId,
       error: StatusCodes.OK,
     };

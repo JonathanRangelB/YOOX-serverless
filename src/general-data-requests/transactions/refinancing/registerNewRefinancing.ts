@@ -1,9 +1,9 @@
-import { Refinance } from '../../../helpers/table-schemas';
-import { Int, Table, Transaction, Float, DateTime } from 'mssql';
-import { LoanHeader } from '../../../interfaces/loan-interface';
-import { GenericBDRequest } from '../../types/genericBDRequest';
-import { StatusCodes } from '../../../helpers/statusCodes';
-import { registerNewLoan } from '../loan/registerNewLoan';
+import { Refinance } from "../../../helpers/table-schemas";
+import { Int, Table, Transaction, Float, DateTime } from "mssql";
+import { LoanHeader } from "../../../interfaces/loan-interface";
+import { GenericBDRequest } from "../../types/genericBDRequest";
+import { StatusCodes } from "../../../helpers/statusCodes";
+import { registerNewLoan } from "../loan/registerNewLoan";
 
 export const registerNewRefinancing = async (
   new_loan_header: LoanHeader,
@@ -16,11 +16,11 @@ export const registerNewRefinancing = async (
       id_usuario,
       id_cliente,
       id_prestamo_actual,
-      cantidad_refinanciada
+      cantidad_refinanciada,
     } = refinance;
 
     const { cantidad_prestada } = new_loan_header;
-    const cantidadRefinanciada = (cantidad_refinanciada as number)
+    const cantidadRefinanciada = cantidad_refinanciada as number;
 
     if (
       cantidad_prestada < 1000.0 ||
@@ -52,20 +52,20 @@ export const registerNewRefinancing = async (
       };
     }
 
-    const tableRefinanciamiento = new Table('REFINANCIA');
+    const tableRefinanciamiento = new Table("REFINANCIA");
     tableRefinanciamiento.create = false;
 
-    tableRefinanciamiento.columns.add('ID', Int, { nullable: false });
-    tableRefinanciamiento.columns.add('FECHA', DateTime, { nullable: false });
-    tableRefinanciamiento.columns.add('ID_USUARIO', Int, { nullable: false });
-    tableRefinanciamiento.columns.add('ID_CLIENTE', Int, { nullable: false });
-    tableRefinanciamiento.columns.add('ID_PRESTAMO_ANT', Int, {
+    tableRefinanciamiento.columns.add("ID", Int, { nullable: false });
+    tableRefinanciamiento.columns.add("FECHA", DateTime, { nullable: false });
+    tableRefinanciamiento.columns.add("ID_USUARIO", Int, { nullable: false });
+    tableRefinanciamiento.columns.add("ID_CLIENTE", Int, { nullable: false });
+    tableRefinanciamiento.columns.add("ID_PRESTAMO_ANT", Int, {
       nullable: false,
     });
-    tableRefinanciamiento.columns.add('ID_PRESTAMO_ACT', Int, {
+    tableRefinanciamiento.columns.add("ID_PRESTAMO_ACT", Int, {
       nullable: false,
     });
-    tableRefinanciamiento.columns.add('CANTIDAD', Float, { nullable: false });
+    tableRefinanciamiento.columns.add("CANTIDAD", Float, { nullable: false });
 
     tableRefinanciamiento.rows.add(
       lastRefinanceId,
@@ -107,14 +107,14 @@ export const registerNewRefinancing = async (
       !updateIndexes.rowsAffected[0]
     ) {
       return {
-        message: 'Error durante la transacción',
+        message: "Error durante la transacción",
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST,
       };
     }
 
     return {
-      message: 'Refinanciamiento generado',
+      message: "Refinanciamiento generado",
       generatedId: idLoanNew,
       error: StatusCodes.OK,
     };

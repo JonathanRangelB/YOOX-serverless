@@ -1,11 +1,11 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
-import { generateJsonResponse } from '../helpers/generateJsonResponse';
-import { Credentials } from './types/user-service';
-import { validateCredentials } from './validateCredentials';
-import { userSchema } from './schemas/userSchema';
-import { StatusCodes } from '../helpers/statusCodes';
-import { validatePayload } from '../helpers/utils';
+import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { Credentials } from "./types/user-service";
+import { validateCredentials } from "./validateCredentials";
+import { userSchema } from "./schemas/userSchema";
+import { StatusCodes } from "../helpers/statusCodes";
+import { validatePayload } from "../helpers/utils";
 
 module.exports.handler = async (event: any) => {
   const data: Credentials = JSON.parse(event.body);
@@ -14,13 +14,13 @@ module.exports.handler = async (event: any) => {
 
   const TOKEN_JWT = process.env.TOKEN_JWT;
   if (!TOKEN_JWT) {
-    throw new Error('JWT_SECRET not configured');
+    throw new Error("JWT_SECRET not configured");
   }
 
   if (!validData.valid) {
     return generateJsonResponse(
       {
-        message: 'Object provided invalid',
+        message: "Object provided invalid",
         error: validData.error,
         additionalProperties: validData.additionalProperties,
       },
@@ -33,13 +33,13 @@ module.exports.handler = async (event: any) => {
 
     if (!rowsAffected[0]) {
       return generateJsonResponse(
-        'Login failed, verify your credentials',
+        "Login failed, verify your credentials",
         StatusCodes.NOT_FOUND
       );
     }
 
     const token = jwt.sign(recordset[0], TOKEN_JWT, {
-      expiresIn: '60m',
+      expiresIn: "60m",
     });
 
     return generateJsonResponse(

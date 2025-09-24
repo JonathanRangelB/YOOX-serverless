@@ -10,7 +10,7 @@ export function guarantorSearchQuery(
   } else if (curp_aval) {
     whereCondition += ` and t1.curp = '${curp_aval}' `;
   } else if (nombre_aval) {
-    whereCondition += ` and t1.nombre like '%${nombre_aval.replace(/ /g, '%')}%' `;
+    whereCondition += ` and t1.nombre like '%${nombre_aval.replace(/ /g, "%")}%' `;
   }
 
   return `select top 5

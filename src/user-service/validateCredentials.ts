@@ -1,6 +1,6 @@
-import md5 from 'md5';
-import { Credentials } from './types/user-service';
-import { DbConnector } from '../helpers/dbConnector';
+import md5 from "md5";
+import { Credentials } from "./types/user-service";
+import { DbConnector } from "../helpers/dbConnector";
 
 export const validateCredentials = async (data: Credentials) => {
   const { userId, password } = data;

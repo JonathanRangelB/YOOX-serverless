@@ -59,4 +59,3 @@ export interface SolicitudDetalle {
   closed_date: Date;
   status_code: number;
 }
-

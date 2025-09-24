@@ -1,19 +1,19 @@
-import { APIGatewayEvent } from 'aws-lambda';
-import { DbConnector } from '../helpers/dbConnector';
+import { APIGatewayEvent } from "aws-lambda";
+import { DbConnector } from "../helpers/dbConnector";
 import {
   DatosSolicitudDetalle,
   SolicitudDetalle,
-} from '../general-data-requests/types/getRequest.interface';
-import { generateJsonResponse } from '../helpers/generateJsonResponse';
-import { StatusCodes } from '../helpers/statusCodes';
-import { requestDetailSearchQuery } from '../general-data-requests/utils/querySearchRequestDetail';
-import { requestDetailSearchParametersSchema } from '../general-data-requests/schemas/request.schema';
-import { validatePayload } from '../helpers/utils';
+} from "../general-data-requests/types/getRequest.interface";
+import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { StatusCodes } from "../helpers/statusCodes";
+import { requestDetailSearchQuery } from "../general-data-requests/utils/querySearchRequestDetail";
+import { requestDetailSearchParametersSchema } from "../general-data-requests/schemas/request.schema";
+import { validatePayload } from "../helpers/utils";
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   if (!event.body) {
     return generateJsonResponse(
-      { message: 'No body provided' },
+      { message: "No body provided" },
       StatusCodes.BAD_REQUEST
     );
   }
@@ -29,7 +29,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   if (!validateSearchParameters.valid) {
     return generateJsonResponse(
       {
-        message: 'Object provided invalid',
+        message: "Object provided invalid",
         error: validateSearchParameters.error,
         additionalProperties: validateSearchParameters.additionalProperties,
       },
@@ -48,7 +48,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
 
     if (!registrosEncontrados.rowsAffected[0])
       return generateJsonResponse(
-        { message: 'Error 404', error: 'No se encontraron registros' },
+        { message: "Error 404", error: "No se encontraron registros" },
         StatusCodes.NOT_FOUND
       );
 

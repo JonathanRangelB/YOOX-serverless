@@ -7,7 +7,7 @@ import { validateData } from "../utils/validateData";
 import { enqueueWAMessageOnDB } from "../../whatsapp/enqueueMessage";
 
 export const registerNewLoanRequest = async (
-  newLoanRequest: InsertNewLoanRequest,
+  newLoanRequest: InsertNewLoanRequest
 ): Promise<StatusResponse> => {
   const pool = await DbConnector.getInstance().connection;
   const procTransaction = new Transaction(pool);
@@ -19,7 +19,7 @@ export const registerNewLoanRequest = async (
 
     const { tableNewRequestLoan, request_number } = await validateData(
       newLoanRequest,
-      procTransaction,
+      procTransaction
     );
 
     await procTransaction.request().bulk(tableNewRequestLoan);
