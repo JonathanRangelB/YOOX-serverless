@@ -160,8 +160,8 @@ export const registerUpdateLoanRequest = async (
           updateQueryColumns = fullUpdateLoanReqQuery(updateLoanRequest, false);
           updateQueryColumns += ` ,MODIFIED_BY = ${id_usuario}
                                   ,MODIFIED_DATE = '${current_local_date.toISOString()}'
-                                  ,ID_LOAN_TO_REFINANCE = ${id_loan_to_refinance ? id_loan_to_refinance : `NULL`}                                 
           `;
+
           break;
 
         case Status.RECHAZADO:
