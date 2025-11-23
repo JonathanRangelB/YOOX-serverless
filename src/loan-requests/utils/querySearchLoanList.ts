@@ -92,7 +92,7 @@ export function loanRequestListSearchQuery(
                 ${whereCondition}
         )
         SELECT *, COUNT(*) OVER() AS CNT
-        FROM LOAN_REQUEST_LIST_TABLA
+        FROM LOAN_REQUEST_LIST_TABLA;
     `;
 
   return cteQuery;
@@ -132,8 +132,89 @@ export function getGroupUsers(id_usuario: number, rol_usuario: string): string {
                         )
         SELECT *
         FROM LOAN_REQUEST_LIST_TABLA
-        ORDER BY NOMBRE ASC
+        ORDER BY NOMBRE ASC;
     `;
 
   return cteQuery;
+}
+
+export function getGroupsListOfUser(
+  id_usuario: number,
+  rol_usuario: string
+): string {
+  let whereCondition = "";
+  let querySelect = "";
+
+  switch (rol_usuario) {
+    case RolesDeUsuario.LIDER_DE_GRUPO:
+    case RolesDeUsuario.COBRADOR:
+      whereCondition = ` AND ID_GRUPO = (SELECT ID_GRUPO FROM USUARIOS WHERE ID = ${id_usuario}) `;
+      break;
+
+    default: {
+      whereCondition = `  `;
+    }
+  }
+
+  querySelect = `SELECT 
+                      ID_GRUPO AS ID
+                      , NOMBRE
+
+                  FROM
+                      GRUPOS_AGENTES
+
+                  WHERE
+                    ACTIVO=1                       
+                    ${whereCondition}
+
+                  ORDER BY 
+                    ID_GRUPO;
+
+                      `;
+
+  return querySelect;
+}
+
+export function getManagementListOfUser(
+  id_usuario: number,
+  rol_usuario: string
+): string {
+  let whereCondition = "";
+  let querySelect = "";
+
+  switch (rol_usuario) {
+    case RolesDeUsuario.LIDER_DE_GRUPO:
+    case RolesDeUsuario.COBRADOR:
+      whereCondition = ` WHERE ID_GERENCIA IN 
+                          (
+                          SELECT DISTINCT
+                          ID_GERENCIA
+
+                          FROM
+                          GRUPOS_AGENTES
+
+                          WHERE
+                          ID_GRUPO = (SELECT ID_GRUPO FROM USUARIOS WHERE ID=${id_usuario})
+                          ) `;
+      break;
+
+    default: {
+      whereCondition = `  `;
+    }
+  }
+
+  querySelect = `SELECT
+                    ID_GERENCIA AS ID
+                    ,NOMBRE
+
+                    FROM
+                    GERENCIAS_GRUPOS
+
+                    ${whereCondition}
+
+                    ORDER BY
+                    ID_GERENCIA;
+                      `;
+
+  return querySelect;
 }

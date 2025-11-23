@@ -7,7 +7,9 @@ import {
 import { generateJsonResponse } from "../helpers/generateJsonResponse";
 import { StatusCodes } from "../helpers/statusCodes";
 import {
+  getGroupsListOfUser,
   getGroupUsers,
+  getManagementListOfUser,
   loanRequestListSearchQuery,
 } from "./utils/querySearchLoanList";
 import { validatePayload } from "../helpers/utils";
@@ -43,20 +45,34 @@ module.exports.handler = async (event: APIGatewayEvent) => {
     const pool = await DbConnector.getInstance().connection;
     const queryStatement = loanRequestListSearchQuery(body);
     const groupUsers = getGroupUsers(body.id_usuario, body.rol_usuario);
+    const groupList = getGroupsListOfUser(body.id_usuario, body.rol_usuario);
+    const managementList = getManagementListOfUser(
+      body.id_usuario,
+      body.rol_usuario
+    );
+
     const registrosEncontrados = await pool
       .request()
       .query<SolicitudPrestamoLista>(queryStatement);
-    const foundGroupUsers = await pool.request().query(groupUsers);
 
     if (!registrosEncontrados.rowsAffected[0])
       return generateJsonResponse(
         { message: "Error 404", error: "No se encontraron registros" },
         StatusCodes.NOT_FOUND
       );
+
+    const foundGroupUsers = await pool.request().query(groupUsers);
+    const listaDeGruposEncontrados = await pool.request().query(groupList);
+    const listaDeGerenciasEncontradas = await pool
+      .request()
+      .query(managementList);
+
     return generateJsonResponse(
       {
         loanRequests: registrosEncontrados.recordset,
         usersList: foundGroupUsers.recordset,
+        groups: listaDeGruposEncontrados.recordset,
+        management: listaDeGerenciasEncontradas.recordset,
       },
       StatusCodes.OK
     );
