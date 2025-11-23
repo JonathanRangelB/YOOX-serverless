@@ -18,8 +18,8 @@ export interface DatosSolicitudPrestamoLista {
   nombreCliente?: string;
   folio?: string;
   userIdFilter?: number;
-  groupIdFilter: number;
-  managementIdFilter: number;
+  groupIdFilter?: number;
+  managementIdFilter?: number;
 }
 
 export interface SolicitudPrestamoLista {
