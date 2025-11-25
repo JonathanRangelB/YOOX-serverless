@@ -17,6 +17,9 @@ export const loanRequestListSearchParametersSchema = {
     status: { type: "string" },
     nombre_cliente: { type: "string" },
     folio: { type: "string" },
+    userIdFilter: { type: "number" },
+    groupIdFilter: { type: "number" },
+    managementIdFilter: { type: "number" },
   },
 
   required: ["id_usuario", "rol_usuario"],
