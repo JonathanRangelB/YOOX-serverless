@@ -12,6 +12,8 @@ export function loanRequestListSearchQuery(
     nombreCliente,
     folio,
     userIdFilter,
+    groupIdFilter,
+    managementIdFilter
   } = datosSolicitudPrestamoLista;
   let whereCondition = "";
   let limitOneWeekData = "";
@@ -37,9 +39,18 @@ export function loanRequestListSearchQuery(
     whereCondition += ` ${whereCondition ? " AND " : " WHERE "}  CONCAT(NOMBRE_CLIENTE, ' ', APELLIDO_PATERNO_CLIENTE, ' ', APELLIDO_MATERNO_CLIENTE) LIKE '%${nombreCliente.replace(/ /g, "%")}%' `;
   if (folio)
     whereCondition += ` ${whereCondition ? " AND " : " WHERE "}  REQUEST_NUMBER = '${folio}' `;
+
+  let hierarchyFilter = ""
+
   if (userIdFilter) {
-    whereCondition += ` ${whereCondition ? " AND " : " WHERE "} ID_AGENTE = ${userIdFilter} `;
+    hierarchyFilter = ` ${whereCondition ? " AND " : " WHERE "} TAB.ID_AGENTE = ${userIdFilter} `;
+  } else if (groupIdFilter) {
+    hierarchyFilter = ` ${whereCondition ? " AND " : " WHERE "} GA.ID_GRUPO = ${groupIdFilter} `;
+  } else if (managementIdFilter) {
+    hierarchyFilter = ` ${whereCondition ? " AND " : " WHERE "} GG.ID_GERENCIA = ${managementIdFilter} `;
   }
+
+  whereCondition += hierarchyFilter;
 
   cteQuery += `
             LOAN_REQUEST_LIST_TABLA AS (
@@ -52,7 +63,11 @@ export function loanRequestListSearchQuery(
                 TAB.created_date,
                 TAB.loan_request_status,
                 TAB.ID_AGENTE,
-                U.NOMBRE as nombre_agente
+                U.NOMBRE as nombre_agente,
+                GA.ID_GRUPO,
+                GA.NOMBRE AS [NOMBRE_GRUPO],
+                GG.ID_GERENCIA,
+                GG.NOMBRE AS [NOMBRE_GERENCIA]
 
                 FROM
                 (
@@ -88,6 +103,8 @@ export function loanRequestListSearchQuery(
                     ${limitOneWeekData}
                 ) AS TAB
                 LEFT JOIN USUARIOS U ON TAB.ID_AGENTE = U.ID
+                LEFT JOIN GRUPOS_AGENTES GA ON GA.ID_GRUPO = U.ID_GRUPO
+                LEFT JOIN GERENCIAS_GRUPOS GG ON GG.ID_GERENCIA = GA.ID_GERENCIA                
 
                 ${whereCondition}
         )
