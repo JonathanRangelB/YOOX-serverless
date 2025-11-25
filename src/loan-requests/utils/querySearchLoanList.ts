@@ -12,6 +12,8 @@ export function loanRequestListSearchQuery(
     nombreCliente,
     folio,
     userIdFilter,
+    groupIdFilter,
+    managementIdFilter
   } = datosSolicitudPrestamoLista;
   let whereCondition = "";
   let limitOneWeekData = "";
@@ -37,9 +39,18 @@ export function loanRequestListSearchQuery(
     whereCondition += ` ${whereCondition ? " AND " : " WHERE "}  CONCAT(NOMBRE_CLIENTE, ' ', APELLIDO_PATERNO_CLIENTE, ' ', APELLIDO_MATERNO_CLIENTE) LIKE '%${nombreCliente.replace(/ /g, "%")}%' `;
   if (folio)
     whereCondition += ` ${whereCondition ? " AND " : " WHERE "}  REQUEST_NUMBER = '${folio}' `;
+
+  let hierarchyFilter = ""
+
   if (userIdFilter) {
-    whereCondition += ` ${whereCondition ? " AND " : " WHERE "} ID_AGENTE = ${userIdFilter} `;
+    hierarchyFilter = ` ${whereCondition ? " AND " : " WHERE "} TAB.ID_AGENTE = ${userIdFilter} `;
+  } else if (groupIdFilter) {
+    hierarchyFilter = ` ${whereCondition ? " AND " : " WHERE "} GA.ID_GRUPO = ${groupIdFilter} `;
+  } else if (managementIdFilter) {
+    hierarchyFilter = ` ${whereCondition ? " AND " : " WHERE "} GG.ID_GERENCIA = ${managementIdFilter} `;
   }
+
+  whereCondition += hierarchyFilter;
 
   cteQuery += `
             LOAN_REQUEST_LIST_TABLA AS (
@@ -52,7 +63,11 @@ export function loanRequestListSearchQuery(
                 TAB.created_date,
                 TAB.loan_request_status,
                 TAB.ID_AGENTE,
-                U.NOMBRE as nombre_agente
+                U.NOMBRE as nombre_agente,
+                GA.ID_GRUPO,
+                GA.NOMBRE AS [NOMBRE_GRUPO],
+                GG.ID_GERENCIA,
+                GG.NOMBRE AS [NOMBRE_GERENCIA]
 
                 FROM
                 (
@@ -88,11 +103,13 @@ export function loanRequestListSearchQuery(
                     ${limitOneWeekData}
                 ) AS TAB
                 LEFT JOIN USUARIOS U ON TAB.ID_AGENTE = U.ID
+                LEFT JOIN GRUPOS_AGENTES GA ON GA.ID_GRUPO = U.ID_GRUPO
+                LEFT JOIN GERENCIAS_GRUPOS GG ON GG.ID_GERENCIA = GA.ID_GERENCIA                
 
                 ${whereCondition}
         )
         SELECT *, COUNT(*) OVER() AS CNT
-        FROM LOAN_REQUEST_LIST_TABLA
+        FROM LOAN_REQUEST_LIST_TABLA;
     `;
 
   return cteQuery;
@@ -132,8 +149,89 @@ export function getGroupUsers(id_usuario: number, rol_usuario: string): string {
                         )
         SELECT *
         FROM LOAN_REQUEST_LIST_TABLA
-        ORDER BY NOMBRE ASC
+        ORDER BY NOMBRE ASC;
     `;
 
   return cteQuery;
+}
+
+export function getGroupsListOfUser(
+  id_usuario: number,
+  rol_usuario: string
+): string {
+  let whereCondition = "";
+  let querySelect = "";
+
+  switch (rol_usuario) {
+    case RolesDeUsuario.LIDER_DE_GRUPO:
+    case RolesDeUsuario.COBRADOR:
+      whereCondition = ` AND ID_GRUPO = (SELECT ID_GRUPO FROM USUARIOS WHERE ID = ${id_usuario}) `;
+      break;
+
+    default: {
+      whereCondition = `  `;
+    }
+  }
+
+  querySelect = `SELECT 
+                      ID_GRUPO AS ID
+                      , NOMBRE
+
+                  FROM
+                      GRUPOS_AGENTES
+
+                  WHERE
+                    ACTIVO=1                       
+                    ${whereCondition}
+
+                  ORDER BY 
+                    ID_GRUPO;
+
+                      `;
+
+  return querySelect;
+}
+
+export function getManagementListOfUser(
+  id_usuario: number,
+  rol_usuario: string
+): string {
+  let whereCondition = "";
+  let querySelect = "";
+
+  switch (rol_usuario) {
+    case RolesDeUsuario.LIDER_DE_GRUPO:
+    case RolesDeUsuario.COBRADOR:
+      whereCondition = ` WHERE ID_GERENCIA IN 
+                          (
+                          SELECT DISTINCT
+                          ID_GERENCIA
+
+                          FROM
+                          GRUPOS_AGENTES
+
+                          WHERE
+                          ID_GRUPO = (SELECT ID_GRUPO FROM USUARIOS WHERE ID=${id_usuario})
+                          ) `;
+      break;
+
+    default: {
+      whereCondition = `  `;
+    }
+  }
+
+  querySelect = `SELECT
+                    ID_GERENCIA AS ID
+                    ,NOMBRE
+
+                    FROM
+                    GERENCIAS_GRUPOS
+
+                    ${whereCondition}
+
+                    ORDER BY
+                    ID_GERENCIA;
+                      `;
+
+  return querySelect;
 }
