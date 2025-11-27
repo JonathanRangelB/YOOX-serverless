@@ -35,6 +35,8 @@ export const registerNewCustomer = async (
       cliente_activo,
       id_domicilio_cliente,
       id_aval,
+      gmaps_url_location,
+      cruce_calles_cliente
     } = formCliente;
 
     const direccionCliente: Direccion = {
@@ -50,6 +52,8 @@ export const registerNewCustomer = async (
       referencias_dom: referencias_dom_cliente,
       usuario: cliente_creado_por,
       fecha_operacion: fecha_creacion_cliente,
+      gmaps_url_location: gmaps_url_location,
+      cruce_calles: cruce_calles_cliente
     };
 
     const nextIdQuery = await procTransaction
@@ -78,16 +82,16 @@ export const registerNewCustomer = async (
     tableCustomerBD.rows.add(
       lastCustomerId,
       nombre_cliente +
-        " " +
-        apellido_paterno_cliente +
-        " " +
-        apellido_materno_cliente,
+      " " +
+      apellido_paterno_cliente +
+      " " +
+      apellido_materno_cliente,
       telefono_fijo_cliente,
       telefono_movil_cliente,
       correo_electronico_cliente,
       cliente_activo,
       id_agente,
-      ocupacion_cliente ? ocupacion_cliente : undefined,
+      ocupacion_cliente || undefined,
       curp_cliente
     );
 
@@ -137,8 +141,8 @@ export const registerNewCustomer = async (
     const requestUpdate = procTransaction.request();
     const updateResult = await requestUpdate.query(
       updateIndexIdQuery +
-        queryUpdateCustomerEndorsement +
-        updateAddressIdCustomer
+      queryUpdateCustomerEndorsement +
+      updateAddressIdCustomer
     );
 
     if (!insertBulkData.rowsAffected || !updateResult.rowsAffected.length) {

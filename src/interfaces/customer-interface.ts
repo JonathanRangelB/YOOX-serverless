@@ -29,4 +29,6 @@ export interface FormCustomer {
   observaciones_cliente: string;
   id_domicilio_cliente: number;
   id_aval: number;
+  cruce_calles_cliente: string;
+  gmaps_url_location: string;
 }

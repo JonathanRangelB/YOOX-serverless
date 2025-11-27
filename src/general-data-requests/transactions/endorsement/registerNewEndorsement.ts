@@ -32,6 +32,7 @@ export const registerNewEndorsement = async (
       aval_creado_por,
       fecha_creacion_aval,
       id_domicilio_aval,
+      cruce_calles_aval
     } = formAval;
 
     const direccionAval: Direccion = {
@@ -47,6 +48,8 @@ export const registerNewEndorsement = async (
       referencias_dom: referencias_dom_aval,
       usuario: aval_creado_por,
       fecha_operacion: fecha_creacion_aval,
+      gmaps_url_location: '',
+      cruce_calles: cruce_calles_aval
     };
 
     let lastEndorsmentId = 0;

@@ -24,6 +24,8 @@ export const registerSnapshotRealInvestmentReport = async (
                     ,NOMBRE_AGENTE	
                     ,ID_GRUPO	
                     ,NOMBRE_GRUPO
+                    ,ID_GERENCIA
+                    ,NOMBRE_GERENCIA
                 )
 
                 SELECT
@@ -43,6 +45,8 @@ export const registerSnapshotRealInvestmentReport = async (
                 ,AGENTE
                 ,ID_GRUPO
                 ,GRUPO
+                ,ID_GERENCIA
+                ,NOMBRE_GERENCIA
 
                 FROM
                 (
@@ -60,6 +64,8 @@ export const registerSnapshotRealInvestmentReport = async (
                     ,T3.ID_GRUPO_ORIGINAL AS ID_GRUPO
                     ,T3.STATUS
                     ,T7.COUNT_PRESTAMO
+                    ,T6.ID_GERENCIA
+                    ,T8.NOMBRE AS [NOMBRE_GERENCIA]
 
                     FROM REFINANCIA T1
                     LEFT JOIN CLIENTES T2 ON T1.ID_CLIENTE = T2.ID 
@@ -69,6 +75,7 @@ export const registerSnapshotRealInvestmentReport = async (
                     LEFT JOIN (SELECT COUNT(ID) AS [COUNT_PRESTAMO], ID_CLIENTE FROM PRESTAMOS
                         WHERE STATUS <> 'CANCELADO'
                         GROUP BY ID_CLIENTE) AS T7 ON T1.ID_CLIENTE=T7.ID_CLIENTE
+                    LEFT JOIN GERENCIAS_GRUPOS T8 ON T6.ID_GERENCIA = T8.ID_GERENCIA
 
                     UNION
 
@@ -87,6 +94,8 @@ export const registerSnapshotRealInvestmentReport = async (
                     ,T1.ID_GRUPO_ORIGINAL AS ID_GRUPO
                     ,T1.STATUS
                     ,T7.COUNT_PRESTAMO
+                    ,T6.ID_GERENCIA
+                    ,T8.NOMBRE AS [NOMBRE_GERENCIA]
 
                     FROM 
                     PRESTAMOS AS T1
@@ -96,11 +105,14 @@ export const registerSnapshotRealInvestmentReport = async (
                     LEFT JOIN (SELECT COUNT(ID) AS [COUNT_PRESTAMO], ID_CLIENTE FROM PRESTAMOS
                         WHERE STATUS <> 'CANCELADO'
                         GROUP BY ID_CLIENTE) AS T7 ON T1.ID_CLIENTE=T7.ID_CLIENTE
+                    LEFT JOIN GERENCIAS_GRUPOS T8 ON T6.ID_GERENCIA = T8.ID_GERENCIA
 
                     WHERE                                         
                     T1.ID NOT IN (SELECT DISTINCT ID_PRESTAMO_ACT FROM REFINANCIA)
 
-                ) AS TAB WHERE TAB.CODIGO_CLIENTE = ${id_customer} 
+                ) AS TAB                 
+                 
+                WHERE TAB.CODIGO_CLIENTE = ${id_customer} 
                  AND TAB.FOLIO_PRESTAMO_NUEVO = ${id_loan}
     `;
 

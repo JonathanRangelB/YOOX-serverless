@@ -1,3 +1,4 @@
+import { format } from "path";
 import {
   REGEX_PHONE,
   REGEX_CURP,
@@ -129,6 +130,21 @@ export const propertiesForLoanRequest = {
           { type: "integer", enum: ["", null], nullable: true },
         ],
       },
+
+      cruce_calles_cliente: {
+        anyOf: [
+          { type: "string" },
+          { type: "string", enum: ["", null], nullable: true },
+        ],
+      },
+
+      gmaps_url_location: {
+        anyOf: [
+          { type: "string", format: "uri" },
+          { type: "string", enum: ["", null], nullable: true },
+        ],
+      },
+
     },
     required: [
       "nombre_cliente",
@@ -159,6 +175,14 @@ export const propertiesForLoanRequest = {
       nombre_aval: { type: "string" },
       apellido_materno_aval: { type: "string" },
       apellido_paterno_aval: { type: "string" },
+
+      ocupacion_aval: {
+        anyOf: [
+          { type: "string" },
+          { type: "string", enum: ["", null], nullable: true },
+        ],
+      },
+
       telefono_fijo_aval: {
         anyOf: [
           {
@@ -229,6 +253,14 @@ export const propertiesForLoanRequest = {
           { type: "integer", enum: ["", null], nullable: true },
         ],
       },
+
+      cruce_calles_aval: {
+        anyOf: [
+          { type: "string" },
+          { type: "string", enum: ["", null], nullable: true },
+        ],
+      },
+
       additionalProperties: false,
     },
     required: [
@@ -258,6 +290,7 @@ export const propertiesForLoanRequest = {
       { type: "integer", enum: ["", null], nullable: true },
     ],
   },
+
 };
 
 export const requiredFielsForUpdateLoanRequest = [

@@ -64,6 +64,10 @@ export function requestDetailSearchQuery(request_number: string): string {
       ,l.[id_loan]  
       ,l.[id_loan_to_refinance]
 	    ,u4.[cantidad_restante]
+      ,l.[ocupacion_aval]
+      ,l.[gmaps_url_location]
+      ,l.[cruce_calles_cliente]
+      ,l.[cruce_calles_aval]
       
   FROM [LOAN_REQUEST] l
 

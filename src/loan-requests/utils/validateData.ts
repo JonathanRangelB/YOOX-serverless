@@ -87,6 +87,7 @@ export async function validateData(
     amountToRefinance,
     idDomicilioCliente,
     idDomicilioAval,
+    idGerencia
   ] = getGenericData.recordsets.map(([record]: any) => record?.value);
 
   const resultValidation = validateDataResult(
@@ -119,6 +120,8 @@ export async function validateData(
   const id = nextId.recordset[0].LAST_LOAN_ID + 1;
   const request_number = convertToBase36(id);
   const loan_request_status = Status.EN_REVISION;
+
+  newLoanRequest.id_gerencia_original = idGerencia;
 
   const tableNewRequestLoan = generateNewLoanRequestTable(newLoanRequest, {
     id,
@@ -209,6 +212,7 @@ export async function validateDataLoanRequestUpdate(
     amountToRefinance,
     idDomicilioCliente,
     idDomicilioAval,
+    idGerencia
   ] = getGenericData.recordsets.map(([record]: any) => record?.value);
 
   const resultValidation = validateDataResult(
@@ -250,6 +254,8 @@ export async function validateDataLoanRequestUpdate(
       "Un usuario con mayor jerarquía debe aprobar esta solicitud"
     );
   }
+
+  updateLoanRequest.id_gerencia_original = idGerencia;
 
   return {
     validationResult: true,
@@ -322,6 +328,7 @@ function queryValidateData(
           ${queryLoanToRefinance}
           ${queryAddressCustomer}
           ${queryAddressEndorsement}
+          SELECT ID_GERENCIA AS value FROM GRUPOS_AGENTES WHERE ID_GRUPO = ${id_grupo_original || "0"}
           `;
 }
 

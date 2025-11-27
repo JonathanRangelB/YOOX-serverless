@@ -25,4 +25,6 @@ export interface FormEndorsement {
   aval_modificado_por: number;
   fecha_modificacion_aval: Date;
   id_domicilio_aval: number;
+  cruce_calles_aval: string;
+  ocupacion_aval: string;
 }

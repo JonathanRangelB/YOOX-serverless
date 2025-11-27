@@ -18,6 +18,7 @@ export interface InsertNewLoanRequest {
   status_code: number;
   user_role: string;
   id_loan_to_refinance?: number;
+  id_gerencia_original: number;
 }
 
 export interface UpdateLoanRequest {
@@ -39,4 +40,5 @@ export interface UpdateLoanRequest {
   status_code: number;
   user_role: string;
   id_loan_to_refinance: number;
+  id_gerencia_original: number;
 }
