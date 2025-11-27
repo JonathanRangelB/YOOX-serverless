@@ -36,6 +36,8 @@ export const updateCustomer = async (
       cliente_activo,
       id_domicilio_cliente,
       id_aval,
+      gmaps_url_location,
+      cruce_calles_cliente
     } = formCliente;
 
     const direccionCliente: Direccion = {
@@ -51,6 +53,8 @@ export const updateCustomer = async (
       referencias_dom: referencias_dom_cliente,
       usuario: cliente_modificado_por,
       fecha_operacion: fecha_modificacion_cliente,
+      gmaps_url_location: gmaps_url_location,
+      cruce_calles: cruce_calles_cliente
     };
 
     let resultadoOperacionActualizaDomicilio;

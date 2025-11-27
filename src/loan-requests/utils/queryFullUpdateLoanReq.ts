@@ -20,6 +20,7 @@ export function fullUpdateLoanReqQuery(
     formCliente: datosCliente,
     formAval: datosAval,
     id_loan_to_refinance,
+    id_gerencia_original
   } = updateLoanRequest;
 
   const {
@@ -42,6 +43,8 @@ export function fullUpdateLoanReqQuery(
     cp_cliente,
     referencias_dom_cliente,
     id_domicilio_cliente,
+    cruce_calles_cliente,
+    gmaps_url_location
   } = datosCliente;
 
   const {
@@ -63,6 +66,8 @@ export function fullUpdateLoanReqQuery(
     cp_aval,
     referencias_dom_aval,
     id_domicilio_aval,
+    ocupacion_aval,
+    cruce_calles_aval
   } = datosAval;
 
   const { id: id_plazo, tasa_de_interes, semanas_plazo } = datosPlazo;
@@ -105,8 +110,8 @@ export function fullUpdateLoanReqQuery(
       ,CP_AVAL = '${cp_aval}'
       ,REFERENCIAS_DOM_AVAL = ${referencias_dom_aval ? `'${referencias_dom_aval}'` : `NULL`}
       ,ID_PLAZO = ${id_plazo}
-	  ,TASA_DE_INTERES = ${tasa_de_interes} 
-	  ,SEMANAS_PLAZO = ${semanas_plazo}
+	    ,TASA_DE_INTERES = ${tasa_de_interes} 
+	    ,SEMANAS_PLAZO = ${semanas_plazo}
       ,CANTIDAD_PRESTADA = ${cantidad_prestada}
       ,DIA_SEMANA = '${dia_semana}'
       ,FECHA_INICIAL = '${fecha_inicial}'
@@ -114,6 +119,12 @@ export function fullUpdateLoanReqQuery(
       ,CANTIDAD_PAGAR = ${cantidad_pagar}      
       ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
       ,ID_LOAN_TO_REFINANCE = ${id_loan_to_refinance ? id_loan_to_refinance : `NULL`}
+      ,OCUPACION_AVAL = ${ocupacion_aval ? `'${ocupacion_aval}'` : `NULL`}
+      ,GMAPS_URL_LOCATION = ${gmaps_url_location ? `'${gmaps_url_location}'` : `NULL`}
+      ,CRUCE_CALLES_CLIENTE = ${cruce_calles_cliente ? `'${cruce_calles_cliente}'` : `NULL`}
+      ,CRUCE_CALLES_AVAL = ${cruce_calles_aval ? `'${cruce_calles_aval}'` : `NULL`}
+      ,ID_GERENCIA_ORIGINAL = ${id_gerencia_original ? `'${id_gerencia_original}'` : `NULL`}
+
 `;
 
   if (!approvedStatusFlag) {

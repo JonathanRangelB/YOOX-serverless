@@ -25,6 +25,7 @@ export function generateNewLoanRequestTable(
     formCliente,
     formAval,
     id_loan_to_refinance,
+    id_gerencia_original
   } = newLoanRequest;
 
   const { id: id_plazo, semanas_plazo, tasa_de_interes } = plazo;
@@ -49,6 +50,8 @@ export function generateNewLoanRequestTable(
     cp_cliente,
     referencias_dom_cliente,
     id_domicilio_cliente,
+    cruce_calles_cliente,
+    gmaps_url_location
   } = formCliente;
 
   const { value: tipoCalleCliente } = calleC;
@@ -73,6 +76,8 @@ export function generateNewLoanRequestTable(
     cp_aval,
     referencias_dom_aval,
     id_domicilio_aval,
+    cruce_calles_aval,
+    ocupacion_aval,
   } = formAval;
 
   const { value: tipoCalleAval } = calleA;
@@ -217,6 +222,11 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add("ID_LOAN_TO_REFINANCE", Int, {
     nullable: true,
   });
+  tableNewRequestLoan.columns.add("OCUPACION_AVAL", VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add("GMAPS_URL_LOCATION", VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add("CRUCE_CALLES_CLIENTE", VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add("CRUCE_CALLES_AVAL", VarChar, { nullable: true });
+  tableNewRequestLoan.columns.add("ID_GERENCIA_ORIGINAL", Int, { nullable: true });
 
   tableNewRequestLoan.rows.add(
     id,
@@ -272,7 +282,12 @@ export function generateNewLoanRequestTable(
     observaciones || undefined,
     created_by,
     created_date.toISOString(),
-    id_loan_to_refinance || undefined
+    id_loan_to_refinance || undefined,
+    ocupacion_aval || undefined,
+    gmaps_url_location || undefined,
+    cruce_calles_cliente || undefined,
+    cruce_calles_aval || undefined,
+    id_gerencia_original || undefined,
   );
 
   return tableNewRequestLoan;

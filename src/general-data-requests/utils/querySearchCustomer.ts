@@ -53,7 +53,9 @@ export function customerSearchQuery(
                                       when clientes.id_domicilio is null then clientes.codigo_postal
                                       else t2.cp
                                     end as [cp_cliente],
-                                    t2.referencias as [referencias_dom_cliente]
+                                    t2.referencias as [referencias_dom_cliente],
+                                    t2.gmaps_url_location,
+                                    t2.cruce_calles as cruce_calles_cliente
                                   from
                                     clientes
                                   left join usuarios t1 on
@@ -64,8 +66,7 @@ export function customerSearchQuery(
                                     t2.id = t3.id_domicilio
                                     and clientes.id = t3.id_cliente
 
-                                    ${whereCondition}
-
+                                   ${whereCondition}
 
                                   order by
                                     clientes.id 
@@ -147,7 +148,9 @@ export function customerSearchQuery(
                                       when a.id_domicilio is null then a.codigo_postal
                                       else d.cp
                                     end as [cp_aval],
-                                    d.referencias as [referencias_dom_aval]
+                                    d.referencias as [referencias_dom_aval],
+                                    a.ocupacion_aval,
+                                    d.cruce_calles as cruce_calles_aval
                                   from
                                     t_clientes as c
                                   left join t_keys as k on

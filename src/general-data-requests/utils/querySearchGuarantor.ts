@@ -47,7 +47,8 @@ export function guarantorSearchQuery(
                     when t1.id_domicilio is null then t1.codigo_postal
                     else t2.cp
                 end as [cp],
-                t2.referencias as referencias_dom
+                t2.referencias as referencias_dom,
+                t1.ocupacion_aval
 
             from 
                 avales t1

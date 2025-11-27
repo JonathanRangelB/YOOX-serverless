@@ -21,4 +21,6 @@ export interface Direccion {
   referencias_dom: string;
   usuario: number;
   fecha_operacion: Date;
+  gmaps_url_location?: string;
+  cruce_calles: string;
 }

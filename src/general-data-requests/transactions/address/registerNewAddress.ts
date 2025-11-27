@@ -22,6 +22,8 @@ export const registerNewAddress = async (
     referencias_dom,
     usuario,
     fecha_operacion,
+    gmaps_url_location,
+    cruce_calles,
   } = direccion;
 
   const { value: tipoCalle } = tipo_calle;
@@ -56,6 +58,8 @@ export const registerNewAddress = async (
     tableAddressBD.columns.add("REFERENCIAS", VarChar(100), { nullable: true });
     tableAddressBD.columns.add("CREATED_BY_USR", Int, { nullable: true });
     tableAddressBD.columns.add("CREATED_DATE", DateTime, { nullable: true });
+    tableAddressBD.columns.add("GMAPS_URL_LOCATION", VarChar(100), { nullable: true });
+    tableAddressBD.columns.add("CRUCE_CALLES", VarChar(120), { nullable: true });
 
     tableAddressBD.rows.add(
       lastAddressId,
@@ -68,7 +72,9 @@ export const registerNewAddress = async (
       cp,
       referencias_dom,
       usuario,
-      fecha_operacion.toISOString()
+      fecha_operacion.toISOString(),
+      gmaps_url_location || undefined,
+      cruce_calles || undefined
     );
 
     const insertResult = await procTransaction.request().bulk(tableAddressBD);
