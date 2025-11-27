@@ -26,7 +26,9 @@ module.exports.handler = async (event: APIGatewayEvent) => {
             t0.created_by_usr, 
             t0.created_date, 
             t0.modified_by_usr, 
-            t0.modified_date
+            t0.modified_date,
+            t0.gmaps_url_location,
+            t0.cruce_calles
 
             from domicilios t0
             left join domicilios_num_interior t1 on t0.id  = t1.id_domicilio
