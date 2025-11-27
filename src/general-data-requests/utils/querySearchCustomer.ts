@@ -66,8 +66,7 @@ export function customerSearchQuery(
                                     t2.id = t3.id_domicilio
                                     and clientes.id = t3.id_cliente
 
-                                    where clientes.id = 7242
-
+                                   ${whereCondition}
 
                                   order by
                                     clientes.id 
