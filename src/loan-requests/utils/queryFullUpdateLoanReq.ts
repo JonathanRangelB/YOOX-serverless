@@ -20,7 +20,7 @@ export function fullUpdateLoanReqQuery(
     formCliente: datosCliente,
     formAval: datosAval,
     id_loan_to_refinance,
-    id_gerencia_original
+    id_gerencia_original,
   } = updateLoanRequest;
 
   const {
@@ -44,7 +44,7 @@ export function fullUpdateLoanReqQuery(
     referencias_dom_cliente,
     id_domicilio_cliente,
     cruce_calles_cliente,
-    gmaps_url_location
+    gmaps_url_location,
   } = datosCliente;
 
   const {
@@ -67,7 +67,7 @@ export function fullUpdateLoanReqQuery(
     referencias_dom_aval,
     id_domicilio_aval,
     ocupacion_aval,
-    cruce_calles_aval
+    cruce_calles_aval,
   } = datosAval;
 
   const { id: id_plazo, tasa_de_interes, semanas_plazo } = datosPlazo;

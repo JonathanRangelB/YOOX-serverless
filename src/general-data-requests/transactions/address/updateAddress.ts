@@ -23,7 +23,7 @@ export const updateAddress = async (
     usuario,
     fecha_operacion,
     gmaps_url_location,
-    cruce_calles
+    cruce_calles,
   } = direccion;
 
   const { value: tipoCalle } = tipo_calle;
@@ -41,7 +41,10 @@ export const updateAddress = async (
         error: StatusCodes.NOT_FOUND,
       };
 
-    const gmaps_string = tipo == 'CLIENTE' ? `,GMAPS_URL_LOCATION = ${gmaps_url_location ? `'${gmaps_url_location}'` : `NULL`}` : '';
+    const gmaps_string =
+      tipo == "CLIENTE"
+        ? `,GMAPS_URL_LOCATION = ${gmaps_url_location ? `'${gmaps_url_location}'` : `NULL`}`
+        : "";
 
     const queryUpdateAddress = `
         UPDATE

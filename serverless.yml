@@ -210,6 +210,15 @@ functions:
           authorizer:
             name: customAuthorizer
 
+  getOutstandingCollectionsReport:
+    handler: ./src/general-data-requests/getOutstandingCollectionsReport.handler
+    events:
+      - httpApi:
+          method: post
+          path: /v1/get-outstanding-collections-report
+          authorizer:
+            name: customAuthorizer
+
   customAuthorizer:
     handler: ./src/authorizer/auth.handler
 
