@@ -58,8 +58,12 @@ export const registerNewAddress = async (
     tableAddressBD.columns.add("REFERENCIAS", VarChar(100), { nullable: true });
     tableAddressBD.columns.add("CREATED_BY_USR", Int, { nullable: true });
     tableAddressBD.columns.add("CREATED_DATE", DateTime, { nullable: true });
-    tableAddressBD.columns.add("GMAPS_URL_LOCATION", VarChar(100), { nullable: true });
-    tableAddressBD.columns.add("CRUCE_CALLES", VarChar(120), { nullable: true });
+    tableAddressBD.columns.add("GMAPS_URL_LOCATION", VarChar(100), {
+      nullable: true,
+    });
+    tableAddressBD.columns.add("CRUCE_CALLES", VarChar(120), {
+      nullable: true,
+    });
 
     tableAddressBD.rows.add(
       lastAddressId,

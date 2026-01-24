@@ -144,7 +144,6 @@ export const propertiesForLoanRequest = {
           { type: "string", enum: ["", null], nullable: true },
         ],
       },
-
     },
     required: [
       "nombre_cliente",
@@ -290,7 +289,6 @@ export const propertiesForLoanRequest = {
       { type: "integer", enum: ["", null], nullable: true },
     ],
   },
-
 };
 
 export const requiredFielsForUpdateLoanRequest = [

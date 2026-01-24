@@ -87,7 +87,7 @@ export async function validateData(
     amountToRefinance,
     idDomicilioCliente,
     idDomicilioAval,
-    idGerencia
+    idGerencia,
   ] = getGenericData.recordsets.map(([record]: any) => record?.value);
 
   const resultValidation = validateDataResult(
@@ -212,7 +212,7 @@ export async function validateDataLoanRequestUpdate(
     amountToRefinance,
     idDomicilioCliente,
     idDomicilioAval,
-    idGerencia
+    idGerencia,
   ] = getGenericData.recordsets.map(([record]: any) => record?.value);
 
   const resultValidation = validateDataResult(

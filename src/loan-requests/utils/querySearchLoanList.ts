@@ -13,7 +13,7 @@ export function loanRequestListSearchQuery(
     folio,
     userIdFilter,
     groupIdFilter,
-    managementIdFilter
+    managementIdFilter,
   } = datosSolicitudPrestamoLista;
   let whereCondition = "";
   let limitOneWeekData = "";
@@ -40,7 +40,7 @@ export function loanRequestListSearchQuery(
   if (folio)
     whereCondition += ` ${whereCondition ? " AND " : " WHERE "}  REQUEST_NUMBER = '${folio}' `;
 
-  let hierarchyFilter = ""
+  let hierarchyFilter = "";
 
   if (userIdFilter) {
     hierarchyFilter = ` ${whereCondition ? " AND " : " WHERE "} TAB.ID_AGENTE = ${userIdFilter} `;
