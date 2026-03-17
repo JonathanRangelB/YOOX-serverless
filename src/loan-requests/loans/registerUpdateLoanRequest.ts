@@ -1,4 +1,4 @@
-import { Int } from "mssql";
+import { Int, VarChar, Text, DateTime } from "mssql";
 import { DbConnector } from "../../helpers/dbConnector";
 import { LoanUpdateDate } from "../../helpers/table-schemas";
 import { UpdateLoanRequest } from "../types/SPInsertNewLoanRequest";
@@ -97,10 +97,12 @@ export const registerUpdateLoanRequest = async (
     let cantidad_restante_anterior = 0.0;
 
     if (id_loan_to_refinance) {
-      const queryCheckIfValid = `${querySearchLoanToRefinance("t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante")} where t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance} `;
+      const queryCheckIfValid = `${querySearchLoanToRefinance("t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante")} where t0.id_cliente = @id_cliente and t0.id = @id_loan_to_refinance `;
 
       const checkIfValid = await procTransaction
         .request()
+        .input("id_cliente", Int, id_cliente)
+        .input("id_loan_to_refinance", Int, id_loan_to_refinance)
         .query(queryCheckIfValid);
 
       if (!checkIfValid.rowsAffected[0]) {
@@ -115,6 +117,7 @@ export const registerUpdateLoanRequest = async (
 
     //Comienza ensamblado de la cadena del query
     let updateQueryColumns = "";
+    const poolRequest = procTransaction.request();
 
     if (
       currentLoanRequestStatus === newLoanRequestStatus ||
@@ -132,23 +135,45 @@ export const registerUpdateLoanRequest = async (
       newLoanRequestStatus === Status.RECHAZADO
     ) {
       updateQueryColumns += ` SET 
-                        LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
-                        ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}
-                        ,CLOSED_BY = ${id_usuario} 
-                        ,CLOSED_DATE = '${current_local_date.toISOString()}'                                  
+                        LOAN_REQUEST_STATUS = @newLoanRequestStatus 
+                        ,CLOSED_BY = @closed_by_id_usuario 
+                        ,CLOSED_DATE = @closed_date_current_local_date
         `;
+
+      poolRequest.input("newLoanRequestStatus", VarChar, newLoanRequestStatus);
+      poolRequest.input("closed_by_id_usuario", Int, id_usuario);
+      poolRequest.input(
+        "closed_date_current_local_date",
+        DateTime,
+        current_local_date.toISOString()
+      );
+
+      if (observaciones) {
+        updateQueryColumns += ",OBSERVACIONES = @observaciones";
+        poolRequest.input("observaciones", Text, observaciones);
+      }
     }
     if (
       currentLoanRequestStatus === Status.ACTUALIZAR &&
       newLoanRequestStatus === Status.EN_REVISION
     ) {
-      updateQueryColumns = fullUpdateLoanReqQuery(updateLoanRequest, false);
+      updateQueryColumns = fullUpdateLoanReqQuery(
+        updateLoanRequest,
+        false,
+        poolRequest
+      );
 
       updateQueryColumns += `
-        ,MODIFIED_BY = ${id_usuario}
-        ,MODIFIED_DATE = '${current_local_date.toISOString()}'
-
+        ,MODIFIED_BY = @modified_by_id_usuario
+        ,MODIFIED_DATE = @modified_date_current_local_date
       `;
+
+      poolRequest.input("modified_by_id_usuario", Int, id_usuario);
+      poolRequest.input(
+        "modified_date_current_local_date",
+        DateTime,
+        current_local_date.toISOString()
+      );
     } else if (currentLoanRequestStatus === Status.EN_REVISION) {
       let idClienteGenerado;
       let idPrestamoGenerado;
@@ -157,20 +182,50 @@ export const registerUpdateLoanRequest = async (
 
       switch (newLoanRequestStatus) {
         case Status.ACTUALIZAR:
-          updateQueryColumns = fullUpdateLoanReqQuery(updateLoanRequest, false);
-          updateQueryColumns += ` ,MODIFIED_BY = ${id_usuario}
-                                  ,MODIFIED_DATE = '${current_local_date.toISOString()}'
+          updateQueryColumns = fullUpdateLoanReqQuery(
+            updateLoanRequest,
+            false,
+            poolRequest
+          );
+
+          updateQueryColumns += ` ,MODIFIED_BY = @modified_by_id_usuario
+                                  ,MODIFIED_DATE = @modified_date_current_local_date
           `;
+
+          poolRequest.input("modified_by_id_usuario", Int, id_usuario);
+          poolRequest.input(
+            "modified_date_current_local_date",
+            DateTime,
+            current_local_date.toISOString()
+          );
 
           break;
 
         case Status.RECHAZADO:
           updateQueryColumns = ` SET 
-                        LOAN_REQUEST_STATUS = '${newLoanRequestStatus}' 
-                        ,OBSERVACIONES = ${observaciones ? `'${observaciones}'` : `NULL`}          
-                        ,CLOSED_BY = ${id_usuario} 
-                        ,CLOSED_DATE = '${current_local_date.toISOString()}'                                  
+                        LOAN_REQUEST_STATUS = @newLoanRequestStatus
+                        ,CLOSED_BY = @closed_by_id_usuario
+                        ,CLOSED_DATE = @closed_date_current_local_date
                                   `;
+
+          poolRequest.input(
+            "newLoanRequestStatus",
+            VarChar,
+            newLoanRequestStatus
+          );
+          poolRequest.input("closed_by_id_usuario", Int, id_usuario);
+          poolRequest.input(
+            "closed_date_current_local_date",
+            DateTime,
+            current_local_date
+          );
+
+          if (observaciones) {
+            updateQueryColumns += ` 
+                          ,OBSERVACIONES = @observaciones
+                                    `;
+            poolRequest.input("observaciones", Text, observaciones);
+          }
 
           break;
 
@@ -282,16 +337,40 @@ export const registerUpdateLoanRequest = async (
             throw new Error(procInsertLoan.message);
           } else idPrestamoGenerado = procInsertLoan.generatedId;
 
-          updateQueryColumns = fullUpdateLoanReqQuery(updateLoanRequest, true);
+          updateQueryColumns = fullUpdateLoanReqQuery(
+            updateLoanRequest,
+            true,
+            poolRequest
+          );
 
-          updateQueryColumns += `,ID_AVAL = ${datosCliente.id_aval}
-                                 ,ID_CLIENTE = ${idClienteGenerado}
-                                 ,ID_LOAN = ${idPrestamoGenerado}
-                                 ,ID_DOMICILIO_CLIENTE = (SELECT ID_DOMICILIO FROM CLIENTES WHERE ID = ${idClienteGenerado})
-                                 ,ID_DOMICILIO_AVAL = (SELECT ID_DOMICILIO FROM AVALES WHERE ID_AVAL = ${datosCliente.id_aval})
-                                 ,CLOSED_BY = ${id_usuario} 
-                                 ,CLOSED_DATE = '${current_local_date.toISOString()}'
+          updateQueryColumns += `,ID_AVAL = @datosCliente_id_aval
+                                 ,ID_CLIENTE = @idClienteGenerado
+                                 ,ID_LOAN = @idPrestamoGenerado
+                                 ,ID_DOMICILIO_CLIENTE = (SELECT ID_DOMICILIO FROM CLIENTES WHERE ID = @idClienteGenerado_id_domicilio_cliente)
+                                 ,ID_DOMICILIO_AVAL = (SELECT ID_DOMICILIO FROM AVALES WHERE ID_AVAL = @datoscliente_id_aval_id_domicilio_aval)
+                                 ,CLOSED_BY = @closed_by_id_usuario
+                                 ,CLOSED_DATE = @closed_date_current_local_date
                                   `;
+
+          poolRequest.input("datosCliente_id_aval", Int, datosCliente.id_aval);
+          poolRequest.input("idClienteGenerado", Int, idClienteGenerado);
+          poolRequest.input("idPrestamoGenerado", Int, idPrestamoGenerado);
+          poolRequest.input(
+            "idClienteGenerado_id_domicilio_cliente",
+            Int,
+            idClienteGenerado
+          );
+          poolRequest.input(
+            "datoscliente_id_aval_id_domicilio_aval",
+            Int,
+            datosCliente.id_aval
+          );
+          poolRequest.input("closed_by_id_usuario", Int, id_usuario);
+          poolRequest.input(
+            "closed_date_current_local_date",
+            DateTime,
+            current_local_date.toISOString()
+          );
 
           break;
 
@@ -303,11 +382,12 @@ export const registerUpdateLoanRequest = async (
       }
     }
 
-    const updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = ${id_loan_request};`;
+    const updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = @id_loan_request;`;
+    poolRequest.input("id_loan_request", Int, id_loan_request);
 
-    const updateResult = await procTransaction
-      .request()
-      .query(updateQueryString);
+    console.log(updateQueryString);
+
+    const updateResult = await poolRequest.query(updateQueryString);
 
     if (!updateResult.rowsAffected[0]) {
       throw new UpdateError(
