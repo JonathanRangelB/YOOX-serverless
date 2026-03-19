@@ -72,7 +72,6 @@ export const updateAddress = async (
       );
       queryUpdateAddress += ",GMAPS_URL_LOCATION = @gmaps_url_location ";
     }
-    console.log("tipo: " + tipo);
     queryUpdateAddress += " WHERE ID = @id ";
 
     poolRequest.input("tipoCalle", sql.VarChar, tipoCalle);
@@ -133,9 +132,6 @@ export const updateAddress = async (
     poolRequest.input("delete_NumInt_tipo", sql.VarChar, tipo);
     poolRequest.input("delete_NumInt_id_persona", sql.Int, id_persona);
 
-    console.log(
-      queryUpdateAddress + queryClearSuiteNumber + queryUpdateSuiteNumber
-    );
     const updateResult = await poolRequest.query(
       queryUpdateAddress + queryClearSuiteNumber + queryUpdateSuiteNumber
     );
