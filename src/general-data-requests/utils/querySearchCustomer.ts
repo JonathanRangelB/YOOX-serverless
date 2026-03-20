@@ -131,10 +131,7 @@ export function customerSearchQuery(
                                       when a.id_domicilio is null then a.numero_exterior
                                       else d.numero_exterior
                                     end as [numero_exterior_aval],
-                                    case
-                                      when a.id_domicilio is null then a.numero_interior
-                                      else ni.numero_interior
-                                    end as [numero_interior_aval],
+                                    isnull(ni.numero_interior, a.numero_interior) as numero_interior_aval,
                                     case
                                       when a.id_domicilio is null then a.colonia
                                       else d.colonia
@@ -161,8 +158,5 @@ export function customerSearchQuery(
                                     a.ID_DOMICILIO = d.ID
                                   left join domicilios_num_interior ni on
                                     d.id = ni.id_domicilio
-                                    and c.id_cliente = ni.id_cliente                           
-                         
-  
-  ;       `;
+                                    and a.id_aval = ni.id_aval`;
 }

@@ -385,8 +385,6 @@ export const registerUpdateLoanRequest = async (
     const updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = @id_loan_request;`;
     poolRequest.input("id_loan_request", Int, id_loan_request);
 
-    console.log(updateQueryString);
-
     const updateResult = await poolRequest.query(updateQueryString);
 
     if (!updateResult.rowsAffected[0]) {
