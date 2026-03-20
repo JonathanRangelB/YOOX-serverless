@@ -84,7 +84,7 @@ export const propertiesForLoanRequest = {
       },
       ocupacion_cliente: {
         anyOf: [
-          { type: "string" },
+          { type: "string", minLength: 1, maxLength: 200 },
           { type: "string", enum: ["", null], nullable: true },
         ],
       },
@@ -177,7 +177,7 @@ export const propertiesForLoanRequest = {
 
       ocupacion_aval: {
         anyOf: [
-          { type: "string" },
+          { type: "string", minLength: 1, maxLength: 200 },
           { type: "string", enum: ["", null], nullable: true },
         ],
       },
