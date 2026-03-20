@@ -1,6 +1,5 @@
 import { UpdateLoanRequest } from "../types/SPInsertNewLoanRequest";
-import { Request, Int, VarChar, Float, Text } from "mssql";
-import sql from "mssql";
+import sql, { Request, Int, VarChar, Float, Text } from "mssql";
 
 export function fullUpdateLoanReqQuery(
   updateLoanRequest: UpdateLoanRequest,

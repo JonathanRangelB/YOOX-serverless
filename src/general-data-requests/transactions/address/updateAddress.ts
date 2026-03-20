@@ -1,5 +1,4 @@
-import { Transaction } from "mssql";
-import sql from "mssql";
+import sql, { Transaction } from "mssql";
 import { GenericBDRequest } from "../../types/genericBDRequest";
 import { Direccion } from "../../../interfaces/common-properties";
 import { StatusCodes } from "../../../helpers/statusCodes";
