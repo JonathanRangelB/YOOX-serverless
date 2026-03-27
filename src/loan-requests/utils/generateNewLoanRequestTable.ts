@@ -1,6 +1,6 @@
 import { DateTime, Float, Int, Table, VarChar } from "mssql";
-
 import { InsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
+import { calculateEndDate } from "./calculateEndDate";
 
 export function generateNewLoanRequestTable(
   newLoanRequest: InsertNewLoanRequest,
@@ -85,6 +85,13 @@ export function generateNewLoanRequestTable(
   const { id, request_number, loan_request_status, created_date } =
     additionalData;
 
+  const { fecha_inicial_calculada, fecha_final_estimada_calculada } =
+    calculateEndDate(
+      fecha_inicial,
+      fecha_final_estimada,
+      created_date,
+      Number(semanas_plazo)
+    );
   const tableNewRequestLoan = new Table("LOAN_REQUEST");
 
   tableNewRequestLoan.create = false;
@@ -286,8 +293,8 @@ export function generateNewLoanRequestTable(
     semanas_plazo,
     cantidad_prestada,
     dia_semana,
-    fecha_inicial,
-    fecha_final_estimada,
+    fecha_inicial_calculada,
+    fecha_final_estimada_calculada,
     cantidad_pagar,
     observaciones || undefined,
     created_by,

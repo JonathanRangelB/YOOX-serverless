@@ -7,6 +7,7 @@ import {
   DiasDeSemana,
   States,
   TipoCalles,
+  REGEX_EMPTY_STRING,
 } from "../../helpers/utils";
 
 export const propertiesForLoanRequest = {
@@ -20,8 +21,29 @@ export const propertiesForLoanRequest = {
   cantidad_pagar: { type: "number" },
   id_agente: { type: "integer" },
   id_grupo_original: { type: "integer" },
-  fecha_inicial: { type: "string", format: "date-time" },
-  fecha_final_estimada: { type: "string", format: "date-time" },
+  fecha_inicial: {
+    anyOf: [
+      { type: "string", format: "date-time" },
+      {
+        type: "string",
+        enum: [null],
+        pattern: REGEX_EMPTY_STRING,
+        nullable: true,
+      },
+    ],
+  },
+  fecha_final_estimada: {
+    anyOf: [
+      { type: "string", format: "date-time" },
+      {
+        type: "string",
+        enum: [null],
+        pattern: REGEX_EMPTY_STRING,
+        nullable: true,
+      },
+    ],
+  },
+
   dia_semana: {
     type: "string",
     enum: Object.values(DiasDeSemana),
@@ -298,8 +320,6 @@ export const requiredFielsForUpdateLoanRequest = [
   "cantidad_pagar",
   "id_agente",
   "id_grupo_original",
-  "fecha_inicial",
-  "fecha_final_estimada",
   "dia_semana",
   "plazo",
   "formCliente",
@@ -313,8 +333,6 @@ export const requiredFielsForNewLoanRequest = [
   "cantidad_pagar",
   "id_agente",
   "id_grupo_original",
-  "fecha_inicial",
-  "fecha_final_estimada",
   "dia_semana",
   "plazo",
   "formCliente",
@@ -322,3 +340,18 @@ export const requiredFielsForNewLoanRequest = [
   "created_by",
   "user_role",
 ];
+
+export const validateStartDate = {
+  if: {
+    properties: {
+      fecha_inicial: { type: "string", format: "date-time" },
+    },
+    required: ["fecha_inicial"],
+  },
+  then: {
+    required: ["fecha_final_estimada"],
+    properties: {
+      fecha_final_estimada: { type: "string", format: "date-time" },
+    },
+  },
+};

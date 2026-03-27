@@ -1,10 +1,12 @@
 import { UpdateLoanRequest } from "../types/SPInsertNewLoanRequest";
 import sql, { Request, Int, VarChar, Float, Text } from "mssql";
+import { calculateEndDate } from "./calculateEndDate";
 
 export function fullUpdateLoanReqQuery(
   updateLoanRequest: UpdateLoanRequest,
   approvedStatusFlag: boolean,
-  poolRequest: Request
+  poolRequest: Request,
+  currentSystemDate: Date
 ): string {
   let updateQueryColumns = "";
 
@@ -73,6 +75,13 @@ export function fullUpdateLoanReqQuery(
   } = datosAval;
 
   const { id: id_plazo, tasa_de_interes, semanas_plazo } = datosPlazo;
+  const { fecha_inicial_calculada, fecha_final_estimada_calculada } =
+    calculateEndDate(
+      fecha_inicial,
+      fecha_final_estimada,
+      currentSystemDate,
+      Number(semanas_plazo)
+    );
 
   updateQueryColumns = `SET 
                           LOAN_REQUEST_STATUS = @newLoanRequestStatus
@@ -167,8 +176,12 @@ export function fullUpdateLoanReqQuery(
   poolRequest.input("semanas_plazo", Int, semanas_plazo);
   poolRequest.input("cantidad_prestada", Float, cantidad_prestada);
   poolRequest.input("dia_semana", VarChar, dia_semana);
-  poolRequest.input("fecha_inicial", sql.Date, fecha_inicial);
-  poolRequest.input("fecha_final_estimada", sql.Date, fecha_final_estimada);
+  poolRequest.input("fecha_inicial", sql.Date, fecha_inicial_calculada);
+  poolRequest.input(
+    "fecha_final_estimada",
+    sql.Date,
+    fecha_final_estimada_calculada
+  );
   poolRequest.input("cantidad_pagar", Float, cantidad_pagar);
   poolRequest.input(
     "telefono_fijo_cliente",
