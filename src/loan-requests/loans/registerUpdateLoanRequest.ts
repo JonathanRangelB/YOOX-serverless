@@ -160,7 +160,8 @@ export const registerUpdateLoanRequest = async (
       updateQueryColumns = fullUpdateLoanReqQuery(
         updateLoanRequest,
         false,
-        poolRequest
+        poolRequest,
+        current_local_date
       );
 
       updateQueryColumns += `
@@ -185,7 +186,8 @@ export const registerUpdateLoanRequest = async (
           updateQueryColumns = fullUpdateLoanReqQuery(
             updateLoanRequest,
             false,
-            poolRequest
+            poolRequest,
+            current_local_date
           );
 
           updateQueryColumns += ` ,MODIFIED_BY = @modified_by_id_usuario
@@ -329,7 +331,8 @@ export const registerUpdateLoanRequest = async (
           } else {
             procInsertLoan = await registerNewLoan(
               encabezadoPrestamo,
-              procTransaction
+              procTransaction,
+              current_local_date
             );
           }
 
@@ -340,7 +343,8 @@ export const registerUpdateLoanRequest = async (
           updateQueryColumns = fullUpdateLoanReqQuery(
             updateLoanRequest,
             true,
-            poolRequest
+            poolRequest,
+            current_local_date
           );
 
           updateQueryColumns += `,ID_AVAL = @datosCliente_id_aval

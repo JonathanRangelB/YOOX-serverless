@@ -1,10 +1,13 @@
 import { UpdateLoanRequest } from "../types/SPInsertNewLoanRequest";
 import sql, { Request, Int, VarChar, Float, Text } from "mssql";
+import { calculateEndDate } from "./calculateEndDate";
+import { Status } from "../../helpers/utils";
 
 export function fullUpdateLoanReqQuery(
   updateLoanRequest: UpdateLoanRequest,
   approvedStatusFlag: boolean,
-  poolRequest: Request
+  poolRequest: Request,
+  currentSystemDate: Date
 ): string {
   let updateQueryColumns = "";
 
@@ -73,6 +76,22 @@ export function fullUpdateLoanReqQuery(
   } = datosAval;
 
   const { id: id_plazo, tasa_de_interes, semanas_plazo } = datosPlazo;
+  const { fecha_inicial_calculada, fecha_final_estimada_calculada } =
+    calculateEndDate(
+      fecha_inicial,
+      fecha_final_estimada,
+      currentSystemDate,
+      Number(semanas_plazo)
+    );
+
+  const isApproved = newLoanRequestStatus === Status.APROBADO;
+  const dia_semana_calculado: string = fecha_inicial
+    ? dia_semana
+    : fecha_inicial_calculada
+        .toLocaleDateString("es-ES", { weekday: "long" })
+        .normalize("NFD")
+        .replace(/\p{M}/gu, "")
+        .toUpperCase();
 
   updateQueryColumns = `SET 
                           LOAN_REQUEST_STATUS = @newLoanRequestStatus
@@ -166,9 +185,23 @@ export function fullUpdateLoanReqQuery(
   poolRequest.input("tasa_de_interes", Int, tasa_de_interes);
   poolRequest.input("semanas_plazo", Int, semanas_plazo);
   poolRequest.input("cantidad_prestada", Float, cantidad_prestada);
-  poolRequest.input("dia_semana", VarChar, dia_semana);
-  poolRequest.input("fecha_inicial", sql.Date, fecha_inicial);
-  poolRequest.input("fecha_final_estimada", sql.Date, fecha_final_estimada);
+
+  poolRequest.input(
+    "dia_semana",
+    VarChar,
+    fecha_inicial || isApproved ? dia_semana_calculado : null
+  );
+  poolRequest.input(
+    "fecha_inicial",
+    sql.Date,
+    fecha_inicial || isApproved ? fecha_inicial_calculada : null
+  );
+  poolRequest.input(
+    "fecha_final_estimada",
+    sql.Date,
+    fecha_inicial || isApproved ? fecha_final_estimada_calculada : null
+  );
+
   poolRequest.input("cantidad_pagar", Float, cantidad_pagar);
   poolRequest.input(
     "telefono_fijo_cliente",

@@ -74,6 +74,7 @@ export const REGEX_EMAIL: string =
   "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
 export const REGEX_ZIP_CODE: string = "^\\d{5}$";
 export const REGEX_PHONE: string = "^\\d{10}$";
+export const REGEX_EMPTY_STRING: string = "^\\s*$";
 
 export const Status = {
   EN_REVISION: "EN REVISION",
