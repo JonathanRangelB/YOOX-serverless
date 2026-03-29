@@ -35,6 +35,15 @@ export const registerNewLoan = async (
         currentSystemDate,
         semanas_plazo
       );
+
+    const dia_semana_calculado: string = fecha_inicial
+      ? dia_semana
+      : fecha_inicial_calculada
+          .toLocaleDateString("es-ES", { weekday: "long" })
+          .normalize("NFD")
+          .replace(/\p{M}/gu, "")
+          .toUpperCase();
+
     const nextIdQuery = await procTransaction
       .request()
       .query<IndexesId>(
@@ -96,7 +105,7 @@ export const registerNewLoan = async (
       id_plazo,
       id_usuario,
       cantidad_prestada,
-      dia_semana,
+      dia_semana_calculado,
       fecha_inicial_calculada,
       fecha_final_estimada_calculada,
       fecha_final_estimada_calculada,

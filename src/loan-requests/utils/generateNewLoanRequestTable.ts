@@ -84,14 +84,6 @@ export function generateNewLoanRequestTable(
   const { value: estadoAval } = efa;
   const { id, request_number, loan_request_status, created_date } =
     additionalData;
-
-  const { fecha_inicial_calculada, fecha_final_estimada_calculada } =
-    calculateEndDate(
-      fecha_inicial,
-      fecha_final_estimada,
-      created_date,
-      Number(semanas_plazo)
-    );
   const tableNewRequestLoan = new Table("LOAN_REQUEST");
 
   tableNewRequestLoan.create = false;
@@ -213,12 +205,12 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add("CANTIDAD_PRESTADA", Float, {
     nullable: false,
   });
-  tableNewRequestLoan.columns.add("DIA_SEMANA", VarChar, { nullable: false });
+  tableNewRequestLoan.columns.add("DIA_SEMANA", VarChar, { nullable: true });
   tableNewRequestLoan.columns.add("FECHA_INICIAL", DateTime, {
-    nullable: false,
+    nullable: true,
   });
   tableNewRequestLoan.columns.add("FECHA_FINAL_ESTIMADA", DateTime, {
-    nullable: false,
+    nullable: true,
   });
   tableNewRequestLoan.columns.add("CANTIDAD_PAGAR", Float, { nullable: true });
   tableNewRequestLoan.columns.add("OBSERVACIONES", VarChar, { nullable: true });
@@ -292,9 +284,11 @@ export function generateNewLoanRequestTable(
     tasa_de_interes,
     semanas_plazo,
     cantidad_prestada,
-    dia_semana,
-    fecha_inicial_calculada,
-    fecha_final_estimada_calculada,
+
+    fecha_inicial ? dia_semana : undefined,
+    fecha_inicial || undefined,
+    fecha_inicial ? fecha_final_estimada : undefined,
+
     cantidad_pagar,
     observaciones || undefined,
     created_by,

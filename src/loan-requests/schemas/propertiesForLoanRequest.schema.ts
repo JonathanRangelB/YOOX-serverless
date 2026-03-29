@@ -43,10 +43,16 @@ export const propertiesForLoanRequest = {
       },
     ],
   },
-
   dia_semana: {
-    type: "string",
-    enum: Object.values(DiasDeSemana),
+    anyOf: [
+      { type: "string", enum: Object.values(DiasDeSemana) },
+      {
+        type: "string",
+        enum: [null],
+        pattern: REGEX_EMPTY_STRING,
+        nullable: true,
+      },
+    ],
   },
   observaciones: {
     anyOf: [
@@ -320,7 +326,6 @@ export const requiredFielsForUpdateLoanRequest = [
   "cantidad_pagar",
   "id_agente",
   "id_grupo_original",
-  "dia_semana",
   "plazo",
   "formCliente",
   "formAval",
@@ -333,7 +338,6 @@ export const requiredFielsForNewLoanRequest = [
   "cantidad_pagar",
   "id_agente",
   "id_grupo_original",
-  "dia_semana",
   "plazo",
   "formCliente",
   "formAval",
