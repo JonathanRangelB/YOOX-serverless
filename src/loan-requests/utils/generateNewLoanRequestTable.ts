@@ -1,6 +1,5 @@
 import { DateTime, Float, Int, Table, VarChar } from "mssql";
 import { InsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
-import { calculateEndDate } from "./calculateEndDate";
 
 export function generateNewLoanRequestTable(
   newLoanRequest: InsertNewLoanRequest,

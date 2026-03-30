@@ -28,21 +28,17 @@ export const registerNewLoan = async (
       semanas_plazo,
     } = loan_header;
 
-    const { fecha_inicial_calculada, fecha_final_estimada_calculada } =
-      calculateEndDate(
-        fecha_inicial,
-        fecha_final_estimada,
-        currentSystemDate,
-        semanas_plazo
-      );
-
-    const dia_semana_calculado: string = fecha_inicial
-      ? dia_semana
-      : fecha_inicial_calculada
-          .toLocaleDateString("es-ES", { weekday: "long" })
-          .normalize("NFD")
-          .replace(/\p{M}/gu, "")
-          .toUpperCase();
+    const {
+      fecha_inicial_calculada,
+      fecha_final_estimada_calculada,
+      dia_semana_calculado,
+    } = calculateEndDate(
+      fecha_inicial,
+      fecha_final_estimada,
+      currentSystemDate,
+      semanas_plazo,
+      dia_semana
+    );
 
     const nextIdQuery = await procTransaction
       .request()
