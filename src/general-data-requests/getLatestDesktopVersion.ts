@@ -9,7 +9,7 @@ module.exports.handler = async (_: APIGatewayEvent) => {
   try {
     const con = await DbConnector.getInstance().connection;
     const res = await con.query<DesktopVersionData>(
-      `SELECT TOP 1 * FROM SEC_VERSION sv ORDER BY sv.ID_VERSION DESC`
+      "SELECT TOP 1 [PUBLISH_URL] as [url] FROM SEC_VERSION sv ORDER BY sv.ID_VERSION DESC"
     );
     if (res.recordset.length === 0) {
       return generateJsonResponse(
