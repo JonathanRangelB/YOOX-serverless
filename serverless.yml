@@ -206,7 +206,7 @@ functions:
     events:
       - httpApi:
           method: get
-          path: /v1/desktop-version
+          path: /v1/desktop-app-url
           authorizer:
             name: customAuthorizer
 
