@@ -1,9 +1,13 @@
-import { propertiesForLoanRequest } from "./propertiesForLoanRequest.schema";
-import { requiredFielsForNewLoanRequest } from "./propertiesForLoanRequest.schema";
+import {
+  propertiesForLoanRequest,
+  requiredFielsForNewLoanRequest,
+  validateStartDate,
+} from "./propertiesForLoanRequest.schema";
 
 export const loanSchema = {
   type: "object",
   properties: propertiesForLoanRequest,
+  ...validateStartDate,
   required: requiredFielsForNewLoanRequest,
   additionalProperties: false,
 };

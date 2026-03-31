@@ -4,10 +4,12 @@ import { GenericBDRequest } from "../../types/genericBDRequest";
 import { IndexesId } from "../../../helpers/table-schemas";
 import { StatusCodes } from "../../../helpers/statusCodes";
 import { registerSnapshotRealInvestmentReport } from "../reporting/registerSnapshotRealInvestmentReport";
+import { calculateEndDate } from "../../../loan-requests/utils/calculateEndDate";
 
 export const registerNewLoan = async (
   loan_header: LoanHeader,
-  procTransaction: Transaction
+  procTransaction: Transaction,
+  currentSystemDate: Date
 ): Promise<GenericBDRequest> => {
   try {
     const {
@@ -25,6 +27,18 @@ export const registerNewLoan = async (
       id_grupo_original,
       semanas_plazo,
     } = loan_header;
+
+    const {
+      fecha_inicial_calculada,
+      fecha_final_estimada_calculada,
+      dia_semana_calculado,
+    } = calculateEndDate(
+      fecha_inicial,
+      fecha_final_estimada,
+      currentSystemDate,
+      semanas_plazo,
+      dia_semana
+    );
 
     const nextIdQuery = await procTransaction
       .request()
@@ -87,10 +101,10 @@ export const registerNewLoan = async (
       id_plazo,
       id_usuario,
       cantidad_prestada,
-      dia_semana,
-      fecha_inicial,
-      fecha_final_estimada,
-      fecha_final_estimada,
+      dia_semana_calculado,
+      fecha_inicial_calculada,
+      fecha_final_estimada_calculada,
+      fecha_final_estimada_calculada,
       id_cobrador,
       cantidad_restante,
       cantidad_pagar,
@@ -102,13 +116,12 @@ export const registerNewLoan = async (
 
     //Inicia llenado del detalle del prestamo
 
-    const dateInUTC = new Date(fecha_inicial).getTime();
+    const dateInUTC = new Date(fecha_inicial_calculada).getTime();
     const cantidad_semanal = cantidad_pagar / semanas_plazo;
     const msSemanaAdicional = 7 * 24 * 60 * 60 * 1000;
 
     for (let counter = 1; counter <= semanas_plazo; counter++) {
       const fechaDePago = new Date(dateInUTC + counter * msSemanaAdicional);
-
       tableLoanDetailBD.rows.add(
         lastLoanId,
         counter,

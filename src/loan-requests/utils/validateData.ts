@@ -354,11 +354,11 @@ function validateDataResult(
   id_cliente: number,
   id_aval: number
 ): { result: boolean; message?: string } {
-  if (fecha_inicial > fecha_final_estimada) {
+  if (fecha_inicial && fecha_inicial >= fecha_final_estimada) {
     return {
       result: false,
       message:
-        "La fecha inicial no puede ser posterior a la fecha final estimada",
+        "La fecha inicial no puede ser posterior ni igual a la fecha final estimada",
     };
   }
 
