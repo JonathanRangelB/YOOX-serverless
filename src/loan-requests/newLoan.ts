@@ -36,6 +36,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   }
 
   const result = await registerNewLoanRequest(body);
+
   if (result.error) {
     return generateJsonResponse(result, StatusCodes.BAD_REQUEST);
   }

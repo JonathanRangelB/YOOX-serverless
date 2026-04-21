@@ -1,5 +1,4 @@
 import { Transaction } from "mssql";
-
 import { DbConnector } from "../../helpers/dbConnector";
 import { InsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
 import { StatusResponse } from "../types/loanRequest";

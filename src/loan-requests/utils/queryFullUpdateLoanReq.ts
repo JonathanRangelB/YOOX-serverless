@@ -1,5 +1,5 @@
 import { UpdateLoanRequest } from "../types/SPInsertNewLoanRequest";
-import sql, { Request, Int, VarChar, Float, Text } from "mssql";
+import sql, { Request, Int, VarChar, Float, Text, Bit } from "mssql";
 import { calculateEndDate } from "./calculateEndDate";
 import { Status } from "../../helpers/utils";
 
@@ -50,6 +50,7 @@ export function fullUpdateLoanReqQuery(
     id_domicilio_cliente,
     cruce_calles_cliente,
     gmaps_url_location,
+    isCustomerAddressUpdate,
   } = datosCliente;
 
   const {
@@ -73,6 +74,7 @@ export function fullUpdateLoanReqQuery(
     id_domicilio_aval,
     ocupacion_aval,
     cruce_calles_aval,
+    isGuarantorAddressUpdate,
   } = datosAval;
 
   const { id: id_plazo, tasa_de_interes, semanas_plazo } = datosPlazo;
@@ -140,7 +142,9 @@ export function fullUpdateLoanReqQuery(
                           ,GMAPS_URL_LOCATION = @gmaps_url_location
                           ,CRUCE_CALLES_CLIENTE = @cruce_calles_cliente
                           ,CRUCE_CALLES_AVAL = @cruce_calles_aval
-                          ,ID_GERENCIA_ORIGINAL = @id_gerencia_original                                            
+                          ,ID_GERENCIA_ORIGINAL = @id_gerencia_original
+                          ,IS_CUSTOMER_ADDRESS_UPDATE = @is_customer_address_update
+                          ,IS_GUARANTOR_ADDRESS_UPDATE = @is_guarantor_address_update
                                                   
 `;
 
@@ -253,6 +257,12 @@ export function fullUpdateLoanReqQuery(
   );
   poolRequest.input("cruce_calles_aval", VarChar, cruce_calles_aval || null);
   poolRequest.input("id_gerencia_original", Int, id_gerencia_original || null);
+  poolRequest.input("is_customer_address_update", Bit, isCustomerAddressUpdate);
+  poolRequest.input(
+    "is_guarantor_address_update",
+    Bit,
+    isGuarantorAddressUpdate
+  );
 
   if (!approvedStatusFlag) {
     updateQueryColumns += `,ID_CLIENTE = @id_cliente

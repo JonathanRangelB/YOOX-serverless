@@ -33,6 +33,7 @@ export const registerNewEndorsement = async (
       fecha_creacion_aval,
       id_domicilio_aval,
       cruce_calles_aval,
+      isGuarantorAddressUpdate,
     } = formAval;
 
     const direccionAval: Direccion = {
@@ -96,7 +97,7 @@ export const registerNewEndorsement = async (
 
     let addAddressResult;
 
-    if (id_domicilio_aval) {
+    if (isGuarantorAddressUpdate && id_domicilio_aval) {
       addAddressResult = await updateAddress(
         direccionAval,
         lastEndorsmentId,

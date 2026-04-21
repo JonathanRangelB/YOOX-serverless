@@ -31,4 +31,5 @@ export interface FormCustomer {
   id_aval: number;
   cruce_calles_cliente: string;
   gmaps_url_location: string;
+  isCustomerAddressUpdate: boolean;
 }
