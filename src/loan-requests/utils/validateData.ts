@@ -34,6 +34,7 @@ export async function validateData(
     telefono_fijo_cliente,
     telefono_movil_cliente,
     id_domicilio_cliente,
+    isCustomerAddressUpdate,
   } = formCliente;
 
   const {
@@ -42,6 +43,7 @@ export async function validateData(
     telefono_fijo_aval,
     telefono_movil_aval,
     id_domicilio_aval,
+    isGuarantorAddressUpdate,
   } = formAval;
 
   const queryToValidateData = queryValidateData(
@@ -117,6 +119,18 @@ export async function validateData(
     throw new Error(resultValidation.message);
   }
 
+  if (isCustomerAddressUpdate && !id_domicilio_cliente) {
+    throw new Error(
+      "Debe proporcionar ID de domicilio de cliente para actualizar"
+    );
+  }
+
+  if (isGuarantorAddressUpdate && !id_domicilio_aval) {
+    throw new Error(
+      "Debe proporcionar ID de domicilio de aval para actualizar"
+    );
+  }
+
   const id = nextId.recordset[0].LAST_LOAN_ID + 1;
   const request_number = convertToBase36(id);
   const loan_request_status = Status.EN_REVISION;
@@ -164,6 +178,7 @@ export async function validateDataLoanRequestUpdate(
     telefono_fijo_cliente,
     telefono_movil_cliente,
     id_domicilio_cliente,
+    isCustomerAddressUpdate,
   } = formCliente;
 
   const {
@@ -172,6 +187,7 @@ export async function validateDataLoanRequestUpdate(
     telefono_fijo_aval,
     telefono_movil_aval,
     id_domicilio_aval,
+    isGuarantorAddressUpdate,
   } = formAval;
 
   const queryToValidateData = queryValidateData(
@@ -252,6 +268,18 @@ export async function validateDataLoanRequestUpdate(
   ) {
     throw new Error(
       "Un usuario con mayor jerarquía debe aprobar esta solicitud"
+    );
+  }
+
+  if (isCustomerAddressUpdate && !id_domicilio_cliente) {
+    throw new Error(
+      "Debe proporcionar ID de domicilio de cliente para actualizar"
+    );
+  }
+
+  if (isGuarantorAddressUpdate && !id_domicilio_aval) {
+    throw new Error(
+      "Debe proporcionar ID de domicilio de aval para actualizar"
     );
   }
 

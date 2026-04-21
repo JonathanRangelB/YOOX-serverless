@@ -29,7 +29,11 @@ export function loanRequestListSearchQuery(
     }
     case RolesDeUsuario.COBRADOR:
       whereCondition = `WHERE ID_AGENTE = ${id_usuario} `;
-      limitOneWeekData = ` AND CONVERT(DATE, created_date) BETWEEN DATEADD(WEEK, -1, CONVERT(DATE, GETDATE())) AND CONVERT(DATE, GETDATE()) `;
+
+      if (!folio)
+        limitOneWeekData =
+          " AND CONVERT(DATE, created_date) BETWEEN DATEADD(WEEK, -1, CONVERT(DATE, GETDATE())) AND CONVERT(DATE, GETDATE()) ";
+
       break;
   }
 

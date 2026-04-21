@@ -27,4 +27,5 @@ export interface FormEndorsement {
   id_domicilio_aval: number;
   cruce_calles_aval: string;
   ocupacion_aval: string;
+  isGuarantorAddressUpdate: boolean;
 }
