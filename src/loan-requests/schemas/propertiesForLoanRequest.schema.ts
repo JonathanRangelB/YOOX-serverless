@@ -191,7 +191,6 @@ export const propertiesForLoanRequest = {
     ],
     additionalProperties: false,
 
-    //
     if: {
       properties: {
         isCustomerAddressUpdate: { const: true },
@@ -209,7 +208,6 @@ export const propertiesForLoanRequest = {
         },
       },
     },
-    //
   },
 
   formAval: {
@@ -330,7 +328,6 @@ export const propertiesForLoanRequest = {
       "isGuarantorAddressUpdate",
     ],
     additionalProperties: false,
-    //
     if: {
       properties: {
         isGuarantorAddressUpdate: { const: true },
@@ -348,7 +345,6 @@ export const propertiesForLoanRequest = {
         },
       },
     },
-    //
   },
 
   created_by: { type: "integer" },
