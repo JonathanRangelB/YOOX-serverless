@@ -8,6 +8,7 @@ provider:
   runtime: nodejs24.x
   region: us-east-2
   stage: dev
+  logRetentionInDays: 14
   environment:
     TOKEN_JWT: ${env:TOKEN_JWT}
     USUARIO: ${env:USUARIO}
