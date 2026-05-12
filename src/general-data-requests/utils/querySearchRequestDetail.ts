@@ -68,6 +68,8 @@ export function requestDetailSearchQuery(request_number: string): string {
       ,l.[gmaps_url_location]
       ,l.[cruce_calles_cliente]
       ,l.[cruce_calles_aval]
+      ,l.[is_customer_address_update]
+      ,l.[is_guarantor_address_update]
       
   FROM [LOAN_REQUEST] l
 

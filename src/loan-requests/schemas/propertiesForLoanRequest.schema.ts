@@ -171,6 +171,8 @@ export const propertiesForLoanRequest = {
           { type: "string", enum: ["", null], nullable: true },
         ],
       },
+
+      isCustomerAddressUpdate: { type: "boolean" },
     },
     required: [
       "nombre_cliente",
@@ -185,8 +187,27 @@ export const propertiesForLoanRequest = {
       "municipio_cliente",
       "estado_cliente",
       "cp_cliente",
+      "isCustomerAddressUpdate",
     ],
     additionalProperties: false,
+
+    if: {
+      properties: {
+        isCustomerAddressUpdate: { const: true },
+      },
+      required: ["isCustomerAddressUpdate"],
+    },
+    then: {
+      required: ["id_domicilio_cliente"],
+      properties: {
+        id_domicilio_cliente: {
+          type: "integer",
+          minimum: 1,
+          maximum: 2147483647,
+          nullable: false,
+        },
+      },
+    },
   },
 
   formAval: {
@@ -287,6 +308,8 @@ export const propertiesForLoanRequest = {
         ],
       },
 
+      isGuarantorAddressUpdate: { type: "boolean" },
+
       additionalProperties: false,
     },
     required: [
@@ -302,8 +325,26 @@ export const propertiesForLoanRequest = {
       "municipio_aval",
       "estado_aval",
       "cp_aval",
+      "isGuarantorAddressUpdate",
     ],
     additionalProperties: false,
+    if: {
+      properties: {
+        isGuarantorAddressUpdate: { const: true },
+      },
+      required: ["isGuarantorAddressUpdate"],
+    },
+    then: {
+      required: ["id_domicilio_aval"],
+      properties: {
+        id_domicilio_aval: {
+          type: "integer",
+          minimum: 1,
+          maximum: 2147483647,
+          nullable: false,
+        },
+      },
+    },
   },
 
   created_by: { type: "integer" },

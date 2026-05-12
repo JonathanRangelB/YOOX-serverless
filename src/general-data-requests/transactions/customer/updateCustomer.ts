@@ -38,6 +38,7 @@ export const updateCustomer = async (
       id_aval,
       gmaps_url_location,
       cruce_calles_cliente,
+      isCustomerAddressUpdate,
     } = formCliente;
 
     const direccionCliente: Direccion = {
@@ -60,7 +61,7 @@ export const updateCustomer = async (
     let resultadoOperacionActualizaDomicilio;
     let idDomicilio;
 
-    if (id_domicilio_cliente) {
+    if (isCustomerAddressUpdate && id_domicilio_cliente) {
       resultadoOperacionActualizaDomicilio = await updateAddress(
         direccionCliente,
         id_cliente,

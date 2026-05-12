@@ -34,6 +34,7 @@ export const updateEndorsement = async (
       id_domicilio_aval,
       ocupacion_aval,
       cruce_calles_aval,
+      isGuarantorAddressUpdate,
     } = formAval;
 
     const direccionAval: Direccion = {
@@ -56,7 +57,7 @@ export const updateEndorsement = async (
     let resultadoOperacion;
     let idDomicilio;
 
-    if (id_domicilio_aval) {
+    if (isGuarantorAddressUpdate && id_domicilio_aval) {
       resultadoOperacion = await updateAddress(
         direccionAval,
         id_aval,

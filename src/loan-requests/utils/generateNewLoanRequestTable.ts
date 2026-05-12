@@ -1,4 +1,4 @@
-import { DateTime, Float, Int, Table, VarChar } from "mssql";
+import { Bit, DateTime, Float, Int, Table, VarChar } from "mssql";
 import { InsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
 
 export function generateNewLoanRequestTable(
@@ -51,6 +51,7 @@ export function generateNewLoanRequestTable(
     id_domicilio_cliente,
     cruce_calles_cliente,
     gmaps_url_location,
+    isCustomerAddressUpdate,
   } = formCliente;
 
   const { value: tipoCalleCliente } = calleC;
@@ -77,6 +78,7 @@ export function generateNewLoanRequestTable(
     id_domicilio_aval,
     cruce_calles_aval,
     ocupacion_aval,
+    isGuarantorAddressUpdate,
   } = formAval;
 
   const { value: tipoCalleAval } = calleA;
@@ -235,6 +237,12 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add("ID_GERENCIA_ORIGINAL", Int, {
     nullable: true,
   });
+  tableNewRequestLoan.columns.add("IS_CUSTOMER_ADDRESS_UPDATE", Bit, {
+    nullable: true,
+  });
+  tableNewRequestLoan.columns.add("IS_GUARANTOR_ADDRESS_UPDATE", Bit, {
+    nullable: true,
+  });
 
   tableNewRequestLoan.rows.add(
     id,
@@ -283,11 +291,9 @@ export function generateNewLoanRequestTable(
     tasa_de_interes,
     semanas_plazo,
     cantidad_prestada,
-
     fecha_inicial ? dia_semana : undefined,
     fecha_inicial || undefined,
     fecha_inicial ? fecha_final_estimada : undefined,
-
     cantidad_pagar,
     observaciones || undefined,
     created_by,
@@ -297,7 +303,9 @@ export function generateNewLoanRequestTable(
     gmaps_url_location || undefined,
     cruce_calles_cliente || undefined,
     cruce_calles_aval || undefined,
-    id_gerencia_original || undefined
+    id_gerencia_original || undefined,
+    isCustomerAddressUpdate,
+    isGuarantorAddressUpdate
   );
 
   return tableNewRequestLoan;
