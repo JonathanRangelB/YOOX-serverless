@@ -24,6 +24,7 @@ provider:
       customAuthorizer:
         type: request
         functionName: customAuthorizer
+        enableSimpleResponses: true
         identitySource:
           - $request.header.authorization
     cors:
@@ -31,10 +32,16 @@ provider:
         - https://www.yooxgrupofinanciero.com
         - https://development.yooxgrupofinanciero.com
         - https://staging.yooxgrupofinanciero.com
+        - https://yoox-web-app.vercel.app
         - http://localhost:4200
       allowedHeaders:
         - Content-Type
         - authorization
+      allowedMethods:
+        - GET
+        - POST
+        - OPTIONS
+      allowCredentials: false
 
 functions:
   login:
