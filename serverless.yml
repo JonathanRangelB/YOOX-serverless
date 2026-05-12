@@ -1,15 +1,24 @@
 org: jonathanrangel
 app: yoox-serverless-api
 service: login-service
-frameworkVersion: '3'
+frameworkVersion: '4'
 
 provider:
   name: aws
-  runtime: nodejs20.x
+  runtime: nodejs24.x
   region: us-east-2
   stage: dev
-  apiGateway:
-    shouldStartNameWithService: true
+  environment:
+    TOKEN_JWT: ${env:TOKEN_JWT}
+    USUARIO: ${env:USUARIO}
+    PASSWORD: ${env:PASSWORD}
+    DB_NAME: ${env:DB_NAME}
+    SERVER: ${env:SERVER}
+    MY_AWS_REGION: ${env:MY_AWS_REGION}
+    MY_AWS_ACCESS_KEY_ID: ${env:MY_AWS_ACCESS_KEY_ID}
+    MY_AWS_SECRET_ACCESS_KEY: ${env:MY_AWS_SECRET_ACCESS_KEY}
+    BUCKET_NAME: ${env:BUCKET_NAME}
+    NODE_ENV: ${self:custom.stage}
   httpApi:
     authorizers:
       customAuthorizer:
@@ -26,7 +35,6 @@ provider:
       allowedHeaders:
         - Content-Type
         - authorization
-useDotenv: true
 
 functions:
   login:
@@ -227,7 +235,13 @@ custom:
   environment:
     NODE_ENV: ${self:custom.stage}
 
+build:
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    external:
+      - '@aws-sdk/*'
+
 plugins:
-  - serverless-dotenv-plugin
-  - serverless-esbuild
   - serverless-offline
