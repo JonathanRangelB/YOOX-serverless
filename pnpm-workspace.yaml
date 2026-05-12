@@ -5,3 +5,4 @@ allowBuilds:
   es5-ext: true
   esbuild: true
   serverless: true
+minimumReleaseAge: 2880

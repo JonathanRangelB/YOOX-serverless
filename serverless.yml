@@ -245,8 +245,8 @@ custom:
 build:
   esbuild:
     bundle: true
-    minify: false
-    sourcemap: true
+    minify: true
+    sourcemap: false
     external:
       - '@aws-sdk/*'
 
