@@ -82,7 +82,6 @@ export const updateEndorsement = async (
         error: StatusCodes.BAD_REQUEST,
       };
 
-
     const poolRequest = procTransaction.request();
 
     const queryUpdateEndorsement = `
@@ -102,16 +101,34 @@ export const updateEndorsement = async (
 
                     `;
 
-    poolRequest.input("nombre_aval", sql.VarChar, `${nombre_aval} ${apellido_paterno_aval} ${apellido_materno_aval}`);
-    poolRequest.input("telefono_fijo_aval", sql.VarChar, telefono_fijo_aval || null);
-    poolRequest.input("telefono_movil_aval", sql.VarChar, telefono_movil_aval || null);
-    poolRequest.input("correo_electronico_aval", sql.VarChar, correo_electronico_aval || null);
+    poolRequest.input(
+      "nombre_aval",
+      sql.VarChar,
+      `${nombre_aval} ${apellido_paterno_aval} ${apellido_materno_aval}`
+    );
+    poolRequest.input(
+      "telefono_fijo_aval",
+      sql.VarChar,
+      telefono_fijo_aval || null
+    );
+    poolRequest.input(
+      "telefono_movil_aval",
+      sql.VarChar,
+      telefono_movil_aval || null
+    );
+    poolRequest.input(
+      "correo_electronico_aval",
+      sql.VarChar,
+      correo_electronico_aval || null
+    );
     poolRequest.input("curp_aval", sql.VarChar, curp_aval);
     poolRequest.input("idDomicilio", sql.Int, idDomicilio);
     poolRequest.input("ocupacion_aval", sql.VarChar, ocupacion_aval || null);
     poolRequest.input("id_aval", sql.Int, id_aval);
 
-    const updateEndorsementResult = await poolRequest.query(queryUpdateEndorsement);
+    const updateEndorsementResult = await poolRequest.query(
+      queryUpdateEndorsement
+    );
 
     if (!updateEndorsementResult.rowsAffected[0])
       return {
