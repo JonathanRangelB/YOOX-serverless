@@ -1,4 +1,4 @@
-import { Transaction } from "mssql";
+import sql, { Transaction } from "mssql";
 import { FormEndorsement } from "../../../interfaces/endorsement-interface";
 import { Direccion } from "../../../interfaces/common-properties";
 import { StatusCodes } from "../../../helpers/statusCodes";
@@ -82,25 +82,36 @@ export const updateEndorsement = async (
         error: StatusCodes.BAD_REQUEST,
       };
 
+
+    const poolRequest = procTransaction.request();
+
     const queryUpdateEndorsement = `
                     UPDATE
                     AVALES
 
                     SET
-                    NOMBRE = '${nombre_aval} ${apellido_paterno_aval} ${apellido_materno_aval}',
-                    TELEFONO_FIJO = ${telefono_fijo_aval ? `'${telefono_fijo_aval}'` : `NULL`},
-                    TELEFONO_MOVIL = ${telefono_movil_aval ? `'${telefono_movil_aval}'` : `NULL`},
-                    CORREO_ELECTRONICO = ${correo_electronico_aval ? `'${correo_electronico_aval}'` : `NULL`},
-                    CURP = '${curp_aval}',
-                    ID_DOMICILIO = ${idDomicilio},
-                    OCUPACION_AVAL = ${ocupacion_aval ? `'${ocupacion_aval}'` : `NULL`}
+                    NOMBRE = @nombre_aval,
+                    TELEFONO_FIJO = @telefono_fijo_aval,
+                    TELEFONO_MOVIL = @telefono_movil_aval,
+                    CORREO_ELECTRONICO = @correo_electronico_aval,
+                    CURP = @curp_aval,
+                    ID_DOMICILIO = @idDomicilio,
+                    OCUPACION_AVAL = @ocupacion_aval
 
-                    WHERE ID_AVAL = ${id_aval}
+                    WHERE ID_AVAL = @id_aval
 
                     `;
-    const updateEndorsementResult = await procTransaction
-      .request()
-      .query(queryUpdateEndorsement);
+
+    poolRequest.input("nombre_aval", sql.VarChar, `${nombre_aval} ${apellido_paterno_aval} ${apellido_materno_aval}`);
+    poolRequest.input("telefono_fijo_aval", sql.VarChar, telefono_fijo_aval || null);
+    poolRequest.input("telefono_movil_aval", sql.VarChar, telefono_movil_aval || null);
+    poolRequest.input("correo_electronico_aval", sql.VarChar, correo_electronico_aval || null);
+    poolRequest.input("curp_aval", sql.VarChar, curp_aval);
+    poolRequest.input("idDomicilio", sql.Int, idDomicilio);
+    poolRequest.input("ocupacion_aval", sql.VarChar, ocupacion_aval || null);
+    poolRequest.input("id_aval", sql.Int, id_aval);
+
+    const updateEndorsementResult = await poolRequest.query(queryUpdateEndorsement);
 
     if (!updateEndorsementResult.rowsAffected[0])
       return {
