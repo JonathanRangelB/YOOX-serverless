@@ -1,56 +1,23 @@
+import { APIGatewayRequestAuthorizerEventV2 } from "aws-lambda";
 import jwt from "jsonwebtoken";
 
-import {
-  Context,
-  APIGatewayRequestAuthorizerEventV2,
-  PolicyDocument,
-  Callback,
-  StatementEffect,
-} from "aws-lambda";
-
-const generatePolicyDocument = (
-  effect: StatementEffect,
-  resource: string
-): PolicyDocument => ({
-  Version: "2012-10-17",
-  Statement: [
-    {
-      Action: "execute-api:Invoke",
-      Effect: effect,
-      Resource: [resource],
-    },
-  ],
-});
-
-const generateResponse = (
-  principalId: string,
-  effect: StatementEffect,
-  resource: string
-) => ({
-  principalId,
-  policyDocument: generatePolicyDocument(effect, resource),
-});
-
-module.exports.handler = (
-  event: APIGatewayRequestAuthorizerEventV2,
-  _: Context,
-  callback: Callback
-) => {
-  const { headers, routeArn } = event;
-
+module.exports.handler = async (event: APIGatewayRequestAuthorizerEventV2) => {
+  const { headers } = event;
   const authToken = headers?.authorization?.split(" ")[1];
 
+  console.log("Token recibido:", authToken ? "existe" : "no existe");
+
   if (!authToken) {
-    console.error("Invalid authorization bearer token or not found");
-    callback("Unauthorized, token cannot be null or undefined");
+    console.error("Token no encontrado");
+    return { isAuthorized: false };
   }
 
-  jwt.verify(authToken!, process.env.TOKEN_JWT!, (err: any, _: any) => {
-    if (err) {
-      console.warn({ err });
-      callback("Unauthorized", generateResponse("user", "Deny", routeArn));
-      return;
-    }
-    callback(null, generateResponse("user", "Allow", routeArn));
-  });
+  try {
+    const decoded = jwt.verify(authToken, process.env.TOKEN_JWT!);
+    console.log("Token válido, decoded:", JSON.stringify(decoded));
+    return { isAuthorized: true };
+  } catch (err) {
+    console.error("Token inválido:", JSON.stringify(err));
+    return { isAuthorized: false };
+  }
 };

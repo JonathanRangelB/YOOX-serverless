@@ -30,9 +30,6 @@
     "mssql": "^11.0.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.5",
-    "@babel/preset-typescript": "^7.28.5",
     "@biomejs/biome": "^1.9.4",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
@@ -40,15 +37,10 @@
     "@types/md5": "^2.3.6",
     "@types/mssql": "^9.1.11",
     "@types/node": "^22.19.18",
-    "babel-loader": "^9.2.1",
-    "esbuild": "^0.25.12",
     "globals": "^16.5.0",
     "husky": "^9.1.7",
-    "serverless": "^3.40.0",
-    "serverless-dotenv-plugin": "^6.0.0",
-    "serverless-esbuild": "^1.57.1",
-    "serverless-offline": "^13.9.0",
-    "ts-loader": "^9.5.7",
+    "serverless": "^4.35.1",
+    "serverless-offline": "^14.5.0",
     "typescript": "^5.9.3"
   },
   "pnpm": {
@@ -57,15 +49,13 @@
       "jsonpointer@<5.0.0": ">=5.0.0",
       "@azure/identity@<4.2.1": ">=4.2.1",
       "jsonpath-plus@<10.0.0": ">=10.0.0",
-      "undici@>=6.0.0 <6.21.1": ">=6.21.1",
-      "esbuild@<=0.24.2": ">=0.25.0"
+      "undici@>=6.0.0 <6.21.1": ">=6.21.1"
     },
     "onlyBuiltDependencies": [
       "@biomejs/biome",
       "@parcel/watcher",
       "aws-sdk",
       "es5-ext",
-      "esbuild",
       "serverless"
     ]
   }
