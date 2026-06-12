@@ -99,6 +99,20 @@ export function outstandingCollectionsQuery(
                                     WHERE ID_PRESTAMO IN (SELECT ID FROM CTE_PrestamosBase)
                                         AND [CANCELADO] = 'N'
                                     GROUP BY ID_PRESTAMO
+                                ),
+                                CTE_UltimaSolAprob AS (
+									SELECT ID_CLIENTE,REQUEST_NUMBER
+									FROM (
+									SELECT
+									ID_CLIENTE, REQUEST_NUMBER,
+									ROW_NUMBER() OVER(PARTITION BY ID_CLIENTE ORDER BY ID DESC ) AS RANK_NUMBER									
+									FROM 
+									LOAN_REQUEST
+									WHERE
+									LOAN_REQUEST_STATUS = 'APROBADO'
+									AND ID_CLIENTE IN (SELECT DISTINCT ID_CLIENTE FROM CTE_PrestamosBase)
+									) AS PREV_TAB
+									WHERE RANK_NUMBER=1
                                 )
 
                                 SELECT
@@ -117,13 +131,15 @@ export function outstandingCollectionsQuery(
                                     PB.[NOMBRE_GRUPO] AS [nombreGrupo],
                                     PB.[NOMBRE_GERENCIA] AS [nombreGerencia],
                                     PB.[CANTIDAD_PRESTADA] AS [montoPrestamo],
-                                    PB.[CANTIDAD_RESTANTE] AS [saldoPendiente]
+                                    PB.[CANTIDAD_RESTANTE] AS [saldoPendiente],
+                                    USA.[REQUEST_NUMBER] AS [ultimaSolicitudPrestamoAprobada]
 
                                 FROM 
                                     CTE_PrestamosBase PB
                                     LEFT JOIN [dbo].[CLIENTES] T2 ON PB.ID_CLIENTE = T2.ID
                                     LEFT JOIN CTE_DetallesPrestamos DP ON PB.ID = DP.ID_PRESTAMO
                                     LEFT JOIN CTE_UltimoPago UP ON PB.ID = UP.ID_PRESTAMO
+                                    LEFT JOIN CTE_UltimaSolAprob USA ON PB.ID_CLIENTE = USA.ID_CLIENTE
 
                                 ${whereFilterSelectedData}
 

@@ -31,6 +31,7 @@ export interface DatosAgenda {
   fechaVencimiento: Date;
   estatusPago: string;
   totalSemanasPrestamo: number;
+  ultimaSolicitudPrestamoAprobada: string;
 }
 
 export interface Group {
