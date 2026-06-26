@@ -1,13 +1,12 @@
 import { Table, Transaction } from "mssql";
-
+import { querySearchLoanToRefinance } from "../../general-data-requests/utils/querySearchLoanToRefinance";
 import { LastLoanId } from "../../helpers/table-schemas";
 import { convertDateTimeZone, convertToBase36 } from "../../helpers/utils";
-import { InsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
-import { generateNewLoanRequestTable } from "./generateNewLoanRequestTable";
+import { RolesDeUsuario, Status } from "../../helpers/utils";
 import { searchTelefonoQuery } from "../../validators/utils/querySearchData";
+import { InsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
 import { UpdateLoanRequest } from "../types/SPInsertNewLoanRequest";
-import { querySearchLoanToRefinance } from "../../general-data-requests/utils/querySearchLoanToRefinance";
-import { Status, RolesDeUsuario } from "../../helpers/utils";
+import { generateNewLoanRequestTable } from "./generateNewLoanRequestTable";
 
 export async function validateData(
   newLoanRequest: InsertNewLoanRequest,
@@ -335,11 +334,10 @@ function queryValidateData(
     id_loan_to_refinance !== undefined &&
     id_loan_to_refinance > 0
   ) {
-    const selectStatement = querySearchLoanToRefinance(
-      " t0.cantidad_restante as value "
+    queryLoanToRefinance = querySearchLoanToRefinance(
+      "t0.cantidad_restante as value",
+      `where t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance}`
     );
-    const whereStatement = ` where t0.id_cliente = ${id_cliente} and t0.id = ${id_loan_to_refinance} `;
-    queryLoanToRefinance = selectStatement + whereStatement;
   } else {
     queryLoanToRefinance = "SELECT 0";
   }

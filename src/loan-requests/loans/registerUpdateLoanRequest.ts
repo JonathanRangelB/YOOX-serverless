@@ -1,25 +1,25 @@
-import { Int, VarChar, Text, DateTime } from "mssql";
-import { DbConnector } from "../../helpers/dbConnector";
-import { LoanUpdateDate } from "../../helpers/table-schemas";
-import { UpdateLoanRequest } from "../types/SPInsertNewLoanRequest";
-import { UpdateStatusResponse } from "../types/loanRequest";
+import { DateTime, Int, Text, VarChar } from "mssql";
 import { registerNewCustomer } from "../../general-data-requests/transactions/customer/registerNewCustomer";
-import { convertDateTimeZone } from "../../helpers/utils";
 import { updateCustomer } from "../../general-data-requests/transactions/customer/updateCustomer";
 import { registerNewEndorsement } from "../../general-data-requests/transactions/endorsement/registerNewEndorsement";
 import { updateEndorsement } from "../../general-data-requests/transactions/endorsement/updateEndorsement";
-import { validateDataLoanRequestUpdate } from "../utils/validateData";
-import { LoanHeader } from "../../interfaces/loan-interface";
 import { registerNewLoan } from "../../general-data-requests/transactions/loan/registerNewLoan";
-import { Refinance } from "../../helpers/table-schemas";
 import { registerNewRefinancing } from "../../general-data-requests/transactions/refinancing/registerNewRefinancing";
 import { GenericBDRequest } from "../../general-data-requests/types/genericBDRequest";
-import { Status } from "../../helpers/utils";
-import { enqueueWAMessageOnDB } from "../../whatsapp/enqueueMessage";
-import { fullUpdateLoanReqQuery } from "../utils/queryFullUpdateLoanReq";
 import { querySearchLoanToRefinance } from "../../general-data-requests/utils/querySearchLoanToRefinance";
+import { DbConnector } from "../../helpers/dbConnector";
 import { StatusCodes } from "../../helpers/statusCodes";
+import { LoanUpdateDate } from "../../helpers/table-schemas";
+import { Refinance } from "../../helpers/table-schemas";
+import { convertDateTimeZone } from "../../helpers/utils";
+import { Status } from "../../helpers/utils";
+import { LoanHeader } from "../../interfaces/loan-interface";
+import { enqueueWAMessageOnDB } from "../../whatsapp/enqueueMessage";
+import { UpdateLoanRequest } from "../types/SPInsertNewLoanRequest";
+import { UpdateStatusResponse } from "../types/loanRequest";
 import { UpdateError } from "../utils/customErrors";
+import { fullUpdateLoanReqQuery } from "../utils/queryFullUpdateLoanReq";
+import { validateDataLoanRequestUpdate } from "../utils/validateData";
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest
@@ -97,7 +97,10 @@ export const registerUpdateLoanRequest = async (
     let cantidad_restante_anterior = 0.0;
 
     if (id_loan_to_refinance) {
-      const queryCheckIfValid = `${querySearchLoanToRefinance("t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante")} where t0.id_cliente = @id_cliente and t0.id = @id_loan_to_refinance `;
+      const queryCheckIfValid = querySearchLoanToRefinance(
+        "t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante",
+        "where t0.id_cliente = @id_cliente and t0.id = @id_loan_to_refinance"
+      );
 
       const checkIfValid = await procTransaction
         .request()
