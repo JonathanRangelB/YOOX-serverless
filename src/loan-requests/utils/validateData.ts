@@ -1,5 +1,4 @@
 import { Table, Transaction } from "mssql";
-
 import { querySearchLoanToRefinance } from "../../general-data-requests/utils/querySearchLoanToRefinance";
 import { LastLoanId } from "../../helpers/table-schemas";
 import { convertDateTimeZone, convertToBase36 } from "../../helpers/utils";
