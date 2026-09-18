@@ -1,4 +1,4 @@
-import { Bit, DateTime, Float, Int, Table, VarChar } from "mssql";
+import { Bit, DateTime, DateTime2, Float, Int, Table, VarChar } from "mssql";
 import { InsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
 
 export function generateNewLoanRequestTable(
@@ -7,7 +7,7 @@ export function generateNewLoanRequestTable(
     id: number;
     request_number: string;
     loan_request_status: string;
-    created_date: Date;
+    create_UTC_date: string
   }
 ) {
   const {
@@ -83,7 +83,7 @@ export function generateNewLoanRequestTable(
 
   const { value: tipoCalleAval } = calleA;
   const { value: estadoAval } = efa;
-  const { id, request_number, loan_request_status, created_date } =
+  const { id, request_number, loan_request_status, create_UTC_date } =
     additionalData;
   const tableNewRequestLoan = new Table("LOAN_REQUEST");
 
@@ -216,9 +216,9 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add("CANTIDAD_PAGAR", Float, { nullable: true });
   tableNewRequestLoan.columns.add("OBSERVACIONES", VarChar, { nullable: true });
   tableNewRequestLoan.columns.add("CREATED_BY", Int, { nullable: false });
-  tableNewRequestLoan.columns.add("CREATED_DATE", DateTime, {
-    nullable: false,
-  });
+  //  tableNewRequestLoan.columns.add("CREATED_DATE", DateTime, {
+  //    nullable: false,
+  //  });
   tableNewRequestLoan.columns.add("ID_LOAN_TO_REFINANCE", Int, {
     nullable: true,
   });
@@ -243,6 +243,7 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add("IS_GUARANTOR_ADDRESS_UPDATE", Bit, {
     nullable: true,
   });
+  tableNewRequestLoan.columns.add("CREATE_UTC_DATETIME", DateTime2, { nullable: true, });
 
   tableNewRequestLoan.rows.add(
     id,
@@ -297,7 +298,7 @@ export function generateNewLoanRequestTable(
     cantidad_pagar,
     observaciones || undefined,
     created_by,
-    created_date.toISOString(),
+    //created_date.toISOString(),
     id_loan_to_refinance || undefined,
     ocupacion_aval || undefined,
     gmaps_url_location || undefined,
@@ -305,7 +306,8 @@ export function generateNewLoanRequestTable(
     cruce_calles_aval || undefined,
     id_gerencia_original || undefined,
     isCustomerAddressUpdate,
-    isGuarantorAddressUpdate
+    isGuarantorAddressUpdate,
+    create_UTC_date
   );
 
   return tableNewRequestLoan;

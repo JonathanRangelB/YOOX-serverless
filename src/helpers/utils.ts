@@ -68,6 +68,17 @@ export function validatePayload(
   return { valid };
 }
 
+// NOTE: Receives two date to compare the difference in days. startDate is the minus date, endDate the greater date.
+export function compareDateInDays(
+  startDate: Date,
+  endDate: Date
+): number {
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const msDifference = endDate.getTime() - startDate.getTime();
+
+  return Math.round(msDifference / msPerDay);
+}
+
 export const REGEX_CURP: string =
   "^([A-Z][AEIOUX][A-Z]{2}\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\\d])(\\d)$";
 export const REGEX_EMAIL: string =
@@ -82,6 +93,37 @@ export const Status = {
   APROBADO: "APROBADO",
   RECHAZADO: "RECHAZADO",
 } as const;
+
+export const RevisionClassification = {
+  REVISADO: 1,
+  NO_REVISADO: 0
+} as const;
+
+export const CallStatus = {
+  LLAMADA_PENDIENTE: "LLAMADA PENDIENTE",
+  NO_LOCALIZABLE: "NO LOCALIZABLE",
+  CONTESTO: "CONTESTO"
+} as const;
+
+export const PlannerCurrentStatus = {
+  POR_DEFINIR: "POR DEFINIR",
+  EN_ESPERA: "EN ESPERA",
+  AUTORIZADO: "AUTORIZADO",
+  CANCELADO: "CANCELADO"
+} as const;
+
+export const CreditType = {
+  NUEVO: "NUEVO",
+  RENOVACION: "RENOVACION",
+  REACTIVACION: "REACTIVACION"
+} as const;
+
+export const LoanStatus = {
+  EMITIDO: "EMITIDO",
+  CANCELADO: "CANCELADO",
+  PAGADO: "PAGADO",
+  REFINANCIADO: "REFINANCIADO"
+}
 
 // NOTE: esta es una forma de definir un tipo que es igual a las claves del objeto Status
 export type Status = keyof typeof Status;

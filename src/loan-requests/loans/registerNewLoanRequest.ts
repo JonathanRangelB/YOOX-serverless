@@ -4,6 +4,7 @@ import { InsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
 import { StatusResponse } from "../types/loanRequest";
 import { validateData } from "../utils/validateData";
 import { enqueueWAMessageOnDB } from "../../whatsapp/enqueueMessage";
+import { registerNewOutstdCollection } from "../../outstanding-collections-planner/sql-transactions/registerNewOutstdCollection";
 
 export const registerNewLoanRequest = async (
   newLoanRequest: InsertNewLoanRequest
@@ -16,13 +17,17 @@ export const registerNewLoanRequest = async (
   try {
     await procTransaction.begin();
 
-    const { tableNewRequestLoan, request_number } = await validateData(
+    const { tableNewRequestLoan, request_number, loan_request_id } = await validateData(
       newLoanRequest,
       procTransaction
     );
 
     await procTransaction.request().bulk(tableNewRequestLoan);
+
+    await registerNewOutstdCollection(procTransaction, loan_request_id, newLoanRequest);
+
     await procTransaction.commit();
+
     if (newLoanRequest.formCliente.telefono_movil_cliente) {
       await enqueueWAMessageOnDB({
         message: `Hola ${newLoanRequest.formCliente.nombre_cliente} ${newLoanRequest.formCliente.apellido_paterno_cliente},\n\nHemos recibido su solicitud de préstamo con folio #${request_number} y se encuentra en revisión.\n\nFinanciera YOOX agradece su preferencia.`,

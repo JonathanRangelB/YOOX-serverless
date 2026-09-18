@@ -41,4 +41,6 @@ export interface UpdateLoanRequest {
   user_role: string;
   id_loan_to_refinance: number;
   id_gerencia_original: number;
+  modified_utc_datetime: string;
+  closed_utc_datetime: string;
 }

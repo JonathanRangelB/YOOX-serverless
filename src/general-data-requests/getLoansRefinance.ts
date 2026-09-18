@@ -18,7 +18,6 @@ module.exports.handler = async (event: APIGatewayEvent) => {
       `where t0.id_cliente = ${customerid}`
     );
 
-    console.log("query", query);
     const result = await pool.query<LoanRefinance>(query);
 
     if (result.recordset.length == 0)

@@ -1,4 +1,4 @@
-import { DateTime, Int, Text, VarChar } from "mssql";
+import { DateTime, DateTime2, Int, Text, VarChar } from "mssql";
 import { registerNewCustomer } from "../../general-data-requests/transactions/customer/registerNewCustomer";
 import { updateCustomer } from "../../general-data-requests/transactions/customer/updateCustomer";
 import { registerNewEndorsement } from "../../general-data-requests/transactions/endorsement/registerNewEndorsement";
@@ -20,6 +20,8 @@ import { UpdateStatusResponse } from "../types/loanRequest";
 import { UpdateError } from "../utils/customErrors";
 import { fullUpdateLoanReqQuery } from "../utils/queryFullUpdateLoanReq";
 import { validateDataLoanRequestUpdate } from "../utils/validateData";
+import { updatePlannerFromLoanReq } from "../../outstanding-collections-planner/sql-transactions/updatePlannerFromLoanReq";
+import { UpdateOutstCollPlanner } from "../../outstanding-collections-planner/types/SPUpdateOutstCollPlanner.interface";
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest
@@ -35,7 +37,7 @@ export const registerUpdateLoanRequest = async (
       .request()
       .input("ID_LOAN_REQUEST", Int, updateLoanRequest.id)
       .query<LoanUpdateDate>(
-        "SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;"
+        "SELECT id as [loan_id], request_number, loan_request_status, GETUTCDATE() as [current_date_server], GETUTCDATE() as [current_UTC_datetime_server] FROM LOAN_REQUEST WHERE ID = @ID_LOAN_REQUEST;"
       );
 
     if (!queryResult.recordset[0]) {
@@ -65,6 +67,8 @@ export const registerUpdateLoanRequest = async (
       queryResult.recordset[0].current_date_server,
       "America/Mexico_City"
     ) as Date;
+
+    const currentUTCDateTimeServer = queryResult.recordset[0].current_UTC_datetime_server as string;
 
     const {
       id: id_loan_request,
@@ -140,16 +144,12 @@ export const registerUpdateLoanRequest = async (
       updateQueryColumns += ` SET 
                         LOAN_REQUEST_STATUS = @newLoanRequestStatus 
                         ,CLOSED_BY = @closed_by_id_usuario 
-                        ,CLOSED_DATE = @closed_date_current_local_date
+                        ,CLOSED_UTC_DATETIME = @closed_current_UTC_datetime
         `;
 
       poolRequest.input("newLoanRequestStatus", VarChar, newLoanRequestStatus);
       poolRequest.input("closed_by_id_usuario", Int, id_usuario);
-      poolRequest.input(
-        "closed_date_current_local_date",
-        DateTime,
-        current_local_date.toISOString()
-      );
+      poolRequest.input("closed_current_UTC_datetime", DateTime2, currentUTCDateTimeServer);
 
       if (observaciones) {
         updateQueryColumns += ",OBSERVACIONES = @observaciones";
@@ -169,15 +169,11 @@ export const registerUpdateLoanRequest = async (
 
       updateQueryColumns += `
         ,MODIFIED_BY = @modified_by_id_usuario
-        ,MODIFIED_DATE = @modified_date_current_local_date
+        ,MODIFIED_UTC_DATETIME = @modified_current_UTC_datetime
       `;
 
       poolRequest.input("modified_by_id_usuario", Int, id_usuario);
-      poolRequest.input(
-        "modified_date_current_local_date",
-        DateTime,
-        current_local_date.toISOString()
-      );
+      poolRequest.input("modified_current_UTC_datetime", DateTime2, currentUTCDateTimeServer);
     } else if (currentLoanRequestStatus === Status.EN_REVISION) {
       let idClienteGenerado;
       let idPrestamoGenerado;
@@ -194,23 +190,18 @@ export const registerUpdateLoanRequest = async (
           );
 
           updateQueryColumns += ` ,MODIFIED_BY = @modified_by_id_usuario
-                                  ,MODIFIED_DATE = @modified_date_current_local_date
+                                  ,MODIFIED_UTC_DATETIME = @modified_current_UTC_datetime
           `;
 
           poolRequest.input("modified_by_id_usuario", Int, id_usuario);
-          poolRequest.input(
-            "modified_date_current_local_date",
-            DateTime,
-            current_local_date.toISOString()
-          );
-
+          poolRequest.input("modified_current_UTC_datetime", DateTime2, currentUTCDateTimeServer);
           break;
 
         case Status.RECHAZADO:
           updateQueryColumns = ` SET 
                         LOAN_REQUEST_STATUS = @newLoanRequestStatus
                         ,CLOSED_BY = @closed_by_id_usuario
-                        ,CLOSED_DATE = @closed_date_current_local_date
+                        ,CLOSED_UTC_DATETIME = @closed_current_UTC_datetime
                                   `;
 
           poolRequest.input(
@@ -219,11 +210,7 @@ export const registerUpdateLoanRequest = async (
             newLoanRequestStatus
           );
           poolRequest.input("closed_by_id_usuario", Int, id_usuario);
-          poolRequest.input(
-            "closed_date_current_local_date",
-            DateTime,
-            current_local_date
-          );
+          poolRequest.input("closed_current_UTC_datetime", DateTime2, currentUTCDateTimeServer);
 
           if (observaciones) {
             updateQueryColumns += ` 
@@ -356,7 +343,7 @@ export const registerUpdateLoanRequest = async (
                                  ,ID_DOMICILIO_CLIENTE = (SELECT ID_DOMICILIO FROM CLIENTES WHERE ID = @idClienteGenerado_id_domicilio_cliente)
                                  ,ID_DOMICILIO_AVAL = (SELECT ID_DOMICILIO FROM AVALES WHERE ID_AVAL = @datoscliente_id_aval_id_domicilio_aval)
                                  ,CLOSED_BY = @closed_by_id_usuario
-                                 ,CLOSED_DATE = @closed_date_current_local_date
+                                 ,CLOSED_UTC_DATETIME = @closed_current_UTC_datetime
                                   `;
 
           poolRequest.input("datosCliente_id_aval", Int, datosCliente.id_aval);
@@ -373,11 +360,7 @@ export const registerUpdateLoanRequest = async (
             datosCliente.id_aval
           );
           poolRequest.input("closed_by_id_usuario", Int, id_usuario);
-          poolRequest.input(
-            "closed_date_current_local_date",
-            DateTime,
-            current_local_date.toISOString()
-          );
+          poolRequest.input("closed_current_UTC_datetime", DateTime2, currentUTCDateTimeServer);
 
           break;
 
@@ -391,7 +374,7 @@ export const registerUpdateLoanRequest = async (
 
     const updateQueryString = `UPDATE LOAN_REQUEST ${updateQueryColumns} WHERE ID = @id_loan_request;`;
     poolRequest.input("id_loan_request", Int, id_loan_request);
-
+    console.log(updateQueryString);
     const updateResult = await poolRequest.query(updateQueryString);
 
     if (!updateResult.rowsAffected[0]) {
@@ -400,6 +383,31 @@ export const registerUpdateLoanRequest = async (
         StatusCodes.BAD_REQUEST
       );
     }
+
+    //Begin of updating in the table Outstanding Collections Planner
+
+    const updateOutstCollPlanner: UpdateOutstCollPlanner = {
+      loan_request_id: id_loan_request,
+      management_id: updateLoanRequest.id_gerencia_original,
+      collection_id_agent: id_agente,
+      customer_id: id_cliente,
+      customer_name: `${datosCliente.nombre_cliente} ${datosCliente.apellido_paterno_cliente} ${datosCliente.apellido_materno_cliente}`,
+      requested_amount: cantidad_prestada,
+      customer_neighborhood: datosCliente.colonia_cliente,
+      customer_county: datosCliente.municipio_cliente,
+      group_id: id_grupo_original,
+    }
+
+    const updatePlannerResult = await updatePlannerFromLoanReq(procTransaction, updateOutstCollPlanner, newLoanRequestStatus);
+
+    if (updatePlannerResult.generatedId <= 0) {
+      throw new UpdateError(
+        "No se actualizó el registro del Planificador de cobranza",
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    //End of updating in the table Outstanding Collections Planner
 
     await procTransaction.commit();
 
