@@ -1,4 +1,3 @@
-
 export interface UpdateOutstCollPlanner {
   loan_request_id: number;
   revised_record?: number;
@@ -16,4 +15,7 @@ export interface UpdateOutstCollPlanner {
   customer_neighborhood?: string;
   customer_county?: string;
   group_id?: number;
+  remote_utc_local_datetime?: Date;
+  last_change_loan_request_utc_date?: string;
 }
+

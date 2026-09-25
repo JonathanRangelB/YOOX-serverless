@@ -11,31 +11,60 @@ export const getCreditTypeCollection = async (
     const queryStatement = `WITH TAB AS (
                                 SELECT
                                 ID,
-                                FECHA_INICIAL,
                                 STATUS,
                                 CAST(GETDATE() AS DATE)  AS [CURRENT_DATE],
-                                ROW_NUMBER () OVER (PARTITION BY STATUS ORDER BY FECHA_INICIAL DESC ) AS [RANK_NUMBER]
+                                ROW_NUMBER () OVER (PARTITION BY STATUS ORDER BY ID DESC ) AS [RANK_NUMBER]
                                 
                                 FROM
                                 PRESTAMOS
                                 
-                                WHERE ID_CLIENTE = @customerId
+                                WHERE ID_CLIENTE=@customerId
                                 AND STATUS <> 'CANCELADO'
-                              )
+                              ),
+                              
+                            TAB_PY AS (
+
+                                SELECT 
+                                ID_PRESTAMO
+                                ,ID_CLIENTE
+                                ,[ULTIMA_FECHA_PAGO_UTC] 
+
+                                FROM (
+
+                                SELECT 
+                                p.ID_PRESTAMO
+                                , p.ID_CLIENTE
+                                , p.NUMERO_SEMANA
+                                , CONVERT(DATE, p.DATETIME_STAMP_SERVER) AS [ULTIMA_FECHA_PAGO_UTC]  
+                                ,ROW_NUMBER() OVER (PARTITION BY ID_CLIENTE, ID_PRESTAMO ORDER BY p.NUMERO_SEMANA DESC) AS RANK_NUMBER
+
+                                FROM 
+                                PAGOS p 
+                              ) AS T_PAGOS
+
+                              WHERE
+                                RANK_NUMBER=1
+                                AND ID_CLIENTE=@customerId
+
+                            )
+
                               
                               SELECT
-                                ID,
-                                FECHA_INICIAL,
-                                STATUS,
-                                [CURRENT_DATE],
-                                DATEDIFF(DAY,FECHA_INICIAL, CURRENT_DATE) AS [DAYS_DIFFERENCE]
+                                A.ID,
+                                B.[ULTIMA_FECHA_PAGO_UTC],
+                                A.STATUS,
+                                A.[CURRENT_DATE],
+                                DATEDIFF(DAY,B.[ULTIMA_FECHA_PAGO_UTC], A.[CURRENT_DATE]) AS [DAYS_DIFFERENCE]
                               FROM
-                                TAB
+                                TAB A
+                              LEFT JOIN TAB_PY B ON A.ID=B.ID_PRESTAMO
+                              
 
                               WHERE
                                 [RANK_NUMBER] = 1
 
-                              ORDER BY FECHA_INICIAL DESC
+                              ORDER BY ID DESC
+	
                               `
 
 
@@ -56,7 +85,7 @@ export const getCreditTypeCollection = async (
     }
 
     const loanHistorical = recordSet?.find(item => [LoanStatus.PAGADO as string, LoanStatus.REFINANCIADO as string].includes(item.STATUS));
-    const daysDifference = loanHistorical.DAYS_DIFFERENCE;
+    const daysDifference = +loanHistorical.DAYS_DIFFERENCE;
 
     if (daysDifference > 120)
       return { message: CreditType.NUEVO, generatedId: customerId };

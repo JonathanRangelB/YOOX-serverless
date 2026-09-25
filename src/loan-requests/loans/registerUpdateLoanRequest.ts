@@ -396,9 +396,10 @@ export const registerUpdateLoanRequest = async (
       customer_neighborhood: datosCliente.colonia_cliente,
       customer_county: datosCliente.municipio_cliente,
       group_id: id_grupo_original,
+      last_change_loan_request_utc_date: currentUTCDateTimeServer,
     }
 
-    const updatePlannerResult = await updatePlannerFromLoanReq(procTransaction, updateOutstCollPlanner, newLoanRequestStatus);
+    const updatePlannerResult = await updatePlannerFromLoanReq(procTransaction, updateOutstCollPlanner, newLoanRequestStatus, cantidad_restante_anterior);
 
     if (updatePlannerResult.generatedId <= 0) {
       throw new UpdateError(

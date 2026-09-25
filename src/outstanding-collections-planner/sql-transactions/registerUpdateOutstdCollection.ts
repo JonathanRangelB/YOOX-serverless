@@ -1,12 +1,13 @@
 import sql, { Transaction } from "mssql";
 import { GenericBDRequest } from "../../general-data-requests/types/genericBDRequest";
 import { StatusCodes } from "../../helpers/statusCodes";
-import { LoanStatus, PlannerCurrentStatus, Status } from "../../helpers/utils";
-import { UpdateOutstCollPlanner } from "../types/SPUpdateOutstCollPlanner.interface";
+import { LoanStatus, PlannerCurrentStatus, RolesDeUsuario, Status } from "../../helpers/utils";
 import { getDiscountAmountDebt } from "../utils/getDiscountAmountDebt";
+import { CollectionsPlannerPatchRequest } from "../types/PayloadInterfacePlanner.interface";
+
 export const registerUpdateOutstdCollection = async (
   procTransaction: Transaction,
-  outstdColl: UpdateOutstCollPlanner
+  outstdColl: CollectionsPlannerPatchRequest
 ): Promise<GenericBDRequest> => {
   try {
 
@@ -18,17 +19,57 @@ export const registerUpdateOutstdCollection = async (
       guarantor_call_status,
       current_status,
       observations,
-      modified_by,
-      management_id
+      modified_by
     } = outstdColl;
 
-    if (!management_id || !loan_request_id) {
+    if (!loan_request_id) {
       return {
         message: "Registro no válido",
         generatedId: 0,
         error: StatusCodes.NOT_FOUND
       }
     }
+
+    //Verify that user modifying has the right user role and it's valid
+    const queryUserStr = `SELECT ID, NOMBRE, ROL, ACTIVO FROM USUARIOS WHERE ID=@idUser `;
+    const queryUser = await procTransaction
+      .request()
+      .input("idUser", sql.Int, modified_by)
+      .query(queryUserStr)
+
+    //Verify user exists
+    const recordSetUser = queryUser.recordset;
+
+    if (recordSetUser.length <= 0) {
+      return {
+        message: `El usuario ${modified_by} no existe`,
+        generatedId: 0,
+        error: StatusCodes.NOT_FOUND
+      }
+    }
+
+    const userRole = recordSetUser[0].ROL as string;
+    const userIsActive = +recordSetUser[0].ACTIVO;
+    const userName = recordSetUser[0].NOMBRE as string;
+
+    //Verify user is active
+    if (!userIsActive) {
+      return {
+        message: `El usuario ${modified_by} - ${userName} no se encuentra habilitado en el sistema`,
+        generatedId: 0,
+        error: StatusCodes.NOT_FOUND
+      }
+    }
+
+    //Verify user has the right role
+    if ([RolesDeUsuario.LIDER_DE_GRUPO as string, RolesDeUsuario.COBRADOR as string].includes(userRole)) {
+      return {
+        message: `El usuario ${modified_by} - ${userName} no tiene privilegios para modificar este registro`,
+        generatedId: 0,
+        error: StatusCodes.NOT_FOUND
+      }
+    }
+    //*******
 
     //Concurrency: Loan request is valid
     const querySetLoanReq = await procTransaction
@@ -38,6 +79,7 @@ export const registerUpdateOutstdCollection = async (
 
     const recordSetLoanReq = querySetLoanReq.recordset;
 
+    //Verify the record exists
     if (recordSetLoanReq.length <= 0) {
       return {
         message: "No se encontró la solicitud de préstamo o no es válida.",
@@ -49,6 +91,7 @@ export const registerUpdateOutstdCollection = async (
     const loanRequestStatus = recordSetLoanReq[0].LOAN_REQUEST_STATUS as string;
     const loanRequestNumber = recordSetLoanReq[0].REQUEST_NUMBER as string;
 
+    //Verify the loan has any open status 
     if ([LoanStatus.CANCELADO as string, LoanStatus.PAGADO as string, LoanStatus.REFINANCIADO as string].includes(loanRequestStatus)) {
       return {
         message: `La solicitud de préstamo ${loanRequestNumber} está cerrada con estatus ${loanRequestStatus}`,
@@ -60,10 +103,26 @@ export const registerUpdateOutstdCollection = async (
     //*******
 
     //Verify the current record in planner is valid    
+    //
+    const queryRecord = `SELECT
+                          LOAN_REQUEST_ID
+                          ,CURRENT_STATUS
+                          ,CUSTOMER_ID
+                          ,GETUTCDATE() AS [SERVER_DATETIME]  
+                          ,CAPTURED_ACCOUNT
+
+                        FROM 
+                          OUTSTANDING_COLLECTIONS_PLANNER 
+
+                        WHERE 
+                          LOAN_REQUEST_ID=@loanRequestId 
+
+                          `
+
     const queryOutstnPlannerRecord = await procTransaction
       .request()
       .input("loanRequestId", sql.Int, loan_request_id)
-      .query("SELECT LOAN_REQUEST_ID, CURRENT_STATUS, CUSTOMER_ID, GETUTCDATE() AS [SERVER_DATETIME]  FROM OUTSTANDING_COLLECTIONS_PLANNER WHERE LOAN_REQUEST_ID=@loanRequestId")
+      .query(queryRecord);
 
     const recordSetOutstnPlanner = queryOutstnPlannerRecord.recordset;
 
@@ -77,41 +136,40 @@ export const registerUpdateOutstdCollection = async (
 
     const currentStatusOutstnPlanner = recordSetOutstnPlanner[0].CURRENT_STATUS as string;
 
-    if ([PlannerCurrentStatus.AUTORIZADO as string, PlannerCurrentStatus.CANCELADO].includes(currentStatusOutstnPlanner)) {
+    if (PlannerCurrentStatus.CANCELADO as string === currentStatusOutstnPlanner) {
       return {
-        message: `El registro ${loanRequestNumber} ya está cerrado con estatus ${current_status} en el Planificador de cobranza`,
+        message: `El registro ${loanRequestNumber} ya está cerrado con estatus ${currentStatusOutstnPlanner} en el Planificador de cobranza`,
+        generatedId: 0,
+        error: StatusCodes.BAD_REQUEST
+      }
+    }
+    const capturedAccount = +recordSetOutstnPlanner[0].CAPTURED_ACCOUNT;
+
+    if (!capturedAccount) {
+      return {
+        message: `El registro ${loanRequestNumber} ya está marcado como CUENTA CAPTURADA en el Planificador de cobranza`,
+        generatedId: 0,
+        error: StatusCodes.BAD_REQUEST
+      }
+    }
+
+    if (current_status === PlannerCurrentStatus.AUTORIZADO as string && !revised_record) {
+      return {
+        message: `El registro ${loanRequestNumber} no ha sido marcado como REVISADO en el Planificador de cobranza`,
+        generatedId: 0,
+        error: StatusCodes.BAD_REQUEST
+      }
+    }
+
+    if (current_status === PlannerCurrentStatus.AUTORIZADO as string && !authorized_amount) {
+      return {
+        message: `La cantidad de préstamo autorizada en ${loanRequestNumber} no es válida`,
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST
       }
     }
 
     //*******
-
-    //Verify that user modifying is the same that office administrative user
-    const outstnCollectionRecord = await procTransaction
-      .request()
-      .input("idAdmUsr", sql.Int, modified_by)
-      .query("SELECT ID_GERENCIA FROM GERENCIAS_GRUPOS WHERE ID_ADMINISTRATIVE_OFFICER_USER=@idAdmUsr")
-
-    const recordSetManagement = outstnCollectionRecord.recordset;
-
-    if (recordSetManagement.length <= 0) {
-      return {
-        message: "El usuario ${modified_by} no tiene gerencias asignadas",
-        generatedId: 0,
-        error: StatusCodes.NOT_FOUND
-      }
-    }
-
-    const userIsAdmManager = recordSetManagement?.some(item => item.ID_GERENCIA === management_id);
-
-    if (!userIsAdmManager) {
-      return {
-        message: `El usuario ${modified_by} no administra la gerencia ${management_id}`,
-        generatedId: 0,
-        error: StatusCodes.NOT_FOUND
-      }
-    }
 
     //Get all the necessary values for the update
 
@@ -136,8 +194,12 @@ export const registerUpdateOutstdCollection = async (
         discount_amount_debt = +discountResult.message;
     }
 
-    const budget = authorized_amount - discount_amount_debt;
+    let budget = 0.0;
 
+    if (current_status === PlannerCurrentStatus.AUTORIZADO) {
+
+      budget = authorized_amount - discount_amount_debt;
+    }
     //Begin the update of the outstnCollectionRecord
 
     const poolRequest = procTransaction.request();
@@ -145,13 +207,6 @@ export const registerUpdateOutstdCollection = async (
     switch (current_status) {
       case PlannerCurrentStatus.AUTORIZADO:
         poolRequest.input("realInversion", sql.Float, budget);
-        poolRequest.input("modifiedBy", sql.Int, modified_by);
-        break;
-
-      case PlannerCurrentStatus.EN_ESPERA:
-      case PlannerCurrentStatus.POR_DEFINIR:
-        poolRequest.input("dateTimeServer", sql.DateTime2, current_UTC_datetime_server);
-        poolRequest.input("modifiedBy", sql.Int, modified_by);
         break;
     }
 
@@ -168,6 +223,8 @@ export const registerUpdateOutstdCollection = async (
       poolRequest.input("currentStatus", sql.VarChar, current_status);
       poolRequest.input("budget", sql.Float, budget);
       poolRequest.input("observations", sql.VarChar, observations);
+      poolRequest.input("dateTimeServer", sql.DateTime2, current_UTC_datetime_server);
+      poolRequest.input("modifiedBy", sql.Int, modified_by);
     }
 
     poolRequest.input("loanRequestId", sql.Int, loan_request_id);
@@ -188,8 +245,8 @@ export const registerUpdateOutstdCollection = async (
       const observationsLoanReq = `${loanRequestObservations}
 
                                     RECHAZADO CON CANCELACIÓN DEL REGISTRO ${loanRequestNumber} EN EL PLANIFICADOR DE COBRANZA
-                                    FECHA DEL SERVIDOR: ${current_UTC_datetime_server}
-                                    ID DEL USUARIO: ${modified_by}
+                                    FECHA Y HORA DEL SERVIDOR: ${current_UTC_datetime_server}
+                                    USUARIO: ${modified_by} - ${userName}
                                     `;
 
       const queryLoanRejected = ` UPDATE
@@ -253,15 +310,7 @@ function createQuery(
 
     case PlannerCurrentStatus.AUTORIZADO:
       caseString = `,REAL_INVERSION = @realInversion
-                    ,MODIFIED_BY = @modifiedBy
                               `;
-      break;
-
-    case PlannerCurrentStatus.EN_ESPERA:
-    case PlannerCurrentStatus.POR_DEFINIR:
-      caseString = `,LAST_CHANGE_UTC_DATE = @dateTimeServer
-                    ,MODIFIED_BY = @modifiedBy`
-
       break;
   }
 
@@ -282,6 +331,8 @@ function createQuery(
                                     ,CURRENT_STATUS = @currentStatus
                                     ,BUDGET = @budget
                                     ,OBSERVATIONS = @observations
+                                    ,LAST_CHANGE_UTC_DATE = @dateTimeServer
+                                    ,MODIFIED_BY = @modifiedBy
                                     ${caseString}
 
                                   WHERE

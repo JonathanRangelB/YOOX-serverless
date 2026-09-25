@@ -235,6 +235,20 @@ functions:
           authorizer:
             name: customAuthorizer
 
+  collectionSchedule:
+    handler: ./src/outstanding-collections-planner/collectionsPlanner.handler
+    events:
+      - httpApi:
+          method: post
+          path: /v1/collection-schedule
+          authorizer:
+            name: customAuthorizer
+      - httpApi:
+          method: patch
+          path: /v1/collection-schedule/{loan_request_id}
+          authorizer:
+            name: customAuthorizer
+
   customAuthorizer:
     handler: ./src/authorizer/auth.handler
 

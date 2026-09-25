@@ -15,7 +15,6 @@ export const registerNewOutstdCollection = async (
 
     const {
       formCliente,
-      cantidad_prestada: authorized_amount
     } = loanRequestObject;
 
     const {
@@ -45,8 +44,6 @@ export const registerNewOutstdCollection = async (
         credit_type = CreditType.NUEVO as string;
     }
 
-    const budget = authorized_amount - discount_amount;
-
     const queryInsert = `INSERT INTO OUTSTANDING_COLLECTIONS_PLANNER (
                             LOAN_REQUEST_ID
                             ,LOAN_REQUEST_NUMBER
@@ -57,12 +54,9 @@ export const registerNewOutstdCollection = async (
                             ,CUSTOMER_NAME
                             ,CREDIT_TYPE
                             ,REQUESTED_AMOUNT
-                            ,AUTHORIZED_AMOUNT
                             ,DISCOUNT_AMOUNT
                             ,CUSTOMER_NEIGHBORHOOD
                             ,CUSTOMER_COUNTY
-                            ,BUDGET
-                            ,REAL_INVERSION
                             ,GROUP_ID
                             ,MANAGEMENT_ID
                           )
@@ -76,13 +70,10 @@ export const registerNewOutstdCollection = async (
                             ,LOAN_REQUEST.[ID_CLIENTE]
                             ,LOAN_REQUEST.[NOMBRE_CLIENTE] + ' ' + LOAN_REQUEST.[APELLIDO_PATERNO_CLIENTE] + ' ' + LOAN_REQUEST.[APELLIDO_MATERNO_CLIENTE]
                             ,'${credit_type}'
-                            ,LOAN_REQUEST.[CANTIDAD_PRESTADA]
-                            ,LOAN_REQUEST.[CANTIDAD_PRESTADA]
+                            ,LOAN_REQUEST.[CANTIDAD_PRESTADA]                            
                             ,${discount_amount}
                             ,LOAN_REQUEST.[COLONIA_CLIENTE]
                             ,LOAN_REQUEST.[MUNICIPIO_CLIENTE]
-                            ,${budget}
-                            ,0.00
                             ,LOAN_REQUEST.ID_GRUPO_ORIGINAL
                             ,LOAN_REQUEST.ID_GERENCIA_ORIGINAL
                             

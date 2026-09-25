@@ -4,7 +4,7 @@ import {
   PlannerCurrentStatus
 } from "../../helpers/utils";
 
-export const updateOutstCollPlannerSchema = {
+export const CollectionsPlannerPatchRequestSchema = {
   type: "object",
 
   properties: {
@@ -15,7 +15,7 @@ export const updateOutstCollPlannerSchema = {
       enum: Object.values(RevisionClassification)
     },
 
-    authorized_amount: { type: "number", minimum: 1000 },
+    authorized_amount: { type: "number" },
 
     primary_borrower_call_status: {
       type: "string",
@@ -43,7 +43,6 @@ export const updateOutstCollPlannerSchema = {
 
     remote_utc_local_datetime: { type: "string", format: "date-time" },
 
-    management_id: { type: "number", minimum: 1 },
   },
 
   required: [
@@ -55,9 +54,42 @@ export const updateOutstCollPlannerSchema = {
     "current_status",
     "modified_by",
     "remote_utc_local_datetime",
-    "management_id"
   ],
+
+  // If current_status === "AUTORIZADO" → authorized_amount must be >= 1000
+  if: {
+    properties: {
+      current_status: {
+        enum: [
+          PlannerCurrentStatus.AUTORIZADO as string,
+          PlannerCurrentStatus.EN_ESPERA as string,
+          PlannerCurrentStatus.POR_DEFINIR as string
+        ]
+      },
+    },
+    required: ["current_status"],
+  },
+  then: {
+    properties: {
+      authorized_amount: { type: "number", minimum: 1000 },
+    },
+    required: ["authorized_amount"],
+  },
 
   additionalProperties: false,
 
+};
+
+
+export const CollectionsPlannerPostRequestSchema = {
+
+  type: "object",
+
+  properties: {
+    id_user: { type: "number", minimum: 1 },
+  },
+
+  required: ["id_user"],
+
+  additionalProperties: false,
 };

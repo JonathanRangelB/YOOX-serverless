@@ -3,11 +3,13 @@ import { GenericBDRequest } from "../../general-data-requests/types/genericBDReq
 import { StatusCodes } from "../../helpers/statusCodes";
 import { Status } from "../../helpers/utils";
 import { UpdateOutstCollPlanner } from "../types/SPUpdateOutstCollPlanner.interface";
+import { getDiscountAmountDebt } from "../utils/getDiscountAmountDebt";
 
 export const updatePlannerFromLoanReq = async (
   procTransaction: Transaction,
   outstdColl: UpdateOutstCollPlanner,
-  loanRequestStatus: string
+  loanRequestStatus: string,
+  amountToRefinance: number
 ): Promise<GenericBDRequest> => {
   try {
     const {
@@ -20,9 +22,17 @@ export const updatePlannerFromLoanReq = async (
       customer_neighborhood,
       customer_county,
       group_id,
+      last_change_loan_request_utc_date
     } = outstdColl;
 
     let queryPlannerUpdate = "";
+
+    let discountAmount = 0.0
+
+    if (loanRequestStatus === Status.APROBADO as string)
+      discountAmount = amountToRefinance;
+    else if (customer_id && [Status.ACTUALIZAR as string, Status.EN_REVISION as string].includes(loanRequestStatus))
+      getDiscountAmountDebt(procTransaction, customer_id);
 
     switch (loanRequestStatus) {
       case Status.APROBADO:
@@ -41,7 +51,8 @@ export const updatePlannerFromLoanReq = async (
                                   ,CAPTURED_ACCOUNT=1
                                   ,ACCOUNTING_DATE=(SELECT FECHA_INICIAL FROM LOAN_REQUEST WHERE ID=${loan_request_id})
                                   ,CLOSE_UTC_DATETIME_STAMP=GETUTCDATE()
-
+                                  ,DISCOUNT_AMOUNT=@discountAmount
+                                  ,BUDGET=AUTHORIZED_AMOUNT - ${discountAmount}
                               `;
         break;
       case Status.RECHAZADO:
@@ -62,6 +73,9 @@ export const updatePlannerFromLoanReq = async (
                                   ,CUSTOMER_COUNTY=@customer_county
                                   ,GROUP_ID=@group_id
                                   ,MANAGEMENT_ID=@management_id
+                                  ,LAST_CHANGE_LOAN_REQUEST_UTC_DATE=@last_change_loan_request_utc_date
+                                  ,DISCOUNT_AMOUNT=@discountAmount
+
                               `;
         break;
     }
@@ -71,7 +85,7 @@ export const updatePlannerFromLoanReq = async (
 
     const poolRequest = procTransaction.request();
 
-    if (loanRequestStatus != Status.RECHAZADO) {
+    if (loanRequestStatus != Status.RECHAZADO as string) {
       poolRequest.input("collection_id_agent", sql.Int, collection_id_agent);
       poolRequest.input("customer_id", sql.Int, customer_id);
       poolRequest.input("customer_name", sql.VarChar, customer_name);
@@ -80,6 +94,11 @@ export const updatePlannerFromLoanReq = async (
       poolRequest.input("customer_county", sql.VarChar, customer_county);
       poolRequest.input("group_id", sql.Int, group_id);
       poolRequest.input("management_id", sql.Int, management_id);
+      poolRequest.input("discountAmount", sql.Float, discountAmount);
+    }
+
+    if ([Status.ACTUALIZAR as string, Status.EN_REVISION as string].includes(loanRequestStatus)) {
+      poolRequest.input("last_change_loan_request_utc_date", sql.DateTime2, last_change_loan_request_utc_date);
     }
 
     poolRequest.input("loanRequestId", sql.Int, loan_request_id);
