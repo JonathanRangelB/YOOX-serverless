@@ -216,9 +216,6 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add("CANTIDAD_PAGAR", Float, { nullable: true });
   tableNewRequestLoan.columns.add("OBSERVACIONES", VarChar, { nullable: true });
   tableNewRequestLoan.columns.add("CREATED_BY", Int, { nullable: false });
-  //  tableNewRequestLoan.columns.add("CREATED_DATE", DateTime, {
-  //    nullable: false,
-  //  });
   tableNewRequestLoan.columns.add("ID_LOAN_TO_REFINANCE", Int, {
     nullable: true,
   });
@@ -298,7 +295,6 @@ export function generateNewLoanRequestTable(
     cantidad_pagar,
     observaciones || undefined,
     created_by,
-    //created_date.toISOString(),
     id_loan_to_refinance || undefined,
     ocupacion_aval || undefined,
     gmaps_url_location || undefined,

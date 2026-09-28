@@ -37,7 +37,7 @@ export const clearOldRecordsCollPlanner = async (
     const poolRequest = await DbConnector.getInstance().connection;
     const procTransaction = poolRequest.transaction();
 
-    procTransaction.begin();
+    await procTransaction.begin();
 
     const queryDaysDiffResult = await procTransaction
       .request()
@@ -72,24 +72,11 @@ export const clearOldRecordsCollPlanner = async (
       }
     }
 
-    const clearTableResult = await procTransaction
+    await procTransaction
       .request()
       .input("idUser", sql.Int, idUser)
       .input("tableName", sql.VarChar, tableName)
       .query(clearTableStr);
-
-    const clearTableRecordSet = clearTableResult.recordset;
-
-    if (!clearTableRecordSet.length) {
-
-      await procTransaction.rollback();
-
-      return {
-        message: `Tabla ${tableName} no pudo ser actualizada`,
-        generatedId: 0,
-        error: StatusCodes.BAD_REQUEST
-      }
-    }
 
     await procTransaction.commit();
 

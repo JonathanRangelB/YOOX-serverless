@@ -7,6 +7,15 @@ export const getDiscountAmountDebt = async (
   procTransaction: Transaction,
   customerId: number
 ): Promise<GenericBDRequest> => {
+
+  if (!customerId) {
+    return {
+      message: "Invalid user id",
+      generatedId: 0,
+      error: StatusCodes.BAD_REQUEST
+    }
+  }
+
   try {
     const queryStatement = querySearchLoanToRefinance(" top 1 t0.id, t0.id_cliente, t0.cantidad_restante as [CANTIDAD_RESTANTE] ", " where t0.id_cliente = @customerId ")
     console.log(queryStatement);
@@ -17,7 +26,7 @@ export const getDiscountAmountDebt = async (
     const recordSet = sqlResponse.recordset;
 
     if (recordSet.length <= 0) {
-      return { message: "", generatedId: 0 };
+      return { message: "0.0", generatedId: 0 };
     }
 
     const debtAmount = recordSet[0].CANTIDAD_RESTANTE as string;

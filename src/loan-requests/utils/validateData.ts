@@ -1,7 +1,7 @@
 import sql, { Table, Transaction } from "mssql";
 import { querySearchLoanToRefinance } from "../../general-data-requests/utils/querySearchLoanToRefinance";
 import { LastLoanId } from "../../helpers/table-schemas";
-import { convertDateTimeZone, convertToBase36, PlannerCurrentStatus } from "../../helpers/utils";
+import { convertToBase36, PlannerCurrentStatus } from "../../helpers/utils";
 import { RolesDeUsuario, Status } from "../../helpers/utils";
 import { searchTelefonoQuery } from "../../validators/utils/querySearchData";
 import { InsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
@@ -140,7 +140,6 @@ export async function validateData(
     id,
     request_number,
     loan_request_status,
-    //created_date: horaLocal as Date,
     create_UTC_date: createdUTCDate,
   });
 

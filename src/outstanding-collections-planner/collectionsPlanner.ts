@@ -8,6 +8,7 @@ import { getCollectionsList } from "./sql-transactions/getCollectionPlanner";
 import { CollectionsPlannerPatchRequest, CollectionsPlannerPostRequest } from "./types/PayloadInterfacePlanner.interface";
 import { RolesDeUsuario } from "../helpers/utils";
 import { validateUserRole } from "../secure-data-access/validateUserRole";
+import { clearOldRecordsCollPlanner } from "./sql-transactions/clearOldRecordsOutstdPlannerTable";
 
 export const handler = async (event: any) => {
   try {
@@ -45,6 +46,10 @@ export const handler = async (event: any) => {
       if (!userRoleResponse.generatedId) {
         return generateJsonResponse({ message: userRoleResponse.message }, StatusCodes.NOT_FOUND);
       }
+
+      const clearResult = await clearOldRecordsCollPlanner(id_user);
+
+      console.log(clearResult.message);
 
       const recordSet = await getCollectionsList();
 

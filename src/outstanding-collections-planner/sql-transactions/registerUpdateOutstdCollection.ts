@@ -145,7 +145,7 @@ export const registerUpdateOutstdCollection = async (
     }
     const capturedAccount = +recordSetOutstnPlanner[0].CAPTURED_ACCOUNT;
 
-    if (!capturedAccount) {
+    if (capturedAccount) {
       return {
         message: `El registro ${loanRequestNumber} ya está marcado como CUENTA CAPTURADA en el Planificador de cobranza`,
         generatedId: 0,
@@ -194,12 +194,16 @@ export const registerUpdateOutstdCollection = async (
         discount_amount_debt = +discountResult.message;
     }
 
-    let budget = 0.0;
-
-    if (current_status === PlannerCurrentStatus.AUTORIZADO) {
-
-      budget = authorized_amount - discount_amount_debt;
+    if (discount_amount_debt > authorized_amount) {
+      return {
+        message: `La cantidad de descuento no puede ser mayor a la cantidad autorizada`,
+        generatedId: 0,
+        error: StatusCodes.BAD_REQUEST
+      }
     }
+
+    const budget = authorized_amount - discount_amount_debt;
+
     //Begin the update of the outstnCollectionRecord
 
     const poolRequest = procTransaction.request();
@@ -255,7 +259,7 @@ export const registerUpdateOutstdCollection = async (
                                   SET
                                     LOAN_REQUEST_STATUS = @newLoanRequestStatus
                                     ,CLOSED_BY = @closed_by_id_usuario
-                                    ,CLOSED_DATE = @closed_date_current_local_date
+                                    ,CLOSED_UTC_DATETIME = @closed_date_utc_datetime
                                     ,OBSERVACIONES = @observaciones
 
                                   WHERE
@@ -266,7 +270,7 @@ export const registerUpdateOutstdCollection = async (
 
       poolReqUpdateLoanReq.input("newLoanRequestStatus", sql.VarChar, Status.RECHAZADO as string);
       poolReqUpdateLoanReq.input("closed_by_id_usuario", sql.Int, modified_by);
-      poolReqUpdateLoanReq.input("closed_date_current_local_date", sql.DateTime, current_UTC_datetime_server);
+      poolReqUpdateLoanReq.input("closed_date_utc_datetime", sql.DateTime2(0), current_UTC_datetime_server);
       poolReqUpdateLoanReq.input("observaciones", sql.VarChar, observationsLoanReq);
       poolReqUpdateLoanReq.input("id_loan_request", sql.Int, loan_request_id);
 

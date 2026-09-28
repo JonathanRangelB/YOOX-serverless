@@ -1,4 +1,4 @@
-import { DateTime, DateTime2, Int, Text, VarChar } from "mssql";
+import { DateTime2, Int, Text, VarChar } from "mssql";
 import { registerNewCustomer } from "../../general-data-requests/transactions/customer/registerNewCustomer";
 import { updateCustomer } from "../../general-data-requests/transactions/customer/updateCustomer";
 import { registerNewEndorsement } from "../../general-data-requests/transactions/endorsement/registerNewEndorsement";
@@ -410,7 +410,7 @@ export const registerUpdateLoanRequest = async (
 
     //End of updating in the table Outstanding Collections Planner
 
-    await procTransaction.commit();
+    procTransaction.commit();
 
     if (
       updateLoanRequest.formCliente.telefono_movil_cliente &&

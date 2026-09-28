@@ -32,7 +32,7 @@ export const updatePlannerFromLoanReq = async (
     if (loanRequestStatus === Status.APROBADO as string)
       discountAmount = amountToRefinance;
     else if (customer_id && [Status.ACTUALIZAR as string, Status.EN_REVISION as string].includes(loanRequestStatus))
-      getDiscountAmountDebt(procTransaction, customer_id);
+      await getDiscountAmountDebt(procTransaction, customer_id);
 
     switch (loanRequestStatus) {
       case Status.APROBADO:
@@ -53,6 +53,8 @@ export const updatePlannerFromLoanReq = async (
                                   ,CLOSE_UTC_DATETIME_STAMP=GETUTCDATE()
                                   ,DISCOUNT_AMOUNT=@discountAmount
                                   ,BUDGET=AUTHORIZED_AMOUNT - ${discountAmount}
+                                  ,REAL_INVERSION=AUTHORIZED_AMOUNT - ${discountAmount}
+
                               `;
         break;
       case Status.RECHAZADO:
@@ -102,8 +104,23 @@ export const updatePlannerFromLoanReq = async (
     }
 
     poolRequest.input("loanRequestId", sql.Int, loan_request_id);
+    console.log("before .query");
+    console.log(collection_id_agent);
+    console.log(customer_id);
+    console.log(customer_name);
+    console.log(requested_amount);
+    console.log(customer_neighborhood);
+    console.log(customer_county);
+    console.log(group_id);
+    console.log(management_id);
+    console.log(last_change_loan_request_utc_date);
+    console.log(discountAmount);
+    console.log(loan_request_id);
+
+    //await poolRequest.query(queryFinalUpdate);
 
     const queryResult = await poolRequest.query(queryFinalUpdate);
+    console.log("after .query");
 
     if (!queryResult.rowsAffected[0]) {
       return {
@@ -112,6 +129,7 @@ export const updatePlannerFromLoanReq = async (
         error: StatusCodes.BAD_REQUEST,
       }
     }
+
     return {
       message: "Registro actualizado correctamente",
       generatedId: loan_request_id,

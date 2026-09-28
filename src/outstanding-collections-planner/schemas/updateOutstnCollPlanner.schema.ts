@@ -45,17 +45,6 @@ export const CollectionsPlannerPatchRequestSchema = {
 
   },
 
-  required: [
-    "loan_request_id",
-    "revised_record",
-    "authorized_amount",
-    "primary_borrower_call_status",
-    "guarantor_call_status",
-    "current_status",
-    "modified_by",
-    "remote_utc_local_datetime",
-  ],
-
   // If current_status === "AUTORIZADO" → authorized_amount must be >= 1000
   if: {
     properties: {
@@ -75,6 +64,17 @@ export const CollectionsPlannerPatchRequestSchema = {
     },
     required: ["authorized_amount"],
   },
+
+  required: [
+    "loan_request_id",
+    "revised_record",
+    "authorized_amount",
+    "primary_borrower_call_status",
+    "guarantor_call_status",
+    "current_status",
+    "modified_by",
+    "remote_utc_local_datetime",
+  ],
 
   additionalProperties: false,
 
