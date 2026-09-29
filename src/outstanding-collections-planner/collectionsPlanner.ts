@@ -94,7 +94,7 @@ export const handler = async (event: any) => {
         return generateJsonResponse({ message: "El registro no existe" }, StatusCodes.NOT_FOUND);
       }
 
-      return generateJsonResponse(recordSet, StatusCodes.OK);
+      return generateJsonResponse(recordSet[0], StatusCodes.OK);
 
     } else {
       return generateJsonResponse({ message: "Invalid method" }, StatusCodes.METHOD_NOT_ALLOWED);
