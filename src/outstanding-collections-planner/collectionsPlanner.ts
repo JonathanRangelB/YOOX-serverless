@@ -16,7 +16,7 @@ export const handler = async (event: any) => {
     if (!event.body) {
       return generateGetJsonResponse(
         {
-          message: "No body provided",
+          error: "No body provided",
         },
         StatusCodes.BAD_REQUEST
       )
@@ -44,7 +44,7 @@ export const handler = async (event: any) => {
       const userRoleResponse = await validateUserRole(id_user, userRoles);
 
       if (!userRoleResponse.generatedId) {
-        return generateJsonResponse({ message: userRoleResponse.message }, StatusCodes.NOT_FOUND);
+        return generateJsonResponse({ error: userRoleResponse.message }, StatusCodes.NOT_FOUND);
       }
 
       const clearResult = await clearOldRecordsCollPlanner(id_user);
@@ -54,7 +54,7 @@ export const handler = async (event: any) => {
       const recordSet = await getCollectionsList();
 
       if (!recordSet || recordSet.length <= 0) {
-        return generateJsonResponse({ message: "No se encontraron registros" }, StatusCodes.NOT_FOUND);
+        return generateJsonResponse({ error: "No se encontraron registros" }, StatusCodes.NOT_FOUND);
       }
 
       return generateJsonResponse(recordSet, StatusCodes.OK);
@@ -78,26 +78,26 @@ export const handler = async (event: any) => {
       const userRoleResponse = await validateUserRole(id_user, userRoles);
 
       if (!userRoleResponse.generatedId) {
-        return generateJsonResponse({ message: userRoleResponse.message }, StatusCodes.NOT_FOUND);
+        return generateJsonResponse({ error: userRoleResponse.message }, StatusCodes.NOT_FOUND);
       }
 
       const updateResult = await updateCollectionByID(body);
       const updatedId = updateResult.generatedId;
 
       if (!updatedId) {
-        return generateJsonResponse({ message: updateResult.message }, StatusCodes.BAD_REQUEST);
+        return generateJsonResponse({ error: updateResult.message }, StatusCodes.BAD_REQUEST);
       }
 
       const recordSet = await getCollectionsList(updatedId);
 
       if (!recordSet || recordSet.length <= 0) {
-        return generateJsonResponse({ message: "El registro no existe" }, StatusCodes.NOT_FOUND);
+        return generateJsonResponse({ error: "El registro no existe" }, StatusCodes.NOT_FOUND);
       }
 
       return generateJsonResponse(recordSet[0], StatusCodes.OK);
 
     } else {
-      return generateJsonResponse({ message: "Invalid method" }, StatusCodes.METHOD_NOT_ALLOWED);
+      return generateJsonResponse({ error: "Invalid method" }, StatusCodes.METHOD_NOT_ALLOWED);
     }
   } catch (error) {
     return generateJsonResponse({ error }, StatusCodes.BAD_REQUEST)

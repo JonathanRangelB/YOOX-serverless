@@ -42,6 +42,7 @@ provider:
         - GET
         - POST
         - OPTIONS
+        - PATCH
       allowCredentials: false
 
 functions:
@@ -245,7 +246,7 @@ functions:
             name: customAuthorizer
       - httpApi:
           method: patch
-          path: /v1/collection-schedule/{loan_request_id}
+          path: /v1/collection-schedule
           authorizer:
             name: customAuthorizer
 
