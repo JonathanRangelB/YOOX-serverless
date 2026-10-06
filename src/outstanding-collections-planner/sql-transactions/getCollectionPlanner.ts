@@ -3,8 +3,11 @@ import { CollectionsPlanner } from "../types/SPGetCollectionsPlanner.interface";
 import sql from "mssql";
 
 export async function getCollectionsList(loanRequestId?: number): Promise<CollectionsPlanner[]> {
+  const filterCondition = ` where                            
+                            p.close_utc_datetime_stamp is null or 
+                            (p.close_utc_datetime_stamp between DATEADD(hour, -28, GETUTCDATE() ) and GETUTCDATE())`
 
-  const whereString = loanRequestId ? " WHERE P.LOAN_REQUEST_ID=@loanRequestId " : "";
+  const whereString = loanRequestId ? " where p.loan_request_id=@loanRequestId " : filterCondition;
 
   const queryString = ` select
                         p.loan_request_id,
@@ -47,7 +50,7 @@ export async function getCollectionsList(loanRequestId?: number): Promise<Collec
 
                       ${whereString}
                       `;
-
+  console.log(queryString);
   const pool = await DbConnector.getInstance().connection;
   const poolRequest = pool.request();
 

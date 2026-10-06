@@ -1,10 +1,11 @@
 import sql from "mssql";
 import { DbConnector } from "../helpers/dbConnector";
 import { GenericBDRequest } from "../general-data-requests/types/genericBDRequest";
+import { isInvalidID } from "../helpers/utils";
 
 export async function validateUserRole(id_user: number, user_roles: string[]): Promise<GenericBDRequest> {
 
-  if (!id_user || isNaN(+id_user) || +id_user <= 0) {
+  if (isInvalidID(id_user)) {
     return {
       generatedId: 0,
       message: "Id de usuario no válido"

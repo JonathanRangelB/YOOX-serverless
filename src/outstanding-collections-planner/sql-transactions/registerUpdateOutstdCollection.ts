@@ -1,7 +1,7 @@
 import sql, { Transaction } from "mssql";
 import { GenericBDRequest } from "../../general-data-requests/types/genericBDRequest";
 import { StatusCodes } from "../../helpers/statusCodes";
-import { LoanStatus, PlannerCurrentStatus, RolesDeUsuario, Status } from "../../helpers/utils";
+import { isInvalidID, LoanStatus, PlannerCurrentStatus, RolesDeUsuario, Status } from "../../helpers/utils";
 import { getDiscountAmountDebt } from "../utils/getDiscountAmountDebt";
 import { CollectionsPlannerPatchRequest } from "../types/PayloadInterfacePlanner.interface";
 
@@ -179,7 +179,7 @@ export const registerUpdateOutstdCollection = async (
     ///Checks if there is any customer Id
     let customer_id;
 
-    if (!customer_id_str || isNaN(+customer_id_str) || +customer_id_str <= 0)
+    if (isInvalidID(customer_id_str))
       customer_id = 0;
     else
       customer_id = +customer_id_str;
@@ -194,7 +194,7 @@ export const registerUpdateOutstdCollection = async (
         discount_amount_debt = +discountResult.message;
     }
 
-    if (discount_amount_debt > authorized_amount) {
+    if (current_status != PlannerCurrentStatus.CANCELADO as string && discount_amount_debt > authorized_amount) {
       return {
         message: `La cantidad de descuento no puede ser mayor a la cantidad autorizada`,
         generatedId: 0,
@@ -215,9 +215,7 @@ export const registerUpdateOutstdCollection = async (
     }
 
     const queryUpdateOutstdColl = createQuery(current_status);
-
     console.log(queryUpdateOutstdColl);
-
     if (current_status != PlannerCurrentStatus.CANCELADO as string) {
       poolRequest.input("revisedRecord", sql.Bit, revised_record);
       poolRequest.input("authorizedAmount", sql.Float, authorized_amount);
@@ -226,6 +224,12 @@ export const registerUpdateOutstdCollection = async (
       poolRequest.input("guarantorCallStatus", sql.VarChar, guarantor_call_status);
       poolRequest.input("currentStatus", sql.VarChar, current_status);
       poolRequest.input("budget", sql.Float, budget);
+      poolRequest.input("observations", sql.VarChar, observations);
+      poolRequest.input("dateTimeServer", sql.DateTime2, current_UTC_datetime_server);
+      poolRequest.input("modifiedBy", sql.Int, modified_by);
+    } else {
+
+      poolRequest.input("currentStatus", sql.VarChar, current_status);
       poolRequest.input("observations", sql.VarChar, observations);
       poolRequest.input("dateTimeServer", sql.DateTime2, current_UTC_datetime_server);
       poolRequest.input("modifiedBy", sql.Int, modified_by);
@@ -309,7 +313,14 @@ function createQuery(
 
   switch (plannerStatus) {
     case PlannerCurrentStatus.CANCELADO:
-      queryString = `DELETE FROM OUTSTANDING_COLLECTIONS_PLANNER WHERE LOAN_REQUEST_ID=@loanRequestId`;
+      queryString = `UPDATE OUTSTANDING_COLLECTIONS_PLANNER
+                      SET 
+                        CURRENT_STATUS = @currentStatus, 
+                        MODIFIED_BY = @modifiedBy,
+                        OBSERVATIONS = @observations,
+                        CLOSE_UTC_DATETIME_STAMP = @dateTimeServer
+                      WHERE
+                        LOAN_REQUEST_ID=@loanRequestId`;
       break;
 
     case PlannerCurrentStatus.AUTORIZADO:

@@ -9,6 +9,7 @@ import { CollectionsPlannerPatchRequest, CollectionsPlannerPostRequest } from ".
 import { RolesDeUsuario } from "../helpers/utils";
 import { validateUserRole } from "../secure-data-access/validateUserRole";
 import { clearOldRecordsCollPlanner } from "./sql-transactions/clearOldRecordsOutstdPlannerTable";
+import { getCollectionSummary } from "./sql-transactions/getCollectionsSummary";
 
 export const handler = async (event: any) => {
   try {
@@ -47,17 +48,18 @@ export const handler = async (event: any) => {
         return generateJsonResponse({ error: userRoleResponse.message }, StatusCodes.NOT_FOUND);
       }
 
-      const clearResult = await clearOldRecordsCollPlanner(id_user);
+      //Clear the collections planner table of old records
+      await clearOldRecordsCollPlanner(id_user);
 
-      console.log(clearResult.message);
+      const recordSetCollections = await getCollectionsList();
 
-      const recordSet = await getCollectionsList();
-
-      if (!recordSet || recordSet.length <= 0) {
+      if (!recordSetCollections || recordSetCollections.length <= 0) {
         return generateJsonResponse({ error: "No se encontraron registros" }, StatusCodes.NOT_FOUND);
       }
 
-      return generateJsonResponse(recordSet, StatusCodes.OK);
+      const recordSetCollSummary = await getCollectionSummary();
+
+      return generateJsonResponse({ recordSetCollections, recordSetCollSummary }, StatusCodes.OK);
 
     } else if (method === 'PATCH') {
 

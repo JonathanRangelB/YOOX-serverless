@@ -18,7 +18,6 @@ export const getDiscountAmountDebt = async (
 
   try {
     const queryStatement = querySearchLoanToRefinance(" top 1 t0.id, t0.id_cliente, t0.cantidad_restante as [CANTIDAD_RESTANTE] ", " where t0.id_cliente = @customerId ")
-    console.log(queryStatement);
     const poolRequest = procTransaction.request();
 
     poolRequest.input("customerId", sql.Int, customerId);

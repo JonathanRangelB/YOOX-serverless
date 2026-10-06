@@ -18,21 +18,6 @@ export const clearOldRecordsCollPlanner = async (
                             WHERE
                               TABLE_NAME = @tableName `
 
-    const clearTableStr = `DELETE
-                            FROM dbo.[OUTSTANDING_COLLECTIONS_PLANNER]
-                          WHERE
-                            CAPTURED_ACCOUNT = 1
-                            AND CURRENT_STATUS = 'AUTORIZADO'
-                            AND DATEDIFF(DAY, CONVERT(DATE, CLOSE_UTC_DATETIME_STAMP), CONVERT(DATE, GETUTCDATE())) > 3
-
-
-                          UPDATE 
-                            dbo.LOG_CLEARED_TABLES
-                          SET	
-                            LAST_CLEAR_ON_UTC_TIME = GETUTCDATE()
-                            ,CLEARED_BY_USER_ID = @idUser
-                          WHERE
-                            TABLE_NAME = @tableName `
 
     const poolRequest = await DbConnector.getInstance().connection;
     const procTransaction = poolRequest.transaction();
@@ -58,8 +43,6 @@ export const clearOldRecordsCollPlanner = async (
     }
 
     const daysDiff = +queryDaysDiffRecordSet[0].DAYS_DIFF;
-    console.log(`Dias sin limpiar: ${daysDiff}`);
-    console.log(`Dias sin limpiar tipo: ${typeof daysDiff}`);
 
     if (!daysDiff) {
 
@@ -72,6 +55,25 @@ export const clearOldRecordsCollPlanner = async (
       }
     }
 
+    const clearTableStr = `DELETE
+                            FROM dbo.[OUTSTANDING_COLLECTIONS_PLANNER]
+                          WHERE
+                            (
+                              (CURRENT_STATUS = 'AUTORIZADO' AND CAPTURED_ACCOUNT = 1)
+                              OR CURRENT_STATUS = 'CANCELADO'
+                            )
+                            AND DATEDIFF(DAY, CONVERT(DATE, CLOSE_UTC_DATETIME_STAMP), CONVERT(DATE, GETUTCDATE())) > 3
+
+
+                          UPDATE 
+                            dbo.LOG_CLEARED_TABLES
+                          SET	
+                            LAST_CLEAR_ON_UTC_TIME = GETUTCDATE()
+                            ,CLEARED_BY_USER_ID = @idUser
+                          WHERE
+                            TABLE_NAME = @tableName `;
+    console.log("Query clear planner table");
+    console.log(clearTableStr);
     await procTransaction
       .request()
       .input("idUser", sql.Int, idUser)

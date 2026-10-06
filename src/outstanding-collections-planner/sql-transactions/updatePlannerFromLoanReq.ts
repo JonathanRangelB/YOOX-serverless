@@ -58,7 +58,14 @@ export const updatePlannerFromLoanReq = async (
                               `;
         break;
       case Status.RECHAZADO:
-        queryPlannerUpdate = "DELETE FROM OUTSTANDING_COLLECTIONS_PLANNER ";
+        queryPlannerUpdate = `UPDATE 
+                                OUTSTANDING_COLLECTIONS_PLANNER 
+
+                              SET
+                                CURRENT_STATUS='CANCELADO'
+                                ,CLOSE_UTC_DATETIME_STAMP=GETUTCDATE()
+
+                              `;
         break;
 
       case Status.ACTUALIZAR:
@@ -83,8 +90,6 @@ export const updatePlannerFromLoanReq = async (
     }
 
     const queryFinalUpdate = `${queryPlannerUpdate} WHERE LOAN_REQUEST_ID=@loanRequestId`;
-    console.log(queryFinalUpdate);
-
     const poolRequest = procTransaction.request();
 
     if (loanRequestStatus != Status.RECHAZADO as string) {
@@ -104,23 +109,8 @@ export const updatePlannerFromLoanReq = async (
     }
 
     poolRequest.input("loanRequestId", sql.Int, loan_request_id);
-    console.log("before .query");
-    console.log(collection_id_agent);
-    console.log(customer_id);
-    console.log(customer_name);
-    console.log(requested_amount);
-    console.log(customer_neighborhood);
-    console.log(customer_county);
-    console.log(group_id);
-    console.log(management_id);
-    console.log(last_change_loan_request_utc_date);
-    console.log(discountAmount);
-    console.log(loan_request_id);
-
-    //await poolRequest.query(queryFinalUpdate);
 
     const queryResult = await poolRequest.query(queryFinalUpdate);
-    console.log("after .query");
 
     if (!queryResult.rowsAffected[0]) {
       return {

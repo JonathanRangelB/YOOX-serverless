@@ -84,8 +84,6 @@ export const registerNewOutstdCollection = async (
 
                             `;
 
-    console.log(queryInsert);
-
     const poolRequest = procTransaction.request();
 
     poolRequest.input("loanRequestId", sql.Int, loanRequestId);

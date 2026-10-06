@@ -41,8 +41,6 @@ export const CollectionsPlannerPatchRequestSchema = {
 
     modified_by: { type: "number" },
 
-    remote_utc_local_datetime: { type: "string", format: "date-time" },
-
   },
 
   // If current_status === "AUTORIZADO" → authorized_amount must be >= 1000
@@ -73,7 +71,6 @@ export const CollectionsPlannerPatchRequestSchema = {
     "guarantor_call_status",
     "current_status",
     "modified_by",
-    "remote_utc_local_datetime",
   ],
 
   additionalProperties: false,

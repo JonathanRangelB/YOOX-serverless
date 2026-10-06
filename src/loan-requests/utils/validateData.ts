@@ -1,7 +1,7 @@
 import sql, { Table, Transaction } from "mssql";
 import { querySearchLoanToRefinance } from "../../general-data-requests/utils/querySearchLoanToRefinance";
 import { LastLoanId } from "../../helpers/table-schemas";
-import { convertToBase36, PlannerCurrentStatus } from "../../helpers/utils";
+import { convertToBase36, isInvalidID, PlannerCurrentStatus } from "../../helpers/utils";
 import { RolesDeUsuario, Status } from "../../helpers/utils";
 import { searchTelefonoQuery } from "../../validators/utils/querySearchData";
 import { InsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
@@ -203,7 +203,7 @@ export async function validateDataLoanRequestUpdate(
 
     const authorizedAmountStr = plannerRecordSet[0].AUTHORIZED_AMOUNT;
 
-    if (!authorizedAmountStr || isNaN(+authorizedAmountStr) || +authorizedAmountStr <= 0) {
+    if (isInvalidID(authorizedAmountStr)) {
       throw new Error(
         `La solicitud ${request_number} tiene una cantidad a prestar autorizada no válida`
       );

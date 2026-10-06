@@ -68,15 +68,8 @@ export function validatePayload(
   return { valid };
 }
 
-// NOTE: Receives two date to compare the difference in days. startDate is the minus date, endDate the greater date.
-export function compareDateInDays(
-  startDate: Date,
-  endDate: Date
-): number {
-  const msPerDay = 1000 * 60 * 60 * 24;
-  const msDifference = endDate.getTime() - startDate.getTime();
-
-  return Math.round(msDifference / msPerDay);
+export function isInvalidID(id: any): boolean {
+  return (!id || isNaN(id) || +id <= 0)
 }
 
 export const REGEX_CURP: string =
