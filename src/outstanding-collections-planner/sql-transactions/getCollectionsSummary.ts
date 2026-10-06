@@ -10,6 +10,9 @@ export async function getCollectionSummary(): Promise<CollectionsSummary[]> {
                           , isnull(real_inversion, 0.0) as [real_inversion]
                           , budget
                           from outstanding_collections_planner
+
+                          where
+                          	current_status not in ('CANCELADO')
                           )
 
                         select
