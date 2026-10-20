@@ -50,7 +50,7 @@ export async function getCollectionsList(loanRequestId?: number): Promise<Collec
 
                       ${whereString}
                       `;
-  console.log(queryString);
+
   const pool = await DbConnector.getInstance().connection;
   const poolRequest = pool.request();
 

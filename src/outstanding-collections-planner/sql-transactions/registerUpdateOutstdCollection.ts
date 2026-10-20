@@ -215,7 +215,7 @@ export const registerUpdateOutstdCollection = async (
     }
 
     const queryUpdateOutstdColl = createQuery(current_status);
-    console.log(queryUpdateOutstdColl);
+
     if (current_status != PlannerCurrentStatus.CANCELADO as string) {
       poolRequest.input("revisedRecord", sql.Bit, revised_record);
       poolRequest.input("authorizedAmount", sql.Float, authorized_amount);

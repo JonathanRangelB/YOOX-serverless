@@ -72,8 +72,7 @@ export const clearOldRecordsCollPlanner = async (
                             ,CLEARED_BY_USER_ID = @idUser
                           WHERE
                             TABLE_NAME = @tableName `;
-    console.log("Query clear planner table");
-    console.log(clearTableStr);
+
     await procTransaction
       .request()
       .input("idUser", sql.Int, idUser)
