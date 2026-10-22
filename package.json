@@ -1,13 +1,11 @@
 {
   "scripts": {
+    "start": "sls offline start --stage dev",
     "publish:dev": "sls deploy --stage dev --verbose",
     "publish:stg": "sls deploy --stage staging --verbose",
     "publish:prod": "sls deploy --stage prod --verbose",
     "publish:package": "sls deploy --package ./.serverless",
     "dashboard": "sls dashboard",
-    "dev": "sls offline start --stage dev",
-    "stg": "sls offline --stage staging",
-    "prod": "sls offline --stage prod",
     "getenv:dev": "infisical export --env=dev > .env",
     "getenv:stg": "infisical export --env=staging > .env.staging",
     "getenv:prod": "infisical export --env=prod > .env.prod",
@@ -18,8 +16,8 @@
     "commitlint": "commitlint --edit"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1045.0",
-    "@aws-sdk/s3-request-presigner": "^3.1045.0",
+    "@aws-sdk/client-s3": "^3.1153.0",
+    "@aws-sdk/s3-request-presigner": "^3.1153.0",
     "@types/jsonwebtoken": "^9.0.10",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
@@ -27,20 +25,20 @@
     "date-fns-tz": "^3.2.0",
     "jsonwebtoken": "^9.0.3",
     "md5": "^2.3.0",
-    "mssql": "^11.0.1"
+    "mssql": "12"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "@types/aws-lambda": "^8.10.161",
+    "@types/aws-lambda": "^8.10.164",
     "@types/md5": "^2.3.6",
-    "@types/mssql": "^9.1.11",
-    "@types/node": "^22.19.18",
+    "@types/mssql": "12",
+    "@types/node": "^22.20.5",
     "globals": "^16.5.0",
     "husky": "^9.1.7",
-    "serverless": "^4.35.1",
-    "serverless-offline": "^14.5.0",
+    "serverless": "^4.44.0",
+    "serverless-offline": "^14.8.4",
     "typescript": "^5.9.3"
   },
   "pnpm": {
