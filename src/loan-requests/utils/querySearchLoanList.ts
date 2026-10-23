@@ -32,7 +32,7 @@ export function loanRequestListSearchQuery(
 
       if (!folio)
         limitOneWeekData =
-          " AND CONVERT(DATE, created_date) BETWEEN DATEADD(WEEK, -1, CONVERT(DATE, GETDATE())) AND CONVERT(DATE, GETDATE()) ";
+          " AND CONVERT(DATE, create_utc_datetime) BETWEEN DATEADD(WEEK, -1, CONVERT(DATE, GETUTCDATE())) AND CONVERT(DATE, GETUTCDATE()) ";
 
       break;
   }
@@ -81,7 +81,7 @@ export function loanRequestListSearchQuery(
                     apellido_materno_cliente,
                     apellido_paterno_cliente,
                     cantidad_prestada,
-                    created_date,
+                    create_utc_datetime as created_date,
                     loan_request_status,
                     id_agente
                     FROM
@@ -97,7 +97,7 @@ export function loanRequestListSearchQuery(
                     apellido_materno_cliente,
                     apellido_paterno_cliente,
                     cantidad_prestada,
-                    created_date,
+                    create_utc_datetime as created_date,
                     loan_request_status,
                     id_agente
                     FROM

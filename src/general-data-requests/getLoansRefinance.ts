@@ -5,12 +5,13 @@ import { generateJsonResponse } from "../helpers/generateJsonResponse";
 import { StatusCodes } from "../helpers/statusCodes";
 import { LoanRefinance } from "../helpers/table-schemas";
 import { querySearchLoanToRefinance } from "./utils/querySearchLoanToRefinance";
+import { isInvalidID } from "../helpers/utils";
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   try {
     const customerid = event.queryStringParameters?.customerid;
 
-    if (!customerid || isNaN(+customerid) || +customerid <= 0)
+    if (isInvalidID(customerid))
       throw new Error("Parametros incompletos");
     const pool = await DbConnector.getInstance().connection;
     const query = querySearchLoanToRefinance(
@@ -18,7 +19,6 @@ module.exports.handler = async (event: APIGatewayEvent) => {
       `where t0.id_cliente = ${customerid}`
     );
 
-    console.log("query", query);
     const result = await pool.query<LoanRefinance>(query);
 
     if (result.recordset.length == 0)

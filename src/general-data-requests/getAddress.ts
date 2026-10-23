@@ -4,11 +4,12 @@ import { StatusCodes } from "../helpers/statusCodes";
 import { generateGetJsonResponse } from "../helpers/generateGetJsonResponse";
 import { Address } from "../helpers/table-schemas";
 import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { isInvalidID } from "../helpers/utils";
 
 module.exports.handler = async (event: APIGatewayEvent) => {
   try {
     const addressid = event.queryStringParameters?.addressid;
-    if (!addressid || isNaN(+addressid) || +addressid <= 0)
+    if (isInvalidID(addressid))
       throw new Error("Parametros incompletos");
     const pool = await DbConnector.getInstance().connection;
     const query = `

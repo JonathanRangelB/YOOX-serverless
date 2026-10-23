@@ -53,12 +53,12 @@ export function requestDetailSearchQuery(request_number: string): string {
       ,l.[tasa_de_interes]
       ,l.[observaciones]
       ,l.[created_by]
-      ,l.[created_date]
+      ,l.[create_utc_datetime] as [created_date]
       ,l.[modified_by]
-      ,l.[modified_date]
+      ,l.[modified_utc_datetime] as [modified_date]
       ,u2.[nombre] as modified_by_name
       ,l.[closed_by]
-      ,l.[closed_date]
+      ,l.[closed_utc_datetime] as [closed_date]
       ,u3.[nombre] as closed_by_name
       ,l.[status_code]
       ,l.[id_loan]  
