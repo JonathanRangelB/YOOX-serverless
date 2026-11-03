@@ -7,7 +7,7 @@ export interface PagosReglasDias {
 export interface LastLoanId {
   LAST_LOAN_ID: number;
   CURRENT_DATE_SERVER: Date;
-  CURRENT_UTC_DATETIME_SERVER: string
+  CURRENT_UTC_DATETIME_SERVER: string;
 }
 
 export interface LoanUpdateDate {

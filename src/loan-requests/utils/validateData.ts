@@ -1,7 +1,11 @@
 import sql, { Table, Transaction } from "mssql";
 import { querySearchLoanToRefinance } from "../../general-data-requests/utils/querySearchLoanToRefinance";
 import { LastLoanId } from "../../helpers/table-schemas";
-import { convertToBase36, isInvalidID, PlannerCurrentStatus } from "../../helpers/utils";
+import {
+  convertToBase36,
+  isInvalidID,
+  PlannerCurrentStatus,
+} from "../../helpers/utils";
 import { RolesDeUsuario, Status } from "../../helpers/utils";
 import { searchTelefonoQuery } from "../../validators/utils/querySearchData";
 import { InsertNewLoanRequest } from "../types/SPInsertNewLoanRequest";
@@ -11,7 +15,11 @@ import { generateNewLoanRequestTable } from "./generateNewLoanRequestTable";
 export async function validateData(
   newLoanRequest: InsertNewLoanRequest,
   procTransaction: Transaction
-): Promise<{ tableNewRequestLoan: Table; request_number: string; loan_request_id: number }> {
+): Promise<{
+  tableNewRequestLoan: Table;
+  request_number: string;
+  loan_request_id: number;
+}> {
   const {
     fecha_inicial,
     plazo,
@@ -73,7 +81,8 @@ export async function validateData(
       "SELECT ISNULL(MAX(ID), 0) AS LAST_LOAN_ID, GETUTCDATE() AS CURRENT_DATE_SERVER, GETUTCDATE() AS CURRENT_UTC_DATETIME_SERVER FROM LOAN_REQUEST;"
     );
 
-  const createdUTCDate = nextId.recordset[0].CURRENT_UTC_DATETIME_SERVER as string;
+  const createdUTCDate = nextId.recordset[0]
+    .CURRENT_UTC_DATETIME_SERVER as string;
   //const horaLocal = convertDateTimeZone(createdUTCDate, "America/Mexico_City");
   const [
     idAgente,
@@ -175,8 +184,7 @@ export async function validateDataLoanRequestUpdate(
 
   //Verify that record is AUTHORIZED in the Planner outstanding collection table
 
-  if (loan_request_status === Status.APROBADO as string) {
-
+  if (loan_request_status === (Status.APROBADO as string)) {
     const queryPlanner = `SELECT
                             LOAN_REQUEST_ID
                             ,CURRENT_STATUS
@@ -186,9 +194,13 @@ export async function validateDataLoanRequestUpdate(
                           WHERE
                             CURRENT_STATUS=@authorized
                             AND LOAN_REQUEST_ID=@idLoanRequest
-                          `
+                          `;
     const poolRequestPlanner = procTransaction.request();
-    poolRequestPlanner.input("authorized", sql.VarChar, PlannerCurrentStatus.AUTORIZADO as string);
+    poolRequestPlanner.input(
+      "authorized",
+      sql.VarChar,
+      PlannerCurrentStatus.AUTORIZADO as string
+    );
     poolRequestPlanner.input("idLoanRequest", sql.Int, id);
 
     const queryPlannerResult = await poolRequestPlanner.query(queryPlanner);

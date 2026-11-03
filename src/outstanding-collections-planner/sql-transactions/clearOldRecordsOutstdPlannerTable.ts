@@ -7,8 +7,7 @@ export const clearOldRecordsCollPlanner = async (
   idUser: number
 ): Promise<GenericBDRequest> => {
   try {
-
-    const tableName = 'OUTSTANDING_COLLECTIONS_PLANNER';
+    const tableName = "OUTSTANDING_COLLECTIONS_PLANNER";
     const queryDaysDiffStr = `SELECT 
                             DATEDIFF(DAY, CONVERT(DATE, LAST_CLEAR_ON_UTC_TIME), CONVERT(DATE, GETUTCDATE())) AS DAYS_DIFF
 
@@ -16,8 +15,7 @@ export const clearOldRecordsCollPlanner = async (
                               dbo.LOG_CLEARED_TABLES
 
                             WHERE
-                              TABLE_NAME = @tableName `
-
+                              TABLE_NAME = @tableName `;
 
     const poolRequest = await DbConnector.getInstance().connection;
     const procTransaction = poolRequest.transaction();
@@ -32,27 +30,25 @@ export const clearOldRecordsCollPlanner = async (
     const queryDaysDiffRecordSet = queryDaysDiffResult.recordset;
 
     if (!queryDaysDiffRecordSet.length) {
-
       await procTransaction.rollback();
 
       return {
         message: `No existen registros para la tabla ${tableName}`,
         generatedId: 0,
-        error: StatusCodes.BAD_REQUEST
-      }
+        error: StatusCodes.BAD_REQUEST,
+      };
     }
 
     const daysDiff = +queryDaysDiffRecordSet[0].DAYS_DIFF;
 
     if (!daysDiff) {
-
       await procTransaction.rollback();
 
       return {
         message: `Tabla ${tableName} ya ha sido actualizada`,
         generatedId: 1,
-        error: StatusCodes.OK
-      }
+        error: StatusCodes.OK,
+      };
     }
 
     const clearTableStr = `DELETE
@@ -84,13 +80,13 @@ export const clearOldRecordsCollPlanner = async (
     return {
       message: `Tabla ${tableName} actualizada`,
       generatedId: 1,
-      error: StatusCodes.OK
-    }
+      error: StatusCodes.OK,
+    };
   } catch (exception) {
     return {
       message: (exception as Error).message,
       generatedId: 0,
-      error: StatusCodes.BAD_REQUEST
-    }
+      error: StatusCodes.BAD_REQUEST,
+    };
   }
-}
+};

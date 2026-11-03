@@ -22,16 +22,21 @@ export const updatePlannerFromLoanReq = async (
       customer_neighborhood,
       customer_county,
       group_id,
-      last_change_loan_request_utc_date
+      last_change_loan_request_utc_date,
     } = outstdColl;
 
     let queryPlannerUpdate = "";
 
-    let discountAmount = 0.0
+    let discountAmount = 0.0;
 
-    if (loanRequestStatus === Status.APROBADO as string)
+    if (loanRequestStatus === (Status.APROBADO as string))
       discountAmount = amountToRefinance;
-    else if (customer_id && [Status.ACTUALIZAR as string, Status.EN_REVISION as string].includes(loanRequestStatus))
+    else if (
+      customer_id &&
+      [Status.ACTUALIZAR as string, Status.EN_REVISION as string].includes(
+        loanRequestStatus
+      )
+    )
       await getDiscountAmountDebt(procTransaction, customer_id);
 
     switch (loanRequestStatus) {
@@ -92,20 +97,32 @@ export const updatePlannerFromLoanReq = async (
     const queryFinalUpdate = `${queryPlannerUpdate} WHERE LOAN_REQUEST_ID=@loanRequestId`;
     const poolRequest = procTransaction.request();
 
-    if (loanRequestStatus != Status.RECHAZADO as string) {
+    if (loanRequestStatus != (Status.RECHAZADO as string)) {
       poolRequest.input("collection_id_agent", sql.Int, collection_id_agent);
       poolRequest.input("customer_id", sql.Int, customer_id);
       poolRequest.input("customer_name", sql.VarChar, customer_name);
       poolRequest.input("requested_amount", sql.Float, requested_amount);
-      poolRequest.input("customer_neighborhood", sql.VarChar, customer_neighborhood);
+      poolRequest.input(
+        "customer_neighborhood",
+        sql.VarChar,
+        customer_neighborhood
+      );
       poolRequest.input("customer_county", sql.VarChar, customer_county);
       poolRequest.input("group_id", sql.Int, group_id);
       poolRequest.input("management_id", sql.Int, management_id);
       poolRequest.input("discountAmount", sql.Float, discountAmount);
     }
 
-    if ([Status.ACTUALIZAR as string, Status.EN_REVISION as string].includes(loanRequestStatus)) {
-      poolRequest.input("last_change_loan_request_utc_date", sql.DateTime2, last_change_loan_request_utc_date);
+    if (
+      [Status.ACTUALIZAR as string, Status.EN_REVISION as string].includes(
+        loanRequestStatus
+      )
+    ) {
+      poolRequest.input(
+        "last_change_loan_request_utc_date",
+        sql.DateTime2,
+        last_change_loan_request_utc_date
+      );
     }
 
     poolRequest.input("loanRequestId", sql.Int, loan_request_id);
@@ -117,20 +134,19 @@ export const updatePlannerFromLoanReq = async (
         message: "Ocurrió un error durante la transacción",
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST,
-      }
+      };
     }
 
     return {
       message: "Registro actualizado correctamente",
       generatedId: loan_request_id,
       error: StatusCodes.OK,
-    }
-  }
-  catch (error) {
+    };
+  } catch (error) {
     return {
-      message: "Ocurrió un error durante la transacción",
+      message: `Ocurrió un error durante la transacción: ${error} `,
       generatedId: 0,
       error: StatusCodes.BAD_REQUEST,
-    }
+    };
   }
-} 
+};

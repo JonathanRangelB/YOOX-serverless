@@ -5,7 +5,7 @@ import { StatusCodes } from "../../helpers/statusCodes";
 
 export const getCreditTypeCollection = async (
   procTransaction: Transaction,
-  customerId: number,
+  customerId: number
 ): Promise<GenericBDRequest> => {
   try {
     const queryStatement = `WITH TAB AS (
@@ -65,8 +65,7 @@ export const getCreditTypeCollection = async (
 
                               ORDER BY ID DESC
 	
-                              `
-
+                              `;
 
     const poolRequest = procTransaction.request();
     poolRequest.input("customerId", sql.Int, customerId);
@@ -78,13 +77,22 @@ export const getCreditTypeCollection = async (
       return { message: CreditType.NUEVO, generatedId: customerId };
     }
 
-    const loanActive = recordSet?.some(item => item.STATUS as string === LoanStatus.EMITIDO as string)
+    const loanActive = recordSet?.some(
+      (item) => (item.STATUS as string) === (LoanStatus.EMITIDO as string)
+    );
 
     if (loanActive) {
-      return { message: CreditType.RENOVACION as string, generatedId: customerId };
+      return {
+        message: CreditType.RENOVACION as string,
+        generatedId: customerId,
+      };
     }
 
-    const loanHistorical = recordSet?.find(item => [LoanStatus.PAGADO as string, LoanStatus.REFINANCIADO as string].includes(item.STATUS));
+    const loanHistorical = recordSet?.find((item) =>
+      [LoanStatus.PAGADO as string, LoanStatus.REFINANCIADO as string].includes(
+        item.STATUS
+      )
+    );
     const daysDifference = +loanHistorical.DAYS_DIFFERENCE;
 
     if (daysDifference > 120)
@@ -93,12 +101,11 @@ export const getCreditTypeCollection = async (
       return { message: CreditType.REACTIVACION, generatedId: customerId };
 
     return { message: "", generatedId: 0 };
-  }
-  catch (exception) {
+  } catch (exception) {
     return {
       message: (exception as Error).message,
       generatedId: 0,
-      error: StatusCodes.BAD_REQUEST
-    }
+      error: StatusCodes.BAD_REQUEST,
+    };
   }
 };

@@ -9,8 +9,7 @@ import { isInvalidID } from "../helpers/utils";
 module.exports.handler = async (event: APIGatewayEvent) => {
   try {
     const addressid = event.queryStringParameters?.addressid;
-    if (isInvalidID(addressid))
-      throw new Error("Parametros incompletos");
+    if (isInvalidID(addressid)) throw new Error("Parametros incompletos");
     const pool = await DbConnector.getInstance().connection;
     const query = `
             select

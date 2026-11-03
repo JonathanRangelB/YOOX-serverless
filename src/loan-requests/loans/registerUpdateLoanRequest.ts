@@ -68,7 +68,8 @@ export const registerUpdateLoanRequest = async (
       "America/Mexico_City"
     ) as Date;
 
-    const currentUTCDateTimeServer = queryResult.recordset[0].current_UTC_datetime_server as string;
+    const currentUTCDateTimeServer = queryResult.recordset[0]
+      .current_UTC_datetime_server as string;
 
     const {
       id: id_loan_request,
@@ -149,7 +150,11 @@ export const registerUpdateLoanRequest = async (
 
       poolRequest.input("newLoanRequestStatus", VarChar, newLoanRequestStatus);
       poolRequest.input("closed_by_id_usuario", Int, id_usuario);
-      poolRequest.input("closed_current_UTC_datetime", DateTime2, currentUTCDateTimeServer);
+      poolRequest.input(
+        "closed_current_UTC_datetime",
+        DateTime2,
+        currentUTCDateTimeServer
+      );
 
       if (observaciones) {
         updateQueryColumns += ",OBSERVACIONES = @observaciones";
@@ -173,7 +178,11 @@ export const registerUpdateLoanRequest = async (
       `;
 
       poolRequest.input("modified_by_id_usuario", Int, id_usuario);
-      poolRequest.input("modified_current_UTC_datetime", DateTime2, currentUTCDateTimeServer);
+      poolRequest.input(
+        "modified_current_UTC_datetime",
+        DateTime2,
+        currentUTCDateTimeServer
+      );
     } else if (currentLoanRequestStatus === Status.EN_REVISION) {
       let idClienteGenerado;
       let idPrestamoGenerado;
@@ -194,7 +203,11 @@ export const registerUpdateLoanRequest = async (
           `;
 
           poolRequest.input("modified_by_id_usuario", Int, id_usuario);
-          poolRequest.input("modified_current_UTC_datetime", DateTime2, currentUTCDateTimeServer);
+          poolRequest.input(
+            "modified_current_UTC_datetime",
+            DateTime2,
+            currentUTCDateTimeServer
+          );
           break;
 
         case Status.RECHAZADO:
@@ -210,7 +223,11 @@ export const registerUpdateLoanRequest = async (
             newLoanRequestStatus
           );
           poolRequest.input("closed_by_id_usuario", Int, id_usuario);
-          poolRequest.input("closed_current_UTC_datetime", DateTime2, currentUTCDateTimeServer);
+          poolRequest.input(
+            "closed_current_UTC_datetime",
+            DateTime2,
+            currentUTCDateTimeServer
+          );
 
           if (observaciones) {
             updateQueryColumns += ` 
@@ -360,7 +377,11 @@ export const registerUpdateLoanRequest = async (
             datosCliente.id_aval
           );
           poolRequest.input("closed_by_id_usuario", Int, id_usuario);
-          poolRequest.input("closed_current_UTC_datetime", DateTime2, currentUTCDateTimeServer);
+          poolRequest.input(
+            "closed_current_UTC_datetime",
+            DateTime2,
+            currentUTCDateTimeServer
+          );
 
           break;
 
@@ -396,9 +417,14 @@ export const registerUpdateLoanRequest = async (
       customer_county: datosCliente.municipio_cliente,
       group_id: id_grupo_original,
       last_change_loan_request_utc_date: currentUTCDateTimeServer,
-    }
+    };
 
-    const updatePlannerResult = await updatePlannerFromLoanReq(procTransaction, updateOutstCollPlanner, newLoanRequestStatus, cantidad_restante_anterior);
+    const updatePlannerResult = await updatePlannerFromLoanReq(
+      procTransaction,
+      updateOutstCollPlanner,
+      newLoanRequestStatus,
+      cantidad_restante_anterior
+    );
 
     if (updatePlannerResult.generatedId <= 0) {
       throw new UpdateError(

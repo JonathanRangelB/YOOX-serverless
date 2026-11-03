@@ -1,7 +1,13 @@
 import sql, { Transaction } from "mssql";
 import { GenericBDRequest } from "../../general-data-requests/types/genericBDRequest";
 import { StatusCodes } from "../../helpers/statusCodes";
-import { isInvalidID, LoanStatus, PlannerCurrentStatus, RolesDeUsuario, Status } from "../../helpers/utils";
+import {
+  isInvalidID,
+  LoanStatus,
+  PlannerCurrentStatus,
+  RolesDeUsuario,
+  Status,
+} from "../../helpers/utils";
 import { getDiscountAmountDebt } from "../utils/getDiscountAmountDebt";
 import { CollectionsPlannerPatchRequest } from "../types/PayloadInterfacePlanner.interface";
 
@@ -10,7 +16,6 @@ export const registerUpdateOutstdCollection = async (
   outstdColl: CollectionsPlannerPatchRequest
 ): Promise<GenericBDRequest> => {
   try {
-
     const {
       loan_request_id,
       revised_record,
@@ -19,15 +24,16 @@ export const registerUpdateOutstdCollection = async (
       guarantor_call_status,
       current_status,
       observations,
-      modified_by
+      modified_by,
+      hours,
     } = outstdColl;
 
     if (!loan_request_id) {
       return {
         message: "Registro no válido",
         generatedId: 0,
-        error: StatusCodes.NOT_FOUND
-      }
+        error: StatusCodes.NOT_FOUND,
+      };
     }
 
     //Verify that user modifying has the right user role and it's valid
@@ -35,7 +41,7 @@ export const registerUpdateOutstdCollection = async (
     const queryUser = await procTransaction
       .request()
       .input("idUser", sql.Int, modified_by)
-      .query(queryUserStr)
+      .query(queryUserStr);
 
     //Verify user exists
     const recordSetUser = queryUser.recordset;
@@ -44,8 +50,8 @@ export const registerUpdateOutstdCollection = async (
       return {
         message: `El usuario ${modified_by} no existe`,
         generatedId: 0,
-        error: StatusCodes.NOT_FOUND
-      }
+        error: StatusCodes.NOT_FOUND,
+      };
     }
 
     const userRole = recordSetUser[0].ROL as string;
@@ -57,17 +63,22 @@ export const registerUpdateOutstdCollection = async (
       return {
         message: `El usuario ${modified_by} - ${userName} no se encuentra habilitado en el sistema`,
         generatedId: 0,
-        error: StatusCodes.NOT_FOUND
-      }
+        error: StatusCodes.NOT_FOUND,
+      };
     }
 
     //Verify user has the right role
-    if ([RolesDeUsuario.LIDER_DE_GRUPO as string, RolesDeUsuario.COBRADOR as string].includes(userRole)) {
+    if (
+      [
+        RolesDeUsuario.LIDER_DE_GRUPO as string,
+        RolesDeUsuario.COBRADOR as string,
+      ].includes(userRole)
+    ) {
       return {
         message: `El usuario ${modified_by} - ${userName} no tiene privilegios para modificar este registro`,
         generatedId: 0,
-        error: StatusCodes.NOT_FOUND
-      }
+        error: StatusCodes.NOT_FOUND,
+      };
     }
     //*******
 
@@ -75,7 +86,9 @@ export const registerUpdateOutstdCollection = async (
     const querySetLoanReq = await procTransaction
       .request()
       .input("loanRequestId", sql.Int, loan_request_id)
-      .query("SELECT ID, REQUEST_NUMBER, LOAN_REQUEST_STATUS, CANTIDAD_PRESTADA, OBSERVACIONES FROM LOAN_REQUEST WHERE ID=@loanRequestId")
+      .query(
+        "SELECT ID, REQUEST_NUMBER, LOAN_REQUEST_STATUS, CANTIDAD_PRESTADA, OBSERVACIONES FROM LOAN_REQUEST WHERE ID=@loanRequestId"
+      );
 
     const recordSetLoanReq = querySetLoanReq.recordset;
 
@@ -84,25 +97,31 @@ export const registerUpdateOutstdCollection = async (
       return {
         message: "No se encontró la solicitud de préstamo o no es válida.",
         generatedId: 0,
-        error: StatusCodes.NOT_FOUND
-      }
+        error: StatusCodes.NOT_FOUND,
+      };
     }
 
     const loanRequestStatus = recordSetLoanReq[0].LOAN_REQUEST_STATUS as string;
     const loanRequestNumber = recordSetLoanReq[0].REQUEST_NUMBER as string;
 
-    //Verify the loan has any open status 
-    if ([LoanStatus.CANCELADO as string, LoanStatus.PAGADO as string, LoanStatus.REFINANCIADO as string].includes(loanRequestStatus)) {
+    //Verify the loan has any open status
+    if (
+      [
+        LoanStatus.CANCELADO as string,
+        LoanStatus.PAGADO as string,
+        LoanStatus.REFINANCIADO as string,
+      ].includes(loanRequestStatus)
+    ) {
       return {
         message: `La solicitud de préstamo ${loanRequestNumber} está cerrada con estatus ${loanRequestStatus}`,
         generatedId: 0,
-        error: StatusCodes.BAD_REQUEST
-      }
+        error: StatusCodes.BAD_REQUEST,
+      };
     }
 
     //*******
 
-    //Verify the current record in planner is valid    
+    //Verify the current record in planner is valid
     //
     const queryRecord = `SELECT
                           LOAN_REQUEST_ID
@@ -117,7 +136,7 @@ export const registerUpdateOutstdCollection = async (
                         WHERE 
                           LOAN_REQUEST_ID=@loanRequestId 
 
-                          `
+                          `;
 
     const queryOutstnPlannerRecord = await procTransaction
       .request()
@@ -130,18 +149,21 @@ export const registerUpdateOutstdCollection = async (
       return {
         message: `El registro ${loanRequestNumber} del planificador de cobranza no es válido`,
         generatedId: 0,
-        error: StatusCodes.NOT_FOUND
-      }
+        error: StatusCodes.NOT_FOUND,
+      };
     }
 
-    const currentStatusOutstnPlanner = recordSetOutstnPlanner[0].CURRENT_STATUS as string;
+    const currentStatusOutstnPlanner = recordSetOutstnPlanner[0]
+      .CURRENT_STATUS as string;
 
-    if (PlannerCurrentStatus.CANCELADO as string === currentStatusOutstnPlanner) {
+    if (
+      (PlannerCurrentStatus.CANCELADO as string) === currentStatusOutstnPlanner
+    ) {
       return {
         message: `El registro ${loanRequestNumber} ya está cerrado con estatus ${currentStatusOutstnPlanner} en el Planificador de cobranza`,
         generatedId: 0,
-        error: StatusCodes.BAD_REQUEST
-      }
+        error: StatusCodes.BAD_REQUEST,
+      };
     }
     const capturedAccount = +recordSetOutstnPlanner[0].CAPTURED_ACCOUNT;
 
@@ -149,57 +171,68 @@ export const registerUpdateOutstdCollection = async (
       return {
         message: `El registro ${loanRequestNumber} ya está marcado como CUENTA CAPTURADA en el Planificador de cobranza`,
         generatedId: 0,
-        error: StatusCodes.BAD_REQUEST
-      }
+        error: StatusCodes.BAD_REQUEST,
+      };
     }
 
-    if (current_status === PlannerCurrentStatus.AUTORIZADO as string && !revised_record) {
+    if (
+      current_status === (PlannerCurrentStatus.AUTORIZADO as string) &&
+      !revised_record
+    ) {
       return {
         message: `El registro ${loanRequestNumber} no ha sido marcado como REVISADO en el Planificador de cobranza`,
         generatedId: 0,
-        error: StatusCodes.BAD_REQUEST
-      }
+        error: StatusCodes.BAD_REQUEST,
+      };
     }
 
-    if (current_status === PlannerCurrentStatus.AUTORIZADO as string && !authorized_amount) {
+    if (
+      current_status === (PlannerCurrentStatus.AUTORIZADO as string) &&
+      !authorized_amount
+    ) {
       return {
         message: `La cantidad de préstamo autorizada en ${loanRequestNumber} no es válida`,
         generatedId: 0,
-        error: StatusCodes.BAD_REQUEST
-      }
+        error: StatusCodes.BAD_REQUEST,
+      };
     }
 
     //*******
 
     //Get all the necessary values for the update
 
-    const current_UTC_datetime_server = recordSetOutstnPlanner[0].SERVER_DATETIME as string;
+    const current_UTC_datetime_server = recordSetOutstnPlanner[0]
+      .SERVER_DATETIME as string;
     const customer_id_str = recordSetOutstnPlanner[0].CUSTOMER_ID as string;
 
     ///Checks if there is any customer Id
     let customer_id;
 
-    if (isInvalidID(customer_id_str))
-      customer_id = 0;
-    else
-      customer_id = +customer_id_str;
+    if (isInvalidID(customer_id_str)) customer_id = 0;
+    else customer_id = +customer_id_str;
 
-    ///Gets the amount to discount 
+    ///Gets the amount to discount
     let discount_amount_debt = 0.0;
 
     if (customer_id) {
-      const discountResult = await getDiscountAmountDebt(procTransaction, customer_id);
+      const discountResult = await getDiscountAmountDebt(
+        procTransaction,
+        customer_id
+      );
 
       if (discountResult.generatedId)
         discount_amount_debt = +discountResult.message;
     }
 
-    if (current_status != PlannerCurrentStatus.CANCELADO as string && discount_amount_debt > authorized_amount) {
+    if (
+      current_status != (PlannerCurrentStatus.CANCELADO as string) &&
+      discount_amount_debt > authorized_amount
+    ) {
       return {
         message: `La cantidad de descuento no puede ser mayor a la cantidad autorizada`,
         generatedId: 0,
-        error: StatusCodes.BAD_REQUEST
-      }
+        error: StatusCodes.BAD_REQUEST,
+      };
     }
 
     const budget = authorized_amount - discount_amount_debt;
@@ -215,23 +248,39 @@ export const registerUpdateOutstdCollection = async (
     }
 
     const queryUpdateOutstdColl = createQuery(current_status);
-
-    if (current_status != PlannerCurrentStatus.CANCELADO as string) {
+    console.log(`hours: ${hours}`);
+    if (current_status != (PlannerCurrentStatus.CANCELADO as string)) {
       poolRequest.input("revisedRecord", sql.Bit, revised_record);
       poolRequest.input("authorizedAmount", sql.Float, authorized_amount);
       poolRequest.input("discountAmount", sql.Float, discount_amount_debt);
-      poolRequest.input("primaryBorrowerCallStatus", sql.VarChar, primary_borrower_call_status);
-      poolRequest.input("guarantorCallStatus", sql.VarChar, guarantor_call_status);
+      poolRequest.input(
+        "primaryBorrowerCallStatus",
+        sql.VarChar,
+        primary_borrower_call_status
+      );
+      poolRequest.input(
+        "guarantorCallStatus",
+        sql.VarChar,
+        guarantor_call_status
+      );
       poolRequest.input("currentStatus", sql.VarChar, current_status);
       poolRequest.input("budget", sql.Float, budget);
       poolRequest.input("observations", sql.VarChar, observations);
-      poolRequest.input("dateTimeServer", sql.DateTime2, current_UTC_datetime_server);
+      poolRequest.input(
+        "dateTimeServer",
+        sql.DateTime2,
+        current_UTC_datetime_server
+      );
       poolRequest.input("modifiedBy", sql.Int, modified_by);
+      poolRequest.input("hours", sql.NVarChar(100), hours);
     } else {
-
       poolRequest.input("currentStatus", sql.VarChar, current_status);
       poolRequest.input("observations", sql.VarChar, observations);
-      poolRequest.input("dateTimeServer", sql.DateTime2, current_UTC_datetime_server);
+      poolRequest.input(
+        "dateTimeServer",
+        sql.DateTime2,
+        current_UTC_datetime_server
+      );
       poolRequest.input("modifiedBy", sql.Int, modified_by);
     }
 
@@ -244,11 +293,10 @@ export const registerUpdateOutstdCollection = async (
         message: "Ocurrió un error durante la transacción",
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST,
-      }
+      };
     }
 
     if (current_status === (PlannerCurrentStatus.CANCELADO as string)) {
-
       const loanRequestObservations = recordSetLoanReq[0].OBSERVACIONES;
       const observationsLoanReq = `${loanRequestObservations}
 
@@ -269,23 +317,35 @@ export const registerUpdateOutstdCollection = async (
                                   WHERE
                                     ID = @id_loan_request `;
 
-
       const poolReqUpdateLoanReq = procTransaction.request();
 
-      poolReqUpdateLoanReq.input("newLoanRequestStatus", sql.VarChar, Status.RECHAZADO as string);
+      poolReqUpdateLoanReq.input(
+        "newLoanRequestStatus",
+        sql.VarChar,
+        Status.RECHAZADO as string
+      );
       poolReqUpdateLoanReq.input("closed_by_id_usuario", sql.Int, modified_by);
-      poolReqUpdateLoanReq.input("closed_date_utc_datetime", sql.DateTime2(0), current_UTC_datetime_server);
-      poolReqUpdateLoanReq.input("observaciones", sql.VarChar, observationsLoanReq);
+      poolReqUpdateLoanReq.input(
+        "closed_date_utc_datetime",
+        sql.DateTime2(0),
+        current_UTC_datetime_server
+      );
+      poolReqUpdateLoanReq.input(
+        "observaciones",
+        sql.VarChar,
+        observationsLoanReq
+      );
       poolReqUpdateLoanReq.input("id_loan_request", sql.Int, loan_request_id);
 
-      const updateLoanReqResult = await poolReqUpdateLoanReq.query(queryLoanRejected);
+      const updateLoanReqResult =
+        await poolReqUpdateLoanReq.query(queryLoanRejected);
 
       if (updateLoanReqResult.rowsAffected[0] <= 0) {
         return {
           message: "Ocurrió un error durante la transacción",
           generatedId: 0,
           error: StatusCodes.BAD_REQUEST,
-        }
+        };
       }
     }
 
@@ -293,21 +353,17 @@ export const registerUpdateOutstdCollection = async (
       message: `Registro actualizado`,
       generatedId: loan_request_id,
       error: StatusCodes.OK,
-    }
-
+    };
   } catch (exception) {
     return {
       message: (exception as Error).message,
       generatedId: 0,
       error: StatusCodes.BAD_REQUEST,
-    }
+    };
   }
-}
+};
 
-
-function createQuery(
-  plannerStatus: string,
-): string {
+function createQuery(plannerStatus: string): string {
   let queryString = "";
   let caseString = "";
 
@@ -329,10 +385,13 @@ function createQuery(
       break;
   }
 
-  if ([PlannerCurrentStatus.AUTORIZADO as string,
-  PlannerCurrentStatus.EN_ESPERA as string,
-  PlannerCurrentStatus.POR_DEFINIR as string].includes(plannerStatus)) {
-
+  if (
+    [
+      PlannerCurrentStatus.AUTORIZADO as string,
+      PlannerCurrentStatus.EN_ESPERA as string,
+      PlannerCurrentStatus.POR_DEFINIR as string,
+    ].includes(plannerStatus)
+  ) {
     queryString = `
                                   UPDATE
                                     OUTSTANDING_COLLECTIONS_PLANNER
@@ -348,6 +407,7 @@ function createQuery(
                                     ,OBSERVATIONS = @observations
                                     ,LAST_CHANGE_UTC_DATE = @dateTimeServer
                                     ,MODIFIED_BY = @modifiedBy
+                                    ,HOURS = @hours
                                     ${caseString}
 
                                   WHERE
@@ -356,5 +416,3 @@ function createQuery(
   }
   return queryString;
 }
-
-

@@ -69,7 +69,7 @@ export function validatePayload(
 }
 
 export function isInvalidID(id: any): boolean {
-  return (!id || isNaN(id) || +id <= 0)
+  return !id || isNaN(id) || +id <= 0;
 }
 
 export const REGEX_CURP: string =
@@ -89,34 +89,34 @@ export const Status = {
 
 export const RevisionClassification = {
   REVISADO: 1,
-  NO_REVISADO: 0
+  NO_REVISADO: 0,
 } as const;
 
 export const CallStatus = {
   LLAMADA_PENDIENTE: "LLAMADA PENDIENTE",
   NO_LOCALIZABLE: "NO LOCALIZABLE",
-  CONTESTO: "CONTESTO"
+  CONTESTO: "CONTESTO",
 } as const;
 
 export const PlannerCurrentStatus = {
   POR_DEFINIR: "POR DEFINIR",
   EN_ESPERA: "EN ESPERA",
   AUTORIZADO: "AUTORIZADO",
-  CANCELADO: "CANCELADO"
+  CANCELADO: "CANCELADO",
 } as const;
 
 export const CreditType = {
   NUEVO: "NUEVO",
   RENOVACION: "RENOVACION",
-  REACTIVACION: "REACTIVACION"
+  REACTIVACION: "REACTIVACION",
 } as const;
 
 export const LoanStatus = {
   EMITIDO: "EMITIDO",
   CANCELADO: "CANCELADO",
   PAGADO: "PAGADO",
-  REFINANCIADO: "REFINANCIADO"
-}
+  REFINANCIADO: "REFINANCIADO",
+};
 
 // NOTE: esta es una forma de definir un tipo que es igual a las claves del objeto Status
 export type Status = keyof typeof Status;
