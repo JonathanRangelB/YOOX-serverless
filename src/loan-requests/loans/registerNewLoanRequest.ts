@@ -17,14 +17,16 @@ export const registerNewLoanRequest = async (
   try {
     await procTransaction.begin();
 
-    const { tableNewRequestLoan, request_number, loan_request_id } = await validateData(
-      newLoanRequest,
-      procTransaction
-    );
+    const { tableNewRequestLoan, request_number, loan_request_id } =
+      await validateData(newLoanRequest, procTransaction);
 
     await procTransaction.request().bulk(tableNewRequestLoan);
 
-    await registerNewOutstdCollection(procTransaction, loan_request_id, newLoanRequest);
+    await registerNewOutstdCollection(
+      procTransaction,
+      loan_request_id,
+      newLoanRequest
+    );
 
     await procTransaction.commit();
 

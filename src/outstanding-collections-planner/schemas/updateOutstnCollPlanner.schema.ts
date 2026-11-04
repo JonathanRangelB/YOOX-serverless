@@ -1,7 +1,7 @@
 import {
   CallStatus,
   RevisionClassification,
-  PlannerCurrentStatus
+  PlannerCurrentStatus,
 } from "../../helpers/utils";
 
 export const CollectionsPlannerPatchRequestSchema = {
@@ -12,24 +12,24 @@ export const CollectionsPlannerPatchRequestSchema = {
 
     revised_record: {
       type: "number",
-      enum: Object.values(RevisionClassification)
+      enum: Object.values(RevisionClassification),
     },
 
     authorized_amount: { type: "number" },
 
     primary_borrower_call_status: {
       type: "string",
-      enum: Object.values(CallStatus)
+      enum: Object.values(CallStatus),
     },
 
     guarantor_call_status: {
       type: "string",
-      enum: Object.values(CallStatus)
+      enum: Object.values(CallStatus),
     },
 
     current_status: {
       type: "string",
-      enum: Object.values(PlannerCurrentStatus)
+      enum: Object.values(PlannerCurrentStatus),
     },
 
     observations: {
@@ -41,6 +41,12 @@ export const CollectionsPlannerPatchRequestSchema = {
 
     modified_by: { type: "number" },
 
+    hours: {
+      anyOf: [
+        { type: "string", minLength: 1, maxLength: 500 },
+        { type: "string", enum: ["", null], nullable: true },
+      ],
+    },
   },
 
   // If current_status === "AUTORIZADO" → authorized_amount must be >= 1000
@@ -50,8 +56,8 @@ export const CollectionsPlannerPatchRequestSchema = {
         enum: [
           PlannerCurrentStatus.AUTORIZADO as string,
           PlannerCurrentStatus.EN_ESPERA as string,
-          PlannerCurrentStatus.POR_DEFINIR as string
-        ]
+          PlannerCurrentStatus.POR_DEFINIR as string,
+        ],
       },
     },
     required: ["current_status"],
@@ -74,12 +80,9 @@ export const CollectionsPlannerPatchRequestSchema = {
   ],
 
   additionalProperties: false,
-
 };
 
-
 export const CollectionsPlannerPostRequestSchema = {
-
   type: "object",
 
   properties: {

@@ -7,7 +7,7 @@ export function generateNewLoanRequestTable(
     id: number;
     request_number: string;
     loan_request_status: string;
-    create_UTC_date: string
+    create_UTC_date: string;
   }
 ) {
   const {
@@ -240,7 +240,9 @@ export function generateNewLoanRequestTable(
   tableNewRequestLoan.columns.add("IS_GUARANTOR_ADDRESS_UPDATE", Bit, {
     nullable: true,
   });
-  tableNewRequestLoan.columns.add("CREATE_UTC_DATETIME", DateTime2, { nullable: true, });
+  tableNewRequestLoan.columns.add("CREATE_UTC_DATETIME", DateTime2, {
+    nullable: true,
+  });
 
   tableNewRequestLoan.rows.add(
     id,

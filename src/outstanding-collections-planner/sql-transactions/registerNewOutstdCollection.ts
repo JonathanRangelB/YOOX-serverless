@@ -12,36 +12,39 @@ export const registerNewOutstdCollection = async (
   loanRequestObject: InsertNewLoanRequest
 ): Promise<GenericBDRequest> => {
   try {
+    const { formCliente } = loanRequestObject;
 
-    const {
-      formCliente,
-    } = loanRequestObject;
-
-    const {
-      id_cliente: customerId
-    } = formCliente;
+    const { id_cliente: customerId } = formCliente;
 
     let credit_type = "";
 
     if (customerId) {
-      const creditTypeResponse = await getCreditTypeCollection(procTransaction, customerId);
+      const creditTypeResponse = await getCreditTypeCollection(
+        procTransaction,
+        customerId
+      );
       credit_type = creditTypeResponse.message;
-    }
-    else {
+    } else {
       credit_type = CreditType.NUEVO as string;
     }
 
     let discount_amount = 0.0;
 
-    if ([CreditType.REACTIVACION as string, CreditType.NUEVO as string].includes(credit_type)) {
+    if (
+      [CreditType.REACTIVACION as string, CreditType.NUEVO as string].includes(
+        credit_type
+      )
+    ) {
       discount_amount = 0.0;
     } else if (credit_type === CreditType.RENOVACION) {
-      const discountAmountResponse = await getDiscountAmountDebt(procTransaction, customerId);
+      const discountAmountResponse = await getDiscountAmountDebt(
+        procTransaction,
+        customerId
+      );
 
       if (discountAmountResponse.generatedId > 0)
         discount_amount = +discountAmountResponse.message;
-      else
-        credit_type = CreditType.NUEVO as string;
+      else credit_type = CreditType.NUEVO as string;
     }
 
     const queryInsert = `INSERT INTO OUTSTANDING_COLLECTIONS_PLANNER (
@@ -95,21 +98,19 @@ export const registerNewOutstdCollection = async (
         message: "No se pudo registrar en Planificador de cobranza",
         generatedId: 0,
         error: StatusCodes.BAD_REQUEST,
-      }
+      };
     }
 
     return {
       message: "Registro guardado correctamente en Planificador de cobranza",
       generatedId: loanRequestId,
       error: StatusCodes.OK,
-    }
-
+    };
   } catch (exception) {
     return {
       message: (exception as Error).message,
       generatedId: 0,
       error: StatusCodes.BAD_REQUEST,
-    }
+    };
   }
-}
-
+};

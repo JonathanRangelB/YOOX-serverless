@@ -7,17 +7,19 @@ export const getDiscountAmountDebt = async (
   procTransaction: Transaction,
   customerId: number
 ): Promise<GenericBDRequest> => {
-
   if (!customerId) {
     return {
       message: "Invalid user id",
       generatedId: 0,
-      error: StatusCodes.BAD_REQUEST
-    }
+      error: StatusCodes.BAD_REQUEST,
+    };
   }
 
   try {
-    const queryStatement = querySearchLoanToRefinance(" top 1 t0.id, t0.id_cliente, t0.cantidad_restante as [CANTIDAD_RESTANTE] ", " where t0.id_cliente = @customerId ")
+    const queryStatement = querySearchLoanToRefinance(
+      " top 1 t0.id, t0.id_cliente, t0.cantidad_restante as [CANTIDAD_RESTANTE] ",
+      " where t0.id_cliente = @customerId "
+    );
     const poolRequest = procTransaction.request();
 
     poolRequest.input("customerId", sql.Int, customerId);
@@ -31,13 +33,11 @@ export const getDiscountAmountDebt = async (
     const debtAmount = recordSet[0].CANTIDAD_RESTANTE as string;
 
     return { message: debtAmount, generatedId: customerId };
-  }
-
-  catch (exception) {
+  } catch (exception) {
     return {
       message: (exception as Error).message,
       generatedId: 0,
-      error: StatusCodes.BAD_REQUEST
-    }
+      error: StatusCodes.BAD_REQUEST,
+    };
   }
-} 
+};

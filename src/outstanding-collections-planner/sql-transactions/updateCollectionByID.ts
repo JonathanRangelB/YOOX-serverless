@@ -12,7 +12,10 @@ export const updateCollectionByID = async (
     const procTransaction = pool.transaction();
     await procTransaction.begin();
 
-    const updateResult = await registerUpdateOutstdCollection(procTransaction, collectionBody);
+    const updateResult = await registerUpdateOutstdCollection(
+      procTransaction,
+      collectionBody
+    );
 
     if (!updateResult.generatedId) {
       return updateResult;
@@ -23,15 +26,13 @@ export const updateCollectionByID = async (
     return {
       generatedId: collectionBody.loan_request_id,
       message: `Registro actualizado`,
-      error: StatusCodes.OK
+      error: StatusCodes.OK,
     };
-
   } catch (exception) {
     return {
       generatedId: 0,
       message: (exception as Error).message,
-      error: StatusCodes.BAD_REQUEST
+      error: StatusCodes.BAD_REQUEST,
     };
   }
-}
-
+};

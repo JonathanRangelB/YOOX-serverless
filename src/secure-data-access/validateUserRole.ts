@@ -3,13 +3,15 @@ import { DbConnector } from "../helpers/dbConnector";
 import { GenericBDRequest } from "../general-data-requests/types/genericBDRequest";
 import { isInvalidID } from "../helpers/utils";
 
-export async function validateUserRole(id_user: number, user_roles: string[]): Promise<GenericBDRequest> {
-
+export async function validateUserRole(
+  id_user: number,
+  user_roles: string[]
+): Promise<GenericBDRequest> {
   if (isInvalidID(id_user)) {
     return {
       generatedId: 0,
-      message: "Id de usuario no válido"
-    }
+      message: "Id de usuario no válido",
+    };
   }
 
   const queryString = `SELECT ID, ROL
@@ -32,8 +34,8 @@ export async function validateUserRole(id_user: number, user_roles: string[]): P
   if (recordSet.length <= 0) {
     return {
       generatedId: 0,
-      message: "El usuario no existe o se encuentra inactivo"
-    }
+      message: "El usuario no existe o se encuentra inactivo",
+    };
   }
 
   const userRole = recordSet[0].ROL as string;
@@ -41,14 +43,14 @@ export async function validateUserRole(id_user: number, user_roles: string[]): P
   if (!user_roles.includes(userRole)) {
     return {
       generatedId: 0,
-      message: "El usuario no tiene privilegios para realizar esta operación"
-    }
+      message: "El usuario no tiene privilegios para realizar esta operación",
+    };
   }
 
   const userId = +(recordSet[0].ID as string);
 
   return {
     generatedId: userId,
-    message: userRole
-  }
+    message: userRole,
+  };
 }

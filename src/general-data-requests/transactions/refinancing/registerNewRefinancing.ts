@@ -41,8 +41,9 @@ export const registerNewRefinancing = async (
     );
 
     const lastRefinanceId = nextIdQuery.recordset[0].indice;
-    const idLoanNew = (await registerNewLoan(new_loan_header, procTransaction, local_date))
-      .generatedId;
+    const idLoanNew = (
+      await registerNewLoan(new_loan_header, procTransaction, local_date)
+    ).generatedId;
 
     if (!idLoanNew) {
       return {

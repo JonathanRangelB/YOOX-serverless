@@ -11,8 +11,7 @@ module.exports.handler = async (event: APIGatewayEvent) => {
   try {
     const customerid = event.queryStringParameters?.customerid;
 
-    if (isInvalidID(customerid))
-      throw new Error("Parametros incompletos");
+    if (isInvalidID(customerid)) throw new Error("Parametros incompletos");
     const pool = await DbConnector.getInstance().connection;
     const query = querySearchLoanToRefinance(
       "t0.id as id_prestamo, t0.id_cliente, t0.cantidad_restante",

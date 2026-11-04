@@ -18,4 +18,3 @@ export interface UpdateOutstCollPlanner {
   remote_utc_local_datetime?: Date;
   last_change_loan_request_utc_date?: string;
 }
-
