@@ -30,4 +30,5 @@ export interface CollectionsPlanner {
   management_id: number | null;
   management_name: string | null;
   close_utc_datetime_stamp: Date | null;
+  hours: string | null;
 }
