@@ -1,6 +1,6 @@
+import sql from "mssql";
 import { DbConnector } from "../../helpers/dbConnector";
 import { CollectionsPlanner } from "../types/SPGetCollectionsPlanner.interface";
-import sql from "mssql";
 
 export async function getCollectionsList(
   loanRequestId?: number
@@ -44,7 +44,8 @@ export async function getCollectionsList(
                         gp.nombre as group_name,
                         p.management_id,
                         gr.nombre as management_name,
-                        p.close_utc_datetime_stamp
+                        p.close_utc_datetime_stamp,
+                        p.hours
 
                       from
                       outstanding_collections_planner p
