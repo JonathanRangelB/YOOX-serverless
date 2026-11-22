@@ -37,7 +37,10 @@ export const updatePlannerFromLoanReq = async (
         loanRequestStatus
       )
     ) {
-      const amountDebtResult = await getDiscountAmountDebt(procTransaction, customer_id);
+      const amountDebtResult = await getDiscountAmountDebt(
+        procTransaction,
+        customer_id
+      );
       discountAmount = +amountDebtResult.message;
     }
     switch (loanRequestStatus) {
