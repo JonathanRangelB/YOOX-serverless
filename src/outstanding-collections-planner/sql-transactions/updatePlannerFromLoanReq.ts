@@ -36,9 +36,10 @@ export const updatePlannerFromLoanReq = async (
       [Status.ACTUALIZAR as string, Status.EN_REVISION as string].includes(
         loanRequestStatus
       )
-    )
-      await getDiscountAmountDebt(procTransaction, customer_id);
-
+    ) {
+      const amountDebtResult = await getDiscountAmountDebt(procTransaction, customer_id);
+      discountAmount = +amountDebtResult.message;
+    }
     switch (loanRequestStatus) {
       case Status.APROBADO:
         queryPlannerUpdate = `UPDATE 
