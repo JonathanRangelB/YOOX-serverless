@@ -220,8 +220,8 @@ export const registerUpdateOutstdCollection = async (
         customer_id
       );
 
-      if (discountResult.generatedId)
-        discount_amount_debt = +discountResult.message;
+      if (discountResult.generatedId && discountResult.result)
+        discount_amount_debt = discountResult.result;
     }
 
     if (

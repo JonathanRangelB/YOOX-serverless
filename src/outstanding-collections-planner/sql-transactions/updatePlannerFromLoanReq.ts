@@ -41,7 +41,11 @@ export const updatePlannerFromLoanReq = async (
         procTransaction,
         customer_id
       );
-      discountAmount = +amountDebtResult.message;
+      if (amountDebtResult.result) {
+        discountAmount = amountDebtResult.result
+      } else {
+        throw new Error("El resultado no existe en la respuesta")
+      }
     }
     switch (loanRequestStatus) {
       case Status.APROBADO:

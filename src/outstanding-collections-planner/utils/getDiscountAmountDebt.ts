@@ -27,12 +27,12 @@ export const getDiscountAmountDebt = async (
     const recordSet = sqlResponse.recordset;
 
     if (recordSet.length <= 0) {
-      return { message: "0.0", generatedId: 0 };
+      return { message: "Dato obtenido es menor o igual a 0", generatedId: 0, result: 0 };
     }
 
     const debtAmount = recordSet[0].CANTIDAD_RESTANTE as string;
 
-    return { message: debtAmount, generatedId: customerId };
+    return { message: "Dato obtenido correctamente", generatedId: customerId, result: Number(debtAmount) };
   } catch (exception) {
     return {
       message: (exception as Error).message,
