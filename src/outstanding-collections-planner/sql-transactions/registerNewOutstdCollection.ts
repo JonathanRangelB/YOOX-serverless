@@ -1,10 +1,10 @@
 import sql, { Transaction } from "mssql";
 import { GenericBDRequest } from "../../general-data-requests/types/genericBDRequest";
 import { StatusCodes } from "../../helpers/statusCodes";
-import { getCreditTypeCollection } from "../utils/getCreditTypeCollections";
-import { getDiscountAmountDebt } from "../utils/getDiscountAmountDebt";
 import { CreditType } from "../../helpers/utils";
 import { InsertNewLoanRequest } from "../../loan-requests/types/SPInsertNewLoanRequest";
+import { getCreditTypeCollection } from "../utils/getCreditTypeCollections";
+import { getDiscountAmountDebt } from "../utils/getDiscountAmountDebt";
 
 export const registerNewOutstdCollection = async (
   procTransaction: Transaction,
@@ -42,7 +42,10 @@ export const registerNewOutstdCollection = async (
         customerId
       );
 
-      if (discountAmountResponse.generatedId > 0 && discountAmountResponse.result)
+      if (
+        discountAmountResponse.generatedId > 0 &&
+        discountAmountResponse.result
+      )
         discount_amount = discountAmountResponse.result;
       else credit_type = CreditType.NUEVO as string;
     }

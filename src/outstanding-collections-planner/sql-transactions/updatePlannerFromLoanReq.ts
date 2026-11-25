@@ -42,9 +42,9 @@ export const updatePlannerFromLoanReq = async (
         customer_id
       );
       if (amountDebtResult.result) {
-        discountAmount = amountDebtResult.result
+        discountAmount = amountDebtResult.result;
       } else {
-        throw new Error("El resultado no existe en la respuesta")
+        throw new Error("El resultado no existe en la respuesta");
       }
     }
     switch (loanRequestStatus) {
