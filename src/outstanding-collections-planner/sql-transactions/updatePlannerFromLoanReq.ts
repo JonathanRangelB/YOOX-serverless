@@ -99,7 +99,10 @@ export const updatePlannerFromLoanReq = async (
     const poolRequest = procTransaction.request();
 
     if (loanRequestStatus != (Status.RECHAZADO as string)) {
-      const idCustomerFinal = idNewCustomer && loanRequestStatus === Status.APROBADO as string ? idNewCustomer : customer_id;
+      const idCustomerFinal =
+        idNewCustomer && loanRequestStatus === (Status.APROBADO as string)
+          ? idNewCustomer
+          : customer_id;
 
       poolRequest.input("collection_id_agent", sql.Int, collection_id_agent);
       poolRequest.input("customer_id", sql.Int, idCustomerFinal);
