@@ -125,6 +125,7 @@ export const registerUpdateLoanRequest = async (
 
     //Comienza ensamblado de la cadena del query
     let updateQueryColumns = "";
+    let idNewCustomer: number | undefined;
     const poolRequest = procTransaction.request();
 
     if (
@@ -284,7 +285,10 @@ export const registerUpdateLoanRequest = async (
             );
             if (!procNewCustomer.idCustomer) {
               throw new Error(procNewCustomer.message);
-            } else idClienteGenerado = procNewCustomer.idCustomer;
+            } else {
+              idClienteGenerado = procNewCustomer.idCustomer;
+              idNewCustomer = procNewCustomer.idCustomer;
+            }
           } else {
             datosCliente.cliente_modificado_por = id_usuario;
             datosCliente.fecha_modificacion_cliente = current_local_date;
@@ -423,7 +427,8 @@ export const registerUpdateLoanRequest = async (
       procTransaction,
       updateOutstCollPlanner,
       newLoanRequestStatus,
-      cantidad_restante_anterior
+      cantidad_restante_anterior,
+      idNewCustomer
     );
 
     if (updatePlannerResult.generatedId <= 0) {
