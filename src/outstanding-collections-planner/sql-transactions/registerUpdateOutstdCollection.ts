@@ -2,14 +2,14 @@ import sql, { Transaction } from "mssql";
 import { GenericBDRequest } from "../../general-data-requests/types/genericBDRequest";
 import { StatusCodes } from "../../helpers/statusCodes";
 import {
-  isInvalidID,
   LoanStatus,
   PlannerCurrentStatus,
   RolesDeUsuario,
   Status,
+  isInvalidID,
 } from "../../helpers/utils";
-import { getDiscountAmountDebt } from "../utils/getDiscountAmountDebt";
 import { CollectionsPlannerPatchRequest } from "../types/PayloadInterfacePlanner.interface";
+import { getDiscountAmountDebt } from "../utils/getDiscountAmountDebt";
 
 export const registerUpdateOutstdCollection = async (
   procTransaction: Transaction,
@@ -220,8 +220,8 @@ export const registerUpdateOutstdCollection = async (
         customer_id
       );
 
-      if (discountResult.generatedId)
-        discount_amount_debt = +discountResult.message;
+      if (discountResult.generatedId && discountResult.result)
+        discount_amount_debt = discountResult.result;
     }
 
     if (

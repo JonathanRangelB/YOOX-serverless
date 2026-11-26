@@ -36,9 +36,23 @@ export const updatePlannerFromLoanReq = async (
       [Status.ACTUALIZAR as string, Status.EN_REVISION as string].includes(
         loanRequestStatus
       )
-    )
-      await getDiscountAmountDebt(procTransaction, customer_id);
-
+    ) {
+      const amountDebtResult = await getDiscountAmountDebt(
+        procTransaction,
+        customer_id
+      );
+      if (
+        !amountDebtResult.error &&
+        typeof amountDebtResult.result === "number" &&
+        Number.isFinite(amountDebtResult.result)
+      ) {
+        discountAmount = amountDebtResult.result;
+      } else {
+        throw new Error(
+          "El resultado no es valido o no existe en la respuesta"
+        );
+      }
+    }
     switch (loanRequestStatus) {
       case Status.APROBADO:
         queryPlannerUpdate = `UPDATE 
