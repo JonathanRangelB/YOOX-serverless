@@ -41,7 +41,9 @@ export const updatePlannerFromLoanReq = async (
         procTransaction,
         customer_id
       );
-      if (amountDebtResult.result) {
+      if (!amountDebtResult.error &&
+        typeof amountDebtResult.result === "number" &&
+        Number.isFinite(amountDebtResult.result)) {
         discountAmount = amountDebtResult.result;
       } else {
         throw new Error("El resultado no existe en la respuesta");
