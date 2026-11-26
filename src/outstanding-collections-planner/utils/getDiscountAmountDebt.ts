@@ -28,7 +28,7 @@ export const getDiscountAmountDebt = async (
 
     if (recordSet.length <= 0) {
       return {
-        message: "Dato obtenido es menor o igual a 0",
+        message: "Los registros obtenidos son menor o igual a 0",
         generatedId: 0,
         result: 0,
       };
