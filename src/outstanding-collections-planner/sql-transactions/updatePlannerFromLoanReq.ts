@@ -48,7 +48,9 @@ export const updatePlannerFromLoanReq = async (
       ) {
         discountAmount = amountDebtResult.result;
       } else {
-        throw new Error("El resultado no es valido o no existe en la respuesta");
+        throw new Error(
+          "El resultado no es valido o no existe en la respuesta"
+        );
       }
     }
     switch (loanRequestStatus) {
