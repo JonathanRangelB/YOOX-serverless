@@ -9,7 +9,8 @@ export const updatePlannerFromLoanReq = async (
   procTransaction: Transaction,
   outstdColl: UpdateOutstCollPlanner,
   loanRequestStatus: string,
-  amountToRefinance: number
+  amountToRefinance: number,
+  idNewCustomer?: number
 ): Promise<GenericBDRequest> => {
   try {
     const {
@@ -36,9 +37,23 @@ export const updatePlannerFromLoanReq = async (
       [Status.ACTUALIZAR as string, Status.EN_REVISION as string].includes(
         loanRequestStatus
       )
-    )
-      await getDiscountAmountDebt(procTransaction, customer_id);
-
+    ) {
+      const amountDebtResult = await getDiscountAmountDebt(
+        procTransaction,
+        customer_id
+      );
+      if (
+        !amountDebtResult.error &&
+        typeof amountDebtResult.result === "number" &&
+        Number.isFinite(amountDebtResult.result)
+      ) {
+        discountAmount = amountDebtResult.result;
+      } else {
+        throw new Error(
+          "El resultado no es valido o no existe en la respuesta"
+        );
+      }
+    }
     switch (loanRequestStatus) {
       case Status.APROBADO:
         queryPlannerUpdate = `UPDATE 
@@ -98,8 +113,13 @@ export const updatePlannerFromLoanReq = async (
     const poolRequest = procTransaction.request();
 
     if (loanRequestStatus != (Status.RECHAZADO as string)) {
+      const idCustomerFinal =
+        idNewCustomer && loanRequestStatus === (Status.APROBADO as string)
+          ? idNewCustomer
+          : customer_id;
+
       poolRequest.input("collection_id_agent", sql.Int, collection_id_agent);
-      poolRequest.input("customer_id", sql.Int, customer_id);
+      poolRequest.input("customer_id", sql.Int, idCustomerFinal);
       poolRequest.input("customer_name", sql.VarChar, customer_name);
       poolRequest.input("requested_amount", sql.Float, requested_amount);
       poolRequest.input(
