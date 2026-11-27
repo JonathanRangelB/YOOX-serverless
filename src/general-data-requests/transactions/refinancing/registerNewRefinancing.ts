@@ -103,9 +103,11 @@ export const registerNewRefinancing = async (
             `
     );
 
+    // rowsAffected tiene un valor por sentencia; el UPDATE del snapshot es la 4ta (índice 3)
     if (
       !bulkTableRefinanceResult.rowsAffected ||
-      !updateIndexes.rowsAffected[0]
+      !updateIndexes.rowsAffected[0] ||
+      !updateIndexes.rowsAffected[3]
     ) {
       return {
         message: "Error durante la transacción",

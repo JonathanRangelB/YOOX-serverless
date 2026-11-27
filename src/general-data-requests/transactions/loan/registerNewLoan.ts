@@ -147,23 +147,30 @@ export const registerNewLoan = async (
         `UPDATE [INDICES] SET [INDICE] = ${lastLoanId} + 1 WHERE OBJETO = 'ID_PRESTAMOS'`
       );
 
-    const takeSnapshotResult = await registerSnapshotRealInvestmentReport(
-      id_cliente,
-      lastLoanId,
-      procTransaction
-    );
-
     if (
       !bulkTableHeaderResult.rowsAffected ||
       !bulkTableDetailResult.rowsAffected ||
-      !updateIndexResult.rowsAffected[0] ||
-      !takeSnapshotResult
+      !updateIndexResult.rowsAffected[0]
     )
       return {
         message: "Error durante la transacción de generación de préstamo",
         error: StatusCodes.BAD_REQUEST,
         generatedId: 0,
       };
+
+    const takeSnapshotResult = await registerSnapshotRealInvestmentReport(
+      id_cliente,
+      lastLoanId,
+      procTransaction
+    );
+
+    if (!takeSnapshotResult.generatedId)
+      return {
+        message: takeSnapshotResult.message,
+        error: StatusCodes.BAD_REQUEST,
+        generatedId: 0,
+      };
+
     return {
       message: `Préstamo generado con folio ${lastLoanId}`,
       generatedId: lastLoanId,

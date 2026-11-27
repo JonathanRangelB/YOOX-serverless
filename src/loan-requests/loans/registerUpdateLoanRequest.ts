@@ -435,7 +435,7 @@ export const registerUpdateLoanRequest = async (
 
     //End of updating in the table Outstanding Collections Planner
 
-    procTransaction.commit();
+    await procTransaction.commit();
 
     if (
       updateLoanRequest.formCliente.telefono_movil_cliente &&
