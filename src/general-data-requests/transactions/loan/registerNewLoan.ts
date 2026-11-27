@@ -1,10 +1,10 @@
-import { Int, Table, VarChar, Transaction, Float, DateTime } from "mssql";
-import { LoanHeader } from "../../../interfaces/loan-interface";
-import { GenericBDRequest } from "../../types/genericBDRequest";
-import { IndexesId } from "../../../helpers/table-schemas";
+import { DateTime, Float, Int, Table, Transaction, VarChar } from "mssql";
 import { StatusCodes } from "../../../helpers/statusCodes";
-import { registerSnapshotRealInvestmentReport } from "../reporting/registerSnapshotRealInvestmentReport";
+import { IndexesId } from "../../../helpers/table-schemas";
+import { LoanHeader } from "../../../interfaces/loan-interface";
 import { calculateEndDate } from "../../../loan-requests/utils/calculateEndDate";
+import { GenericBDRequest } from "../../types/genericBDRequest";
+import { registerSnapshotRealInvestmentReport } from "../reporting/registerSnapshotRealInvestmentReport";
 
 export const registerNewLoan = async (
   loan_header: LoanHeader,

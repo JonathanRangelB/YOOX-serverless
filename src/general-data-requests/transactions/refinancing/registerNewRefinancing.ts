@@ -1,8 +1,8 @@
+import { DateTime, Float, Int, Table, Transaction } from "mssql";
+import { StatusCodes } from "../../../helpers/statusCodes";
 import { Refinance } from "../../../helpers/table-schemas";
-import { Int, Table, Transaction, Float, DateTime } from "mssql";
 import { LoanHeader } from "../../../interfaces/loan-interface";
 import { GenericBDRequest } from "../../types/genericBDRequest";
-import { StatusCodes } from "../../../helpers/statusCodes";
 import { registerNewLoan } from "../loan/registerNewLoan";
 
 export const registerNewRefinancing = async (

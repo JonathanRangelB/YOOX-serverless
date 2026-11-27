@@ -14,14 +14,14 @@ import { Refinance } from "../../helpers/table-schemas";
 import { convertDateTimeZone } from "../../helpers/utils";
 import { Status } from "../../helpers/utils";
 import { LoanHeader } from "../../interfaces/loan-interface";
+import { updatePlannerFromLoanReq } from "../../outstanding-collections-planner/sql-transactions/updatePlannerFromLoanReq";
+import { UpdateOutstCollPlanner } from "../../outstanding-collections-planner/types/SPUpdateOutstCollPlanner.interface";
 import { enqueueWAMessageOnDB } from "../../whatsapp/enqueueMessage";
 import { UpdateLoanRequest } from "../types/SPInsertNewLoanRequest";
 import { UpdateStatusResponse } from "../types/loanRequest";
 import { UpdateError } from "../utils/customErrors";
 import { fullUpdateLoanReqQuery } from "../utils/queryFullUpdateLoanReq";
 import { validateDataLoanRequestUpdate } from "../utils/validateData";
-import { updatePlannerFromLoanReq } from "../../outstanding-collections-planner/sql-transactions/updatePlannerFromLoanReq";
-import { UpdateOutstCollPlanner } from "../../outstanding-collections-planner/types/SPUpdateOutstCollPlanner.interface";
 
 export const registerUpdateLoanRequest = async (
   updateLoanRequest: UpdateLoanRequest
