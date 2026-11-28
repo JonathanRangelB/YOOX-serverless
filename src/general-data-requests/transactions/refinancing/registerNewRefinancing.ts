@@ -1,8 +1,8 @@
+import { DateTime, Float, Int, Table, Transaction } from "mssql";
+import { StatusCodes } from "../../../helpers/statusCodes";
 import { Refinance } from "../../../helpers/table-schemas";
-import { Int, Table, Transaction, Float, DateTime } from "mssql";
 import { LoanHeader } from "../../../interfaces/loan-interface";
 import { GenericBDRequest } from "../../types/genericBDRequest";
-import { StatusCodes } from "../../../helpers/statusCodes";
 import { registerNewLoan } from "../loan/registerNewLoan";
 
 export const registerNewRefinancing = async (
@@ -103,9 +103,11 @@ export const registerNewRefinancing = async (
             `
     );
 
+    // rowsAffected tiene un valor por sentencia; el UPDATE del snapshot es la 4ta (índice 3)
     if (
       !bulkTableRefinanceResult.rowsAffected ||
-      !updateIndexes.rowsAffected[0]
+      !updateIndexes.rowsAffected[0] ||
+      !updateIndexes.rowsAffected[3]
     ) {
       return {
         message: "Error durante la transacción",

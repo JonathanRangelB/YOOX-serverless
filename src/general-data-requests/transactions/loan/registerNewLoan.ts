@@ -1,10 +1,10 @@
-import { Int, Table, VarChar, Transaction, Float, DateTime } from "mssql";
-import { LoanHeader } from "../../../interfaces/loan-interface";
-import { GenericBDRequest } from "../../types/genericBDRequest";
-import { IndexesId } from "../../../helpers/table-schemas";
+import { DateTime, Float, Int, Table, Transaction, VarChar } from "mssql";
 import { StatusCodes } from "../../../helpers/statusCodes";
-import { registerSnapshotRealInvestmentReport } from "../reporting/registerSnapshotRealInvestmentReport";
+import { IndexesId } from "../../../helpers/table-schemas";
+import { LoanHeader } from "../../../interfaces/loan-interface";
 import { calculateEndDate } from "../../../loan-requests/utils/calculateEndDate";
+import { GenericBDRequest } from "../../types/genericBDRequest";
+import { registerSnapshotRealInvestmentReport } from "../reporting/registerSnapshotRealInvestmentReport";
 
 export const registerNewLoan = async (
   loan_header: LoanHeader,
@@ -147,23 +147,30 @@ export const registerNewLoan = async (
         `UPDATE [INDICES] SET [INDICE] = ${lastLoanId} + 1 WHERE OBJETO = 'ID_PRESTAMOS'`
       );
 
-    const takeSnapshotResult = await registerSnapshotRealInvestmentReport(
-      id_cliente,
-      lastLoanId,
-      procTransaction
-    );
-
     if (
       !bulkTableHeaderResult.rowsAffected ||
       !bulkTableDetailResult.rowsAffected ||
-      !updateIndexResult.rowsAffected[0] ||
-      !takeSnapshotResult
+      !updateIndexResult.rowsAffected[0]
     )
       return {
         message: "Error durante la transacción de generación de préstamo",
         error: StatusCodes.BAD_REQUEST,
         generatedId: 0,
       };
+
+    const takeSnapshotResult = await registerSnapshotRealInvestmentReport(
+      id_cliente,
+      lastLoanId,
+      procTransaction
+    );
+
+    if (!takeSnapshotResult.generatedId)
+      return {
+        message: takeSnapshotResult.message,
+        error: StatusCodes.BAD_REQUEST,
+        generatedId: 0,
+      };
+
     return {
       message: `Préstamo generado con folio ${lastLoanId}`,
       generatedId: lastLoanId,
