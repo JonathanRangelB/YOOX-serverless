@@ -1,21 +1,21 @@
 import { generateGetJsonResponse } from "../helpers/generateGetJsonResponse";
+import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { StatusCodes } from "../helpers/statusCodes";
 import { validatePayload } from "../helpers/utils";
+import { RolesDeUsuario } from "../helpers/utils";
+import { validateUserRole } from "../secure-data-access/validateUserRole";
 import {
   CollectionsPlannerPatchRequestSchema,
-  CollectionsPlannerPostRequestSchema,
+  validateCollectionsPlannerPost,
 } from "./schemas/updateOutstnCollPlanner.schema";
-import { StatusCodes } from "../helpers/statusCodes";
-import { updateCollectionByID } from "./sql-transactions/updateCollectionByID";
-import { generateJsonResponse } from "../helpers/generateJsonResponse";
+import { clearOldRecordsCollPlanner } from "./sql-transactions/clearOldRecordsOutstdPlannerTable";
 import { getCollectionsList } from "./sql-transactions/getCollectionPlanner";
+import { getCollectionSummary } from "./sql-transactions/getCollectionsSummary";
+import { updateCollectionByID } from "./sql-transactions/updateCollectionByID";
 import {
   CollectionsPlannerPatchRequest,
   CollectionsPlannerPostRequest,
 } from "./types/PayloadInterfacePlanner.interface";
-import { RolesDeUsuario } from "../helpers/utils";
-import { validateUserRole } from "../secure-data-access/validateUserRole";
-import { clearOldRecordsCollPlanner } from "./sql-transactions/clearOldRecordsOutstdPlannerTable";
-import { getCollectionSummary } from "./sql-transactions/getCollectionsSummary";
 
 export const handler = async (event: any) => {
   try {
@@ -37,16 +37,11 @@ export const handler = async (event: any) => {
     if (method === "POST") {
       const body = JSON.parse(event.body) as CollectionsPlannerPostRequest;
 
-      const validateSchemaCollections = validatePayload(
-        body,
-        CollectionsPlannerPostRequestSchema
-      );
-
-      if (!validateSchemaCollections.valid) {
+      if (!validateCollectionsPlannerPost(body)) {
         return generateGetJsonResponse(
           {
             message: "Object provided invalid",
-            error: validateSchemaCollections.error,
+            error: validateCollectionsPlannerPost.errors,
           },
           StatusCodes.BAD_REQUEST
         );
@@ -65,7 +60,10 @@ export const handler = async (event: any) => {
       //Clear the collections planner table of old records
       await clearOldRecordsCollPlanner(id_user);
 
-      const recordSetCollections = await getCollectionsList();
+      const recordSetCollections = await getCollectionsList(
+        undefined,
+        body.timeZone
+      );
 
       if (!recordSetCollections || recordSetCollections.length <= 0) {
         return generateJsonResponse(

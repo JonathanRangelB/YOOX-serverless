@@ -5,7 +5,7 @@ frameworkVersion: '4'
 
 provider:
   name: aws
-  runtime: nodejs24.x
+  runtime: nodejs26.x
   region: us-east-2
   stage: dev
   logRetentionInDays: 14

@@ -1,7 +1,8 @@
+import Ajv from "ajv";
 import {
   CallStatus,
-  RevisionClassification,
   PlannerCurrentStatus,
+  RevisionClassification,
 } from "../../helpers/utils";
 
 export const CollectionsPlannerPatchRequestSchema = {
@@ -86,10 +87,30 @@ export const CollectionsPlannerPostRequestSchema = {
   type: "object",
 
   properties: {
-    id_user: { type: "number", minimum: 1 },
+    id_user: { type: "integer", minimum: 1 },
+    timeZone: {
+      type: "string",
+      minLength: 1,
+      maxLength: 100,
+      format: "time-zone",
+    },
   },
 
-  required: ["id_user"],
+  required: ["id_user", "timeZone"],
 
   additionalProperties: false,
 };
+
+const ajv = new Ajv({ allErrors: true });
+ajv.addFormat("time-zone", (value: string) => {
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+});
+
+export const validateCollectionsPlannerPost = ajv.compile(
+  CollectionsPlannerPostRequestSchema
+);

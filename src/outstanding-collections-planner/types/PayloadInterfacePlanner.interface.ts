@@ -13,5 +13,5 @@ export interface CollectionsPlannerPatchRequest {
 
 export interface CollectionsPlannerPostRequest {
   id_user: number;
-  remote_utc_local_datetime: Date;
+  timeZone: string;
 }
