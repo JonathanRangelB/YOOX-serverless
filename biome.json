@@ -101,7 +101,7 @@
       "attributePosition": "auto",
       "bracketSpacing": true
     },
-    "globals": ["exports"]
+    "globals": ["exports", "Temporal"]
   },
   "vcs": {
     "enabled": true,

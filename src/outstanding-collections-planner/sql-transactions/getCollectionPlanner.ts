@@ -3,11 +3,16 @@ import { DbConnector } from "../../helpers/dbConnector";
 import { CollectionsPlanner } from "../types/SPGetCollectionsPlanner.interface";
 
 export async function getCollectionsList(
-  loanRequestId?: number
+  loanRequestId?: number,
+  timeZone?: string
 ): Promise<CollectionsPlanner[]> {
-  const filterCondition = ` where                            
-                            p.close_utc_datetime_stamp is null or 
-                            (p.close_utc_datetime_stamp between DATEADD(hour, -28, GETUTCDATE() ) and GETUTCDATE())`;
+  const today = timeZone
+    ? Temporal.Now.zonedDateTimeISO(timeZone).startOfDay()
+    : undefined;
+  const filterCondition = ` where
+                            p.close_utc_datetime_stamp is null or
+                            (p.close_utc_datetime_stamp >= @startUtc
+                              AND p.close_utc_datetime_stamp < @endUtc)`;
 
   const whereString = loanRequestId
     ? " where p.loan_request_id=@loanRequestId "
@@ -58,6 +63,19 @@ export async function getCollectionsList(
 
   const pool = await DbConnector.getInstance().connection;
   const poolRequest = pool.request();
+
+  if (!loanRequestId && !today) {
+    throw new Error("timeZone is required when listing collections");
+  }
+  if (today && !loanRequestId) {
+    const startUtc = new Date(today.epochMilliseconds);
+    const endUtc = new Date(
+      today.add({ days: 1 }).startOfDay().epochMilliseconds
+    );
+
+    poolRequest.input("startUtc", sql.DateTime2, startUtc);
+    poolRequest.input("endUtc", sql.DateTime2, endUtc);
+  }
 
   if (loanRequestId) {
     poolRequest.input("loanRequestId", sql.Int, loanRequestId);
